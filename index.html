@@ -4,72 +4,156 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pekin Tovar Pro</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-storage-compat.js"></script>
     <style>
-        :root { --main-color: #0088cc; --bg: #f4f4f7; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; }
+        :root { --main: #0088cc; --bg: #f4f4f7; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 30px; }
+        header { background: var(--main); color: white; padding: 15px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .admin-btn { position: absolute; right: 10px; top: 15px; background: rgba(255,255,255,0.2); border: 1px solid white; color: white; border-radius: 5px; padding: 5px 10px; cursor: pointer; }
         
-        /* Header va Bo'limlar */
-        header { background: var(--main-color); color: white; padding: 20px; text-align: center; sticky: top; }
-        .nav-categories { display: flex; overflow-x: auto; background: white; padding: 10px; gap: 10px; sticky: top; }
-        .nav-item { background: #eee; padding: 8px 15px; border-radius: 20px; white-space: nowrap; font-size: 14px; cursor: pointer; }
-        .nav-item.active { background: var(--main-color); color: white; }
+        /* Admin Panel */
+        #adminPanel { display: none; background: white; margin: 15px; padding: 20px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        #adminPanel input, #adminPanel select { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        .save-btn { background: #28a745; color: white; border: none; width: 100%; padding: 12px; border-radius: 8px; font-weight: bold; cursor: pointer; }
 
         /* Mahsulotlar */
-        .container { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 15px; }
+        .card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
         .card img { width: 100%; height: 160px; object-fit: cover; }
         .card-body { padding: 10px; text-align: center; }
-        .card-body h3 { margin: 5px 0; font-size: 15px; height: 40px; overflow: hidden; }
-        .price { color: var(--main-color); font-weight: bold; margin: 10px 0; }
-        .buy-btn { background: var(--main-color); color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        
-        h2.cat-title { padding: 10px 15px; margin: 10px 0 0 0; font-size: 18px; color: #555; }
+        .card-body h3 { font-size: 14px; margin: 5px 0; height: 35px; overflow: hidden; }
+        .price { color: var(--main); font-weight: bold; margin: 5px 0; font-size: 16px; }
+        .buy-btn { background: var(--main); color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        h2 { padding: 10px 15px 0 15px; font-size: 18px; color: #333; margin-bottom: 0; }
     </style>
 </head>
 <body>
 
 <header>
-    <h2 style="margin:0;">🛍 Pekin Tovar Do'koni</h2>
+    <h2 style="margin:0; color:white;">🛍 Pekin Tovar</h2>
+    <button class="admin-btn" onclick="toggleAdmin()">⚙️ Admin</button>
 </header>
 
-<div class="nav-categories">
-    <div class="nav-item active">Barchasi</div>
-    <div class="nav-item">Bolalar</div>
-    <div class="nav-item">Kiyimlar</div>
-    <div class="nav-item">Oyoq kiyim</div>
+<div id="adminPanel">
+    <h3 style="margin-top:0;">Yangi mahsulot qo'shish</h3>
+    <input type="text" id="name" placeholder="Mahsulot nomi">
+    <input type="text" id="price" placeholder="Narxi (masalan: 120 000 UZS)">
+    <select id="cat">
+        <option value="Bolalar">Bolalar</option>
+        <option value="Kiyimlar">Kiyimlar</option>
+        <option value="Oyoq kiyim">Oyoq kiyim</option>
+        <option value="Ayollar">Ayollar</option>
+    </select>
+    <input type="file" id="photo" accept="image/*">
+    <button class="save-btn" id="uploadBtn" onclick="uploadProduct()">Saqlash</button>
 </div>
 
-<h2 class="cat-title">👶 Bolalar uchun</h2>
-<div class="container" id="bolalar">
-    <div class="card">
-        <img src="https://images.uzum.uz/clv686lennt1tkof81bg/original.jpg">
-        <div class="card-body">
-            <h3>Bolalar kombinezoni</h3>
-            <p class="price">180 000 UZS</p>
-            <button class="buy-btn" onclick="order('Bolalar kombinezoni')">Sotib olish</button>
-        </div>
-    </div>
-</div>
-
-<h2 class="cat-title">👕 Kiyimlar</h2>
-<div class="container" id="kiyimlar">
-    <div class="card">
-        <img src="https://images.uzum.uz/cm0u5dns99ouqbfre32g/original.jpg">
-        <div class="card-body">
-            <h3>Pekin Erkaklar kurtkasi</h3>
-            <p class="price">350 000 UZS</p>
-            <button class="buy-btn" onclick="order('Erkaklar kurtkasi')">Sotib olish</button>
-        </div>
-    </div>
+<div id="products-container">
+    <p style="text-align:center; padding:20px;">Mahsulotlar yuklanmoqda...</p>
 </div>
 
 <script>
+    // Firebase Sozlamalari (Sizning skrinshotingizdan olindi)
+    const firebaseConfig = {
+        apiKey: "AIzaSyCJW4P9S40gEWD5FZfFCZFdZLAcyJB5GYk",
+        authDomain: "pekin-tavor.firebaseapp.com",
+        projectId: "pekin-tavor",
+        storageBucket: "pekin-tavor.firebasestorage.app",
+        messagingSenderId: "835006337740",
+        appId: "1:835006337740:web:91a7f078d4072f4e417531"
+    };
+
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+    const storage = firebase.storage();
+
+    function toggleAdmin() {
+        const pass = prompt("Admin parolini kiriting:");
+        if(pass === "2222") { // Maxfiy parolingiz
+            const panel = document.getElementById('adminPanel');
+            panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+        } else {
+            alert("Parol xato!");
+        }
+    }
+
+    async function uploadProduct() {
+        const name = document.getElementById('name').value;
+        const price = document.getElementById('price').value;
+        const cat = document.getElementById('cat').value;
+        const file = document.getElementById('photo').files[0];
+        const btn = document.getElementById('uploadBtn');
+
+        if(!name || !price || !file) return alert("Hamma maydonlarni to'ldiring!");
+
+        btn.disabled = true;
+        btn.innerText = "Yuklanmoqda...";
+
+        try {
+            // 1. Rasmni yuklash
+            const storageRef = storage.ref('products/' + Date.now() + "_" + file.name);
+            await storageRef.put(file);
+            const imgUrl = await storageRef.getDownloadURL();
+
+            // 2. Bazaga yozish
+            await db.ref('products').push({ name, price, cat, imgUrl });
+            
+            alert("Mahsulot muvaffaqiyatli qo'shildi!");
+            document.getElementById('name').value = '';
+            document.getElementById('price').value = '';
+            document.getElementById('photo').value = '';
+            document.getElementById('adminPanel').style.display = 'none';
+        } catch (error) {
+            console.error(error);
+            alert("Xatolik yuz berdi: " + error.message);
+        } finally {
+            btn.disabled = false;
+            btn.innerText = "Saqlash";
+        }
+    }
+
+    // Ma'lumotlarni o'qish
+    db.ref('products').on('value', (snapshot) => {
+        const data = snapshot.val();
+        const container = document.getElementById('products-container');
+        container.innerHTML = '';
+        
+        if(!data) {
+            container.innerHTML = '<p style="text-align:center; padding:20px;">Hozircha mahsulot yo'q.</p>';
+            return;
+        }
+
+        const categories = ["Bolalar", "Kiyimlar", "Oyoq kiyim", "Ayollar"];
+
+        categories.forEach(c => {
+            let hasItems = false;
+            let sectionHtml = `<h2>${c}</h2><div class="grid">`;
+            
+            for(let id in data) {
+                if(data[id].cat === c) {
+                    hasItems = true;
+                    sectionHtml += `
+                        <div class="card">
+                            <img src="${data[id].imgUrl}">
+                            <div class="card-body">
+                                <h3>${data[id].name}</h3>
+                                <p class="price">${data[id].price}</p>
+                                <button class="buy-btn" onclick="order('${data[id].name}')">Sotib olish</button>
+                            </div>
+                        </div>`;
+                }
+            }
+            sectionHtml += `</div>`;
+            if(hasItems) container.innerHTML += sectionHtml;
+        });
+    });
+
     let tg = window.Telegram.WebApp;
     tg.expand();
-
-    function order(item) {
-        tg.sendData("Buyurtma: " + item);
+    function order(name) {
+        tg.sendData("Buyurtma: " + name);
         tg.close();
     }
 </script>
