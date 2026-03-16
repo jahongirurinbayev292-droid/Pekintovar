@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tovar - Admin</title>
+    <title>Admin - Pekin Tovar</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <style>
@@ -11,27 +11,27 @@
         .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 350px; }
         input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
         button { background: #0088cc; color: white; border: none; font-weight: bold; cursor: pointer; }
-        #adminPanel { display: none; } /* Avvaliga yashirin turadi */
+        #adminPanel { display: none; } /* Parolsiz ko'rinmaydi */
         .preview { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-        .preview img { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; }
+        .preview img { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; border: 1px solid #0088cc; }
     </style>
 </head>
 <body>
 
 <div id="loginBox" class="card">
-    <h2 style="text-align:center;">Admin Kirish</h2>
-    <input type="password" id="adminPass" placeholder="Parolni kiriting">
+    <h2 style="text-align:center; color:#0088cc;">Admin Kirish</h2>
+    <input type="password" id="adminPass" placeholder="Parol (7777)">
     <button onclick="checkPass()">Kirish</button>
 </div>
 
 <div id="adminPanel" class="card">
-    <h2 style="text-align:center; color:#0088cc;">Mahsulot Qo'shish</h2>
+    <h2 style="text-align:center;">Mahsulot Qo'shish</h2>
     <input type="text" id="pName" placeholder="Mahsulot nomi">
-    <input type="text" id="pPrice" placeholder="Narxi (so'm)">
+    <input type="text" id="pPrice" placeholder="Narxi">
     <input type="file" id="pFiles" accept="image/*" multiple onchange="showPreview()">
     <div id="imagePreview" class="preview"></div>
-    <button id="saveBtn" onclick="saveToFirebase()">Bazaga Saqlash</button>
-    <div id="status" style="text-align:center; margin-top:10px; font-weight:bold;"></div>
+    <button id="saveBtn" onclick="saveData()">Saqlash</button>
+    <div id="status" style="text-align:center; margin-top:10px;"></div>
 </div>
 
 <script>
@@ -39,14 +39,14 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // PAROLNI TEKSHIRISH (O'zingizga yoqqan parolni qo'ying)
+    // PAROLNI TEKSHIRISH
     function checkPass() {
         const pass = document.getElementById('adminPass').value;
-        if (pass === "7777") { // BU YERGA PAROLINGIZNI YOZING
+        if (pass === "7777") { // Parol: 7777
             document.getElementById('loginBox').style.display = 'none';
             document.getElementById('adminPanel').style.display = 'block';
         } else {
-            alert("Parol xato!");
+            alert("Siz admin emassiz!");
         }
     }
 
@@ -65,7 +65,7 @@
         }
     }
 
-    async function saveToFirebase() {
+    async function saveData() {
         const name = document.getElementById('pName').value;
         const price = document.getElementById('pPrice').value;
         const files = document.getElementById('pFiles').files;
@@ -76,7 +76,6 @@
 
         btn.disabled = true;
         status.innerText = "⌛ Yuklanmoqda...";
-        status.style.color = "orange";
 
         try {
             const base64Images = [];
@@ -84,16 +83,8 @@
                 const imgCode = await compress(file);
                 base64Images.push(imgCode);
             }
-
-            await db.ref('products').push({
-                name: name,
-                price: price,
-                images: base64Images,
-                time: new Date().toLocaleString()
-            });
-
+            await db.ref('products').push({ name, price, images: base64Images });
             status.innerText = "✅ Muvaffaqiyatli saqlandi!";
-            status.style.color = "green";
             setTimeout(() => location.reload(), 2000);
         } catch (e) {
             status.innerText = "❌ Xatolik!";
@@ -110,8 +101,7 @@
                 img.src = e.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    canvas.width = 400;
-                    canvas.height = img.height * (400 / img.width);
+                    canvas.width = 400; canvas.height = img.height * (400 / img.width);
                     canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
                     resolve(canvas.toDataURL('image/jpeg', 0.6));
                 }
