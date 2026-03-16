@@ -2,112 +2,63 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin - Pekin Tovar</title>
+    <title>Admin Panel</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 350px; }
-        input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
-        button { background: #0088cc; color: white; border: none; font-weight: bold; cursor: pointer; }
-        #adminPanel { display: none; } /* Parolsiz ko'rinmaydi */
-        .preview { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
-        .preview img { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; border: 1px solid #0088cc; }
+        body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
+        .box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #ccc; width: 300px; }
+        input, button { width: 100%; margin: 5px 0; padding: 10px; }
+        #panel { display: none; }
     </style>
 </head>
 <body>
+    <div id="login" class="box">
+        <input type="password" id="pass" placeholder="Admin Parol">
+        <button onclick="check()">Kirish</button>
+    </div>
 
-<div id="loginBox" class="card">
-    <h2 style="text-align:center; color:#0088cc;">Admin Kirish</h2>
-    <input type="password" id="adminPass" placeholder="Parol (7777)">
-    <button onclick="checkPass()">Kirish</button>
-</div>
+    <div id="panel" class="box">
+        <h3>Mahsulot qo'shish</h3>
+        <input type="text" id="n" placeholder="Nomi">
+        <input type="text" id="p" placeholder="Narxi">
+        <input type="file" id="f" multiple>
+        <button onclick="add()">Saqlash</button>
+        <p id="st"></p>
+    </div>
 
-<div id="adminPanel" class="card">
-    <h2 style="text-align:center;">Mahsulot Qo'shish</h2>
-    <input type="text" id="pName" placeholder="Mahsulot nomi">
-    <input type="text" id="pPrice" placeholder="Narxi">
-    <input type="file" id="pFiles" accept="image/*" multiple onchange="showPreview()">
-    <div id="imagePreview" class="preview"></div>
-    <button id="saveBtn" onclick="saveData()">Saqlash</button>
-    <div id="status" style="text-align:center; margin-top:10px;"></div>
-</div>
+    <script>
+        const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-<script>
-    const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-
-    // PAROLNI TEKSHIRISH
-    function checkPass() {
-        const pass = document.getElementById('adminPass').value;
-        if (pass === "7777") { // Parol: 7777
-            document.getElementById('loginBox').style.display = 'none';
-            document.getElementById('adminPanel').style.display = 'block';
-        } else {
-            alert("Siz admin emassiz!");
+        function check() {
+            if(document.getElementById('pass').value === "7777") {
+                document.getElementById('login').style.display='none';
+                document.getElementById('panel').style.display='block';
+            } else { alert("Xato!"); }
         }
-    }
 
-    function showPreview() {
-        const preview = document.getElementById('imagePreview');
-        preview.innerHTML = '';
-        const files = document.getElementById('pFiles').files;
-        for (let file of files) {
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                const img = document.createElement('img');
-                img.src = e.target.result;
-                preview.appendChild(img);
+        async function add() {
+            const name = document.getElementById('n').value;
+            const price = document.getElementById('p').value;
+            const files = document.getElementById('f').files;
+            if(!name || !price || files.length === 0) return;
+            
+            document.getElementById('st').innerText = "Yuklanmoqda...";
+            const imgs = [];
+            for(let file of files) {
+                const b64 = await new Promise(r => {
+                    const fr = new FileReader();
+                    fr.onload = (e) => r(e.target.result);
+                    fr.readAsDataURL(file);
+                });
+                imgs.push(b64);
             }
-            reader.readAsDataURL(file);
+            await db.ref('products').push({name, price, images: imgs});
+            alert("Saqlandi!");
+            location.reload();
         }
-    }
-
-    async function saveData() {
-        const name = document.getElementById('pName').value;
-        const price = document.getElementById('pPrice').value;
-        const files = document.getElementById('pFiles').files;
-        const status = document.getElementById('status');
-        const btn = document.getElementById('saveBtn');
-
-        if (!name || !price || files.length === 0) { alert("To'ldiring!"); return; }
-
-        btn.disabled = true;
-        status.innerText = "⌛ Yuklanmoqda...";
-
-        try {
-            const base64Images = [];
-            for (let file of files) {
-                const imgCode = await compress(file);
-                base64Images.push(imgCode);
-            }
-            await db.ref('products').push({ name, price, images: base64Images });
-            status.innerText = "✅ Muvaffaqiyatli saqlandi!";
-            setTimeout(() => location.reload(), 2000);
-        } catch (e) {
-            status.innerText = "❌ Xatolik!";
-            btn.disabled = false;
-        }
-    }
-
-    function compress(file) {
-        return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.readAsDataURL(file);
-            reader.onload = (e) => {
-                const img = new Image();
-                img.src = e.target.result;
-                img.onload = () => {
-                    const canvas = document.createElement('canvas');
-                    canvas.width = 400; canvas.height = img.height * (400 / img.width);
-                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-                    resolve(canvas.toDataURL('image/jpeg', 0.6));
-                }
-            }
-        });
-    }
-</script>
+    </script>
 </body>
 </html>
