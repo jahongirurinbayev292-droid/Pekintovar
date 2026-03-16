@@ -3,104 +3,155 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tovar | Internet Do'kon</title>
+    <title>Pekin Tovar | Uzum Style</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main-color: #7000ff; --text-color: #1f2026; --bg-color: #f2f4f7; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-color); margin: 0; color: var(--text-color); }
+        :root { --main: #7000ff; --bg: #f2f4f7; --text: #1f2026; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; color: var(--text); padding-bottom: 70px; }
         
         /* Header */
-        header { background: white; padding: 15px; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .nav { max-width: 1200px; margin: auto; display: flex; justify-content: space-between; align-items: center; }
-        .logo { font-size: 24px; font-weight: 800; color: var(--main-color); text-decoration: none; }
-        
-        /* Grid Container */
-        .container { max-width: 1200px; margin: 20px auto; padding: 0 10px; }
-        .product-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        @media (min-width: 768px) { .product-grid { grid-template-columns: repeat(4, 1fr); gap: 20px; } }
-        @media (min-width: 1024px) { .product-grid { grid-template-columns: repeat(5, 1fr); } }
+        header { background: white; padding: 10px 15px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .nav-top { max-width: 1200px; margin: auto; display: flex; justify-content: space-between; align-items: center; }
+        .logo { font-size: 22px; font-weight: 800; color: var(--main); text-decoration: none; }
+        .search-bar { background: #edeff2; border-radius: 8px; flex-grow: 1; margin: 0 15px; padding: 8px 12px; display: flex; align-items: center; }
+        .search-bar input { background: none; border: none; outline: none; width: 100%; font-size: 14px; }
 
-        /* Product Card */
-        .card { background: white; border-radius: 12px; overflow: hidden; transition: 0.3s; position: relative; display: flex; flex-direction: column; text-decoration: none; color: inherit; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .image-box { position: relative; width: 100%; padding-top: 130%; overflow: hidden; background: #f9f9f9; }
-        .image-box img { position: absolute; top: 0; left: 0; width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
-        
-        .info { padding: 10px; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; }
-        .title { font-size: 14px; line-height: 1.4; margin-bottom: 8px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 40px; }
-        .price-box { margin-top: auto; }
-        .old-price { font-size: 12px; text-decoration: line-through; color: #999; }
-        .current-price { font-size: 16px; font-weight: 700; color: var(--text-color); }
-        
-        .cart-btn { position: absolute; bottom: 10px; right: 10px; background: white; border: 1px solid #ddd; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: 0.2s; cursor: pointer; }
-        .cart-btn:hover { background: var(--bg-color); border-color: var(--main-color); color: var(--main-color); }
-        .cart-btn i { font-size: 16px; }
+        /* Banner */
+        .banner { max-width: 1200px; margin: 15px auto; padding: 0 10px; }
+        .banner img { width: 100%; border-radius: 15px; display: block; }
 
-        /* Skeleton Loading */
-        #loader { text-align: center; padding: 50px; font-weight: bold; color: #777; }
+        /* Grid */
+        .container { max-width: 1200px; margin: auto; padding: 10px; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        @media (min-width: 768px) { .grid { grid-template-columns: repeat(5, 1fr); gap: 15px; } }
+
+        /* Card */
+        .card { background: white; border-radius: 12px; overflow: hidden; position: relative; display: flex; flex-direction: column; transition: 0.2s; }
+        .card img { width: 100%; height: 200px; object-fit: cover; }
+        .card-body { padding: 10px; flex-grow: 1; }
+        .p-title { font-size: 13px; height: 36px; overflow: hidden; margin-bottom: 5px; }
+        .p-price { font-weight: 700; font-size: 15px; margin-top: 5px; }
+        .add-cart { position: absolute; bottom: 10px; right: 10px; border: 1px solid #ddd; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+
+        /* Bottom Nav */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 1px solid #eee; z-index: 1000; }
+        .nav-item { text-align: center; color: #8b8e99; font-size: 12px; text-decoration: none; position: relative; }
+        .nav-item.active { color: var(--main); }
+        .nav-item i { font-size: 20px; display: block; margin-bottom: 3px; }
+        .badge { position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; }
+
+        /* Cart Sidebar */
+        #cart-modal { position: fixed; top: 0; right: -100%; width: 100%; height: 100%; background: white; z-index: 2000; transition: 0.4s; padding: 20px; box-sizing: border-box; }
+        #cart-modal.active { right: 0; }
+        .cart-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="nav">
+    <div class="nav-top">
         <a href="#" class="logo">Pekin Tovar</a>
-        <div style="font-size: 20px; color: #333;"><i class="fa-solid fa-cart-shopping"></i></div>
+        <div class="search-bar">
+            <i class="fa fa-search" style="color:#8b8e99; margin-right:8px;"></i>
+            <input type="text" placeholder="Mahsulotlarni qidirish...">
+        </div>
     </div>
 </header>
 
-<div class="container">
-    <div id="loader">Yuklanmoqda...</div>
-    <div class="product-grid" id="grid"></div>
+<div class="banner">
+    <img src="https://images.uzum.uz/cl4835ln7c6qm23b3vng/main_page_banner.jpg" alt="Sale">
 </div>
 
+<div class="container">
+    <h3 style="margin-bottom: 15px;">Mashhur mahsulotlar</h3>
+    <div class="grid" id="productGrid"></div>
+</div>
+
+<div id="cart-modal">
+    <div class="cart-header">
+        <h2>Savatcha</h2>
+        <i class="fa fa-times" style="font-size:24px;" onclick="toggleCart()"></i>
+    </div>
+    <div id="cart-items" style="margin: 20px 0;"></div>
+    <hr>
+    <h3 id="total-price">Jami: 0 so'm</h3>
+    <button onclick="sendOrder()" style="width:100%; background:var(--main); color:white; border:none; padding:15px; border-radius:10px; font-weight:bold; font-size:16px;">Buyurtma berish (Telegram)</button>
+</div>
+
+<nav class="bottom-nav">
+    <a href="#" class="nav-item active"><i class="fa fa-home"></i>Bosh sahifa</a>
+    <a href="#" class="nav-item"><i class="fa fa-th-large"></i>Katalog</a>
+    <a href="javascript:void(0)" class="nav-item" onclick="toggleCart()">
+        <i class="fa fa-shopping-bag"></i>Savat
+        <span class="badge" id="cart-count">0</span>
+    </a>
+    <a href="#" class="nav-item"><i class="fa fa-heart"></i>Istaklar</a>
+    <a href="admin.html" class="nav-item"><i class="fa fa-user"></i>Profil</a>
+</nav>
+
 <script>
-    // 1. FIREBASE SOZLAMALARI
     const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // 2. MAHSULOTLARNI CHIQARISH
-    db.ref('products').on('value', (snapshot) => {
-        const grid = document.getElementById('grid');
-        const loader = document.getElementById('loader');
+    let cart = [];
+
+    // Mahsulotlarni yuklash
+    db.ref('products').on('value', (s) => {
+        const grid = document.getElementById('productGrid');
         grid.innerHTML = '';
-        loader.style.display = 'none';
-
-        if (!snapshot.exists()) {
-            loader.innerHTML = "Hozircha mahsulotlar yo'q";
-            loader.style.display = 'block';
-            return;
-        }
-
-        snapshot.forEach((child) => {
-            const data = child.val();
-            const firstImg = Array.isArray(data.images) ? data.images[0] : (data.image || "https://via.placeholder.com/300");
-
+        s.forEach((c) => {
+            const p = c.val();
+            const img = Array.isArray(p.images) ? p.images[0] : p.image;
             grid.innerHTML += `
                 <div class="card">
-                    <div class="image-box">
-                        <img src="${firstImg}" loading="lazy">
+                    <img src="${img}">
+                    <div class="card-body">
+                        <div class="p-title">${p.name}</div>
+                        <div style="color:#999; font-size:11px;">4.8 <i class="fa fa-star" style="color:#ffc107"></i> (128 sharh)</div>
+                        <div class="p-price">${parseInt(p.price).toLocaleString()} so'm</div>
                     </div>
-                    <div class="info">
-                        <div class="title">${data.name}</div>
-                        <div class="price-box">
-                            <div class="old-price">${parseInt(data.price * 1.2).toLocaleString()} so'm</div>
-                            <div class="current-price">${parseInt(data.price).toLocaleString()} so'm</div>
-                        </div>
-                    </div>
-                    <div class="cart-btn" onclick="order('${data.name}')">
+                    <div class="add-cart" onclick="addToCart('${p.name}', ${p.price})">
                         <i class="fa-solid fa-cart-plus"></i>
                     </div>
-                </div>
-            `;
+                </div>`;
         });
     });
 
-    function order(name) {
-        window.open(`https://t.me/pekin_admin?text=Assalomu alaykum, menga ${name} mahsuloti yoqdi.`, '_blank');
+    function addToCart(name, price) {
+        cart.push({name, price});
+        updateCart();
+    }
+
+    function updateCart() {
+        document.getElementById('cart-count').innerText = cart.length;
+        const itemsDiv = document.getElementById('cart-items');
+        let total = 0;
+        itemsDiv.innerHTML = '';
+        cart.forEach((item, index) => {
+            total += parseInt(item.price);
+            itemsDiv.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                <span>${item.name}</span>
+                <b>${parseInt(item.price).toLocaleString()} so'm</b>
+            </div>`;
+        });
+        document.getElementById('total-price').innerText = `Jami: ${total.toLocaleString()} so'm`;
+    }
+
+    function toggleCart() {
+        document.getElementById('cart-modal').classList.toggle('active');
+    }
+
+    function sendOrder() {
+        if(cart.length === 0) return alert("Savat bo'sh!");
+        let text = "Assalomu alaykum! Yangi buyurtma:\n\n";
+        cart.forEach((item, i) => { text += `${i+1}. ${item.name} - ${item.price} so'm\n`; });
+        text += `\nJami: ${document.getElementById('total-price').innerText}`;
+        
+        // SIZNING NIKINGIZ ADMIN QILINDI
+        window.open(`https://t.me/Jahongir3616?text=${encodeURIComponent(text)}`, '_blank');
     }
 </script>
 
