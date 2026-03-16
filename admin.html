@@ -1,64 +1,173 @@
 <!DOCTYPE html>
-<html>
+<html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pekin Admin | Control Panel</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        body { font-family: sans-serif; display: flex; justify-content: center; padding: 20px; }
-        .box { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px #ccc; width: 300px; }
-        input, button { width: 100%; margin: 5px 0; padding: 10px; }
-        #panel { display: none; }
+        :root { --main: #7000ff; --bg: #f0f2f5; --danger: #ff4757; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; padding: 15px; }
+        .container { max-width: 800px; margin: auto; }
+        .header { background: white; padding: 20px; border-radius: 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .card { background: white; padding: 20px; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        input, select, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; outline: none; box-sizing: border-box; }
+        button { background: var(--main); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        button:hover { opacity: 0.9; }
+        .btn-del { background: var(--danger); width: auto; padding: 8px 15px; font-size: 13px; }
+        
+        .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { flex: 1; background: #e4e6eb; color: #333; }
+        .tab-btn.active { background: var(--main); color: white; }
+
+        .list-item { display: flex; align-items: center; justify-content: space-between; padding: 12px; border-bottom: 1px solid #eee; }
+        .list-item img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; margin-right: 15px; }
+        .info { flex-grow: 1; }
+        
+        #loginBox { display: block; max-width: 400px; margin: 100px auto; text-align: center; }
+        #adminUI { display: none; }
     </style>
 </head>
 <body>
-    <div id="login" class="box">
-        <input type="password" id="pass" placeholder="Admin Parol">
-        <button onclick="check()">Kirish</button>
+
+<div class="container">
+    <div id="loginBox" class="card">
+        <h2 style="color: var(--main);">Admin Panel</h2>
+        <input type="password" id="pass" placeholder="Parolni kiriting (7777)">
+        <button onclick="login()">Kirish</button>
     </div>
 
-    <div id="panel" class="box">
-        <h3>Mahsulot qo'shish</h3>
-        <input type="text" id="n" placeholder="Nomi">
-        <input type="text" id="p" placeholder="Narxi">
-        <input type="file" id="f" multiple>
-        <button onclick="add()">Saqlash</button>
-        <p id="st"></p>
+    <div id="adminUI">
+        <div class="header">
+            <h2 style="margin:0; color:var(--main);">PEKIN Boshqaruv</h2>
+            <span style="font-size:12px; color:#777;">Admin: @Jahongir3616</span>
+        </div>
+
+        <div class="tabs">
+            <button class="tab-btn active" onclick="showTab('tab-add', this)">Qo'shish</button>
+            <button class="tab-btn" onclick="showTab('tab-manage', this)">Boshqarish</button>
+            <button class="tab-btn" onclick="showTab('tab-menus', this)">Menyular</button>
+        </div>
+
+        <div id="tab-add" class="tab-content">
+            <div class="card">
+                <h3>Yangi Mahsulot</h3>
+                <input type="text" id="pName" placeholder="Mahsulot nomi">
+                <input type="number" id="pPrice" placeholder="Narxi (faqat raqam)">
+                <select id="pCat"><option value="">Kategoriyani tanlang</option></select>
+                <input type="file" id="pFiles" multiple accept="image/*">
+                <button onclick="saveProduct()" id="saveBtn">Bazaga Saqlash</button>
+            </div>
+        </div>
+
+        <div id="tab-manage" class="tab-content" style="display:none;">
+            <div class="card">
+                <h3>Barcha mahsulotlar</h3>
+                <div id="productList"></div>
+            </div>
+        </div>
+
+        <div id="tab-menus" class="tab-content" style="display:none;">
+            <div class="card">
+                <h3>Kategoriya qo'shish</h3>
+                <input type="text" id="catName" placeholder="Kategoriya nomi (masalan: Shimlar)">
+                <button onclick="saveCategory()">Saqlash</button>
+            </div>
+            <div class="card" id="categoryList"></div>
+        </div>
     </div>
+</div>
 
-    <script>
-        const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+<script>
+    const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
 
-        function check() {
-            if(document.getElementById('pass').value === "7777") {
-                document.getElementById('login').style.display='none';
-                document.getElementById('panel').style.display='block';
-            } else { alert("Xato!"); }
+    function login() {
+        if(document.getElementById('pass').value === "7777") {
+            document.getElementById('loginBox').style.display = 'none';
+            document.getElementById('adminUI').style.display = 'block';
+            loadData();
+        } else { alert("Parol xato!"); }
+    }
+
+    function showTab(id, btn) {
+        document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(id).style.display = 'block';
+        btn.classList.add('active');
+    }
+
+    async function saveProduct() {
+        const name = document.getElementById('pName').value;
+        const price = document.getElementById('pPrice').value;
+        const cat = document.getElementById('pCat').value;
+        const files = document.getElementById('pFiles').files;
+        const btn = document.getElementById('saveBtn');
+
+        if(!name || !price || files.length === 0) return alert("Hamma maydonni to'ldiring!");
+
+        btn.disabled = true; btn.innerText = "Yuklanmoqda...";
+        const imgs = [];
+        for(let f of files) {
+            const b64 = await new Promise(r => {
+                const fr = new FileReader();
+                fr.onload = e => r(e.target.result);
+                fr.readAsDataURL(f);
+            });
+            imgs.push(b64);
         }
 
-        async function add() {
-            const name = document.getElementById('n').value;
-            const price = document.getElementById('p').value;
-            const files = document.getElementById('f').files;
-            if(!name || !price || files.length === 0) return;
-            
-            document.getElementById('st').innerText = "Yuklanmoqda...";
-            const imgs = [];
-            for(let file of files) {
-                const b64 = await new Promise(r => {
-                    const fr = new FileReader();
-                    fr.onload = (e) => r(e.target.result);
-                    fr.readAsDataURL(file);
-                });
-                imgs.push(b64);
-            }
-            await db.ref('products').push({name, price, images: imgs});
-            alert("Saqlandi!");
-            location.reload();
+        await db.ref('products').push({ name, price, category: cat, images: imgs });
+        alert("Mahsulot qo'shildi!");
+        location.reload();
+    }
+
+    function saveCategory() {
+        const name = document.getElementById('catName').value;
+        if(!name) return;
+        db.ref('categories').push({ name });
+        document.getElementById('catName').value = '';
+    }
+
+    function deleteItem(path, id) {
+        if(confirm("Haqiqatan ham o'chirmoqchimisiz?")) {
+            db.ref(path + '/' + id).remove();
         }
-    </script>
+    }
+
+    function loadData() {
+        // Kategoriyalar
+        db.ref('categories').on('value', s => {
+            const list = document.getElementById('categoryList');
+            const select = document.getElementById('pCat');
+            list.innerHTML = '<h3>Mavjud kategoriyalar</h3>';
+            select.innerHTML = '<option value="">Kategoriyani tanlang</option>';
+            s.forEach(c => {
+                const data = c.val();
+                list.innerHTML += `<div class="list-item"><span>${data.name}</span><button class="btn-del" onclick="deleteItem('categories', '${c.key}')">O'chirish</button></div>`;
+                select.innerHTML += `<option value="${data.name}">${data.name}</option>`;
+            });
+        });
+
+        // Mahsulotlar
+        db.ref('products').on('value', s => {
+            const list = document.getElementById('productList');
+            list.innerHTML = '';
+            s.forEach(c => {
+                const p = c.val();
+                const img = Array.isArray(p.images) ? p.images[0] : p.image;
+                list.innerHTML += `
+                    <div class="list-item">
+                        <img src="${img}">
+                        <div class="info"><b>${p.name}</b><br><small>${p.price} so'm</small></div>
+                        <button class="btn-del" onclick="deleteItem('products', '${c.key}')">O'chirish</button>
+                    </div>`;
+            });
+        });
+    }
+</script>
 </body>
 </html>
