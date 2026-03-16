@@ -1,95 +1,116 @@
 <!DOCTYPE html>
-<html lang="uz">
+<html>
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tovar - Admin</title>
+    <title>Pekin Tovar Admin</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <style>
-        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; padding: 20px; }
-        .card { background: white; padding: 25px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.2); width: 100%; max-width: 350px; }
-        h2 { text-align: center; color: #007bff; margin-bottom: 20px; }
-        input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: 1px solid #ddd; box-sizing: border-box; }
-        button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
-        button:disabled { background: #ccc; }
+        body { font-family: sans-serif; background: #f0f2f5; padding: 20px; }
+        .card { max-width: 400px; margin: auto; background: white; padding: 25px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        input, button { width: 100%; padding: 12px; margin: 10px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
+        button { background: #0088cc; color: white; border: none; font-weight: bold; cursor: pointer; }
         #status { text-align: center; font-weight: bold; margin-top: 10px; }
+        .preview { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+        .preview img { width: 60px; height: 60px; object-fit: cover; border-radius: 5px; border: 1px solid #0088cc; }
     </style>
 </head>
 <body>
 
 <div class="card">
-    <h2>Yangi Mahsulot</h2>
+    <h2 style="text-align:center; color:#0088cc;">Yangi Mahsulot</h2>
     <input type="text" id="pName" placeholder="Mahsulot nomi">
-    <input type="text" id="pPrice" placeholder="Narxi (masalan: 50 000)">
-    <input type="file" id="pImage" accept="image/*">
-    <button id="saveBtn" onclick="saveData()">Saqlash</button>
+    <input type="text" id="pPrice" placeholder="Narxi (so'm)">
+    
+    <label style="font-size: 12px; color: #666;">Rasmlarni tanlang (1-10 ta):</label>
+    <input type="file" id="pFiles" accept="image/*" multiple onchange="showPreview()">
+    
+    <div id="imagePreview" class="preview"></div>
+    
+    <button id="saveBtn" onclick="saveToFirebase()">Bazaga Saqlash</button>
     <div id="status"></div>
 </div>
 
 <script>
-    // 1. FIREBASE SOZLAMALARI
-    const firebaseConfig = {
-        databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com"
-    };
+    // 1. FIREBASE KONFIGURATSIYASI
+    const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    function saveData() {
+    // Rasmlarni ekranda ko'rsatish
+    function showPreview() {
+        const preview = document.getElementById('imagePreview');
+        preview.innerHTML = '';
+        const files = document.getElementById('pFiles').files;
+        for (let file of files) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = document.createElement('img');
+                img.src = e.target.result;
+                preview.appendChild(img);
+            }
+            reader.readAsDataURL(file);
+        }
+    }
+
+    // Rasmlarni siqish va saqlash
+    async function saveToFirebase() {
         const name = document.getElementById('pName').value;
         const price = document.getElementById('pPrice').value;
-        const fileInput = document.getElementById('pImage');
-        const file = fileInput.files[0];
+        const files = document.getElementById('pFiles').files;
         const btn = document.getElementById('saveBtn');
         const status = document.getElementById('status');
 
-        if (!name || !price || !file) {
-            alert("Iltimos, hamma ma'lumotni to'ldiring!");
-            return;
-        }
+        if (!name || !price || files.length === 0) { alert("To'ldiring!"); return; }
 
         btn.disabled = true;
-        status.innerHTML = "⌛ Saqlanmoqda...";
+        status.innerText = "⌛ Yuklanmoqda...";
         status.style.color = "orange";
 
-        // Rasmni matnli kodga (Base64) aylantirish
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        
-        reader.onload = async function () {
-            const base64Image = reader.result;
-
-            try {
-                // To'g'ridan-to'g'ri Firebase Realtime Database-ga yozish
-                await db.ref('products').push({
-                    name: name,
-                    price: price,
-                    image: base64Image
-                });
-
-                status.innerHTML = "✅ Muvaffaqiyatli saqlandi!";
-                status.style.color = "green";
-                
-                // Formani tozalash
-                document.getElementById('pName').value = '';
-                document.getElementById('pPrice').value = '';
-                fileInput.value = '';
-
-            } catch (error) {
-                status.innerHTML = "❌ Xatolik yuz berdi!";
-                status.style.color = "red";
-                console.error(error);
-            } finally {
-                btn.disabled = false;
+        try {
+            const base64Images = [];
+            for (let file of files) {
+                const imgCode = await compress(file);
+                base64Images.push(imgCode);
             }
-        };
 
-        reader.onerror = function (error) {
-            status.innerHTML = "❌ Rasmni o'qib bo'lmadi!";
+            await db.ref('products').push({
+                name: name,
+                price: price,
+                images: base64Images,
+                time: new Date().toLocaleString()
+            });
+
+            status.innerText = "✅ Muvaffaqiyatli saqlandi!";
+            status.style.color = "green";
+            setTimeout(() => location.reload(), 2000);
+        } catch (e) {
+            status.innerText = "❌ Xatolik!";
             btn.disabled = false;
-        };
+        }
+    }
+
+    // Rasmni kichraytirish funksiyasi (Baza to'lib qolmasligi uchun)
+    function compress(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 400;
+                    const scale = MAX_WIDTH / img.width;
+                    canvas.width = MAX_WIDTH;
+                    canvas.height = img.height * scale;
+                    canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.6));
+                }
+            }
+        });
     }
 </script>
-
 </body>
 </html>
