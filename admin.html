@@ -3,104 +3,81 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin | Tizim Boshqaruvi</title>
+    <title>Pekin | Boshqaruv Markazi</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --admin-theme: #1a1a2e; --accent: #7000ff; --danger: #ff4757; --success: #2ed573; }
-        body { font-family: 'Segoe UI', sans-serif; background: #f0f2f5; margin: 0; display: flex; flex-direction: column; min-height: 100vh; }
+        :root { --admin-theme: #1a1a2e; --accent: #7000ff; --danger: #ff4757; }
+        body { font-family: 'Inter', sans-serif; background: #f0f2f5; margin: 0; padding-bottom: 50px; }
         
-        /* Login Box */
         #login-screen { position: fixed; inset: 0; background: var(--admin-theme); display: flex; align-items: center; justify-content: center; z-index: 9999; }
-        .login-card { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .login-card { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; }
         
-        /* Main Layout */
         #admin-panel { display: none; }
         header { background: var(--admin-theme); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        
-        .sidebar { background: white; padding: 20px; border-radius: 15px; margin: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .tab-content { display: none; padding: 0 20px 20px; }
-        .tab-content.active { display: block; }
-
-        /* Controls */
-        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; outline: none; font-size: 14px; }
-        button { background: var(--accent); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        button:hover { filter: brightness(1.1); }
-        .btn-red { background: var(--danger); }
-
-        /* List Styling */
-        .list-card { background: white; border-radius: 12px; padding: 10px; margin-bottom: 10px; display: flex; align-items: center; gap: 15px; border: 1px solid #eee; }
-        .list-card img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
-        .list-info { flex-grow: 1; }
         
         .nav-tabs { display: flex; overflow-x: auto; gap: 10px; padding: 10px 20px; background: white; border-bottom: 1px solid #ddd; }
         .tab-link { padding: 10px 20px; white-space: nowrap; cursor: pointer; border-radius: 20px; background: #eee; font-size: 13px; font-weight: bold; }
         .tab-link.active { background: var(--accent); color: white; }
 
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
-        .stat-box { background: var(--accent); color: white; padding: 15px; border-radius: 12px; text-align: center; }
+        .sidebar { background: white; padding: 20px; border-radius: 15px; margin: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; outline: none; box-sizing: border-box; }
+        button { background: var(--accent); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-red { background: var(--danger); width: auto; padding: 8px 15px; font-size: 12px; }
+
+        .list-card { background: white; border-radius: 12px; padding: 10px; margin: 10px 15px; display: flex; align-items: center; gap: 15px; border: 1px solid #eee; }
+        .list-card img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
+        .list-info { flex-grow: 1; }
     </style>
 </head>
 <body>
 
 <div id="login-screen">
     <div class="login-card">
-        <i class="fa-solid fa-lock-open" style="font-size: 40px; color: var(--accent);"></i>
         <h2>Admin Paneli</h2>
-        <p style="color: #666; font-size: 14px;">Boshqaruv tizimiga kiring</p>
         <input type="password" id="entry-pass" placeholder="Parol (7777)">
-        <button onclick="unlock()">Tizimga kirish</button>
+        <button onclick="unlock()">Kirish</button>
     </div>
 </div>
 
 <div id="admin-panel">
     <header>
-        <div style="font-weight: 800; font-size: 18px;">PEKIN CONTROL</div>
-        <div style="font-size: 12px; opacity: 0.8;">Admin: @Jahongir3616</div>
+        <div style="font-weight: 800;">PEKIN CONTROL</div>
+        <div style="font-size: 12px;">Admin: @Jahongir3616</div>
     </header>
 
     <div class="nav-tabs">
-        <div class="tab-link active" onclick="openTab(event, 'dash')">Asosiy</div>
-        <div class="tab-link" onclick="openTab(event, 'add-p')">Yangi Mahsulot</div>
+        <div class="tab-link active" onclick="openTab(event, 'add-p')">Yangi Mahsulot</div>
         <div class="tab-link" onclick="openTab(event, 'manage-p')">Mahsulotlar</div>
         <div class="tab-link" onclick="openTab(event, 'manage-m')">Menyular</div>
     </div>
 
-    <div id="dash" class="tab-content active">
+    <div id="add-p" class="tab-content active">
         <div class="sidebar">
-            <h3>Statistika</h3>
-            <div class="stat-grid">
-                <div class="stat-box"><span id="count-p">0</span><br><small>Mahsulotlar</small></div>
-                <div class="stat-box"><span id="count-m">0</span><br><small>Menyular</small></div>
-            </div>
-            <button onclick="location.href='index.html'" style="background: #555;">Mijozlar sahifasiga o'tish</button>
-        </div>
-    </div>
-
-    <div id="add-p" class="tab-content">
-        <div class="sidebar">
-            <h3>Yangi mahsulot qo'shish</h3>
-            <input type="text" id="pTitle" placeholder="Mahsulot nomi">
+            <h3>Mahsulot qo'shish</h3>
+            <input type="text" id="pTitle" placeholder="Nomi">
             <input type="number" id="pPrice" placeholder="Narxi">
             <select id="pCategory"><option value="">Kategoriya tanlang</option></select>
             <input type="file" id="pImgs" multiple accept="image/*">
-            <button onclick="uploadProduct()" id="upBtn">Saqlash</button>
-            <p id="progress" style="text-align:center; font-size:12px;"></p>
+            <button onclick="uploadProduct()" id="upBtn">Bazaga Saqlash</button>
         </div>
     </div>
 
     <div id="manage-p" class="tab-content">
-        <div id="all-products-list" style="padding: 0 20px;"></div>
+        <div id="all-products-list"></div>
     </div>
 
     <div id="manage-m" class="tab-content">
         <div class="sidebar">
-            <h3>Yangi menyu qo'shish</h3>
+            <h3>Yangi Menyu</h3>
             <input type="text" id="mName" placeholder="Menyu nomi">
             <button onclick="saveMenu()">Qo'shish</button>
         </div>
-        <div id="all-menus-list" style="padding: 0 20px;"></div>
+        <div id="all-menus-list"></div>
     </div>
 </div>
 
@@ -114,7 +91,7 @@
             document.getElementById('login-screen').style.display = 'none';
             document.getElementById('admin-panel').style.display = 'block';
             syncData();
-        } else { alert("Parol noto'g'ri!"); }
+        } else { alert("Xato!"); }
     }
 
     function openTab(evt, tabName) {
@@ -124,6 +101,27 @@
         evt.currentTarget.classList.add('active');
     }
 
+    // RASMNI SIQISH (TEZLIK UCHUN)
+    async function compressImage(file) {
+        return new Promise((resolve) => {
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = (e) => {
+                const img = new Image();
+                img.src = e.target.result;
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const MAX_WIDTH = 800;
+                    let width = img.width, height = img.height;
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    canvas.width = width; canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/jpeg', 0.7));
+                };
+            };
+        });
+    }
+
     async function uploadProduct() {
         const name = document.getElementById('pTitle').value;
         const price = document.getElementById('pPrice').value;
@@ -131,22 +129,17 @@
         const files = document.getElementById('pImgs').files;
         const btn = document.getElementById('upBtn');
 
-        if(!name || !price || files.length === 0) return alert("Hamma joyni to'ldiring!");
+        if(!name || !price || files.length === 0) return alert("To'ldiring!");
 
-        btn.disabled = true; btn.innerText = "Yuklanmoqda...";
-        const imgs = [];
-        for(let f of files) {
-            const b64 = await new Promise(r => {
-                const fr = new FileReader();
-                fr.onload = e => r(e.target.result);
-                fr.readAsDataURL(f);
-            });
-            imgs.push(b64);
-        }
-
-        await db.ref('products').push({ name, price, category: cat, images: imgs });
-        alert("Mahsulot qo'shildi!");
-        location.reload();
+        btn.disabled = true; btn.innerText = "🚀 Tezkor saqlanmoqda...";
+        
+        try {
+            const imgs = [];
+            for(let f of files) { imgs.push(await compressImage(f)); }
+            await db.ref('products').push({ name, price, category: cat, images: imgs });
+            alert("Saqlandi! ✅");
+            location.reload();
+        } catch (e) { alert("Xato!"); btn.disabled = false; }
     }
 
     function saveMenu() {
@@ -156,33 +149,25 @@
     }
 
     function deleteThis(path, id) {
-        if(confirm("Haqiqatan ham o'chirilsinmi?")) db.ref(path + '/' + id).remove();
+        if(confirm("O'chirilsinmi?")) db.ref(path + '/' + id).remove();
     }
 
     function syncData() {
-        // Kategoriyalar yuklash
         db.ref('categories').on('value', s => {
             const list = document.getElementById('all-menus-list');
             const select = document.getElementById('pCategory');
-            const count = document.getElementById('count-m');
             list.innerHTML = '';
             select.innerHTML = '<option value="">Kategoriya tanlang</option>';
-            let cNum = 0;
             s.forEach(child => {
                 const m = child.val();
-                list.innerHTML += `<div class="list-card"><div class="list-info"><b>${m.name}</b></div><button class="btn-red" style="width:80px" onclick="deleteThis('categories','${child.key}')">O'chirish</button></div>`;
+                list.innerHTML += `<div class="list-card"><div class="list-info"><b>${m.name}</b></div><button class="btn-red" onclick="deleteThis('categories','${child.key}')">O'chirish</button></div>`;
                 select.innerHTML += `<option value="${m.name}">${m.name}</option>`;
-                cNum++;
             });
-            count.innerText = cNum;
         });
 
-        // Mahsulotlarni yuklash
         db.ref('products').on('value', s => {
             const list = document.getElementById('all-products-list');
-            const count = document.getElementById('count-p');
             list.innerHTML = '';
-            let pNum = 0;
             s.forEach(child => {
                 const p = child.val();
                 const img = Array.isArray(p.images) ? p.images[0] : p.image;
@@ -190,11 +175,9 @@
                 <div class="list-card">
                     <img src="${img}">
                     <div class="list-info"><b>${p.name}</b><br><small>${p.price} so'm</small></div>
-                    <button class="btn-red" style="width:80px" onclick="deleteThis('products','${child.key}')">O'chirish</button>
+                    <button class="btn-red" onclick="deleteThis('products','${child.key}')">O'chirish</button>
                 </div>`;
-                pNum++;
             });
-            count.innerText = pNum;
         });
     }
 </script>
