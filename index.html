@@ -3,86 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tovar | Premium</title>
+    <title>Pekin Tovar | Online Do'kon</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main: #7000ff; --text: #1f2026; --gray: #8b8e99; --white: #ffffff; }
+        :root { --main: #7000ff; --bg: #f5f5f7; }
+        body { font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 80px; background: #121212; color: white; }
+        header { background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); padding: 15px; position: sticky; top: 0; z-index: 100; }
         
-        body { 
-            font-family: 'Inter', sans-serif; 
-            margin: 0; 
-            padding-bottom: 80px;
-            background-color: #dfdbe5;
-            background-image: radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
-                              radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
-                              radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
-            background-attachment: fixed;
-            min-height: 100vh;
-        }
+        /* Menyular (Kategoriyalar) */
+        .categories { display: flex; overflow-x: auto; gap: 10px; padding: 10px 15px; background: #1a1a1a; }
+        .cat-item { background: #333; padding: 8px 15px; border-radius: 20px; white-space: nowrap; cursor: pointer; font-size: 13px; }
+        .cat-item.active { background: var(--main); }
 
-        header { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); padding: 12px 15px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 30px rgba(0,0,0,0.1); }
-        .nav-content { max-width: 1200px; margin: auto; display: flex; align-items: center; gap: 10px; }
-        .logo { font-size: 22px; font-weight: 900; color: var(--main); text-decoration: none; }
-        .search { background: #f0f2f5; border-radius: 10px; flex-grow: 1; padding: 8px 12px; display: flex; align-items: center; }
-        .search input { background: none; border: none; outline: none; width: 100%; font-size: 14px; }
-
-        .container { max-width: 1200px; margin: auto; padding: 12px; }
+        .container { padding: 12px; }
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        @media (min-width: 768px) { .grid { grid-template-columns: repeat(5, 1fr); gap: 15px; } }
-
-        .card { background: var(--white); border-radius: 12px; overflow: hidden; position: relative; transition: 0.3s; cursor: pointer; display: flex; flex-direction: column; }
-        .card img { width: 100%; height: 200px; object-fit: cover; }
-        
-        .wishlist-btn { position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.7); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 5; color: #bbb; }
-        .wishlist-btn.active { color: #ff4757; background: white; }
-
-        .card-info { padding: 10px; flex-grow: 1; }
-        .p-name { font-size: 13px; color: #333; line-height: 1.4; height: 36px; overflow: hidden; margin-bottom: 5px; }
-        .p-price { font-weight: 700; font-size: 16px; color: var(--text); }
-        .add-btn { width: 100%; border: 1.5px solid #eee; padding: 8px; border-radius: 8px; background: white; color: var(--main); font-weight: bold; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 5px; }
+        .card { background: #222; border-radius: 12px; overflow: hidden; position: relative; }
+        .card img { width: 100%; height: 180px; object-fit: cover; }
+        .card-info { padding: 10px; }
+        .p-name { font-size: 13px; height: 36px; overflow: hidden; }
+        .p-price { font-weight: bold; color: #bb86fc; font-size: 15px; margin: 5px 0; }
+        .add-btn { background: var(--main); border: none; color: white; padding: 8px; width: 100%; border-radius: 8px; font-weight: bold; }
 
         .page { display: none; }
         .page.active { display: block; }
 
-        #detail-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 2000; display: none; overflow-y: auto; }
-        .close-btn { position: fixed; top: 15px; left: 15px; background: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); z-index: 2100; }
+        /* Modal Sharh */
+        #detail-modal { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; overflow-y: auto; }
+        .close-btn { position: fixed; top: 15px; left: 15px; background: #333; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 2100; }
 
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 1000; }
-        .nav-item { text-align: center; color: var(--gray); font-size: 11px; cursor: pointer; position: relative; }
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #1a1a1a; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #333; z-index: 1000; }
+        .nav-item { text-align: center; color: #888; font-size: 10px; cursor: pointer; }
         .nav-item.active { color: var(--main); }
         .nav-item i { font-size: 20px; display: block; margin-bottom: 3px; }
-        .badge { background: var(--main); color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -5px; right: -5px; }
+
+        input, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; background: #333; border: none; color: white; }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="nav-content">
-        <a href="#" class="logo">PEKIN</a>
-        <div class="search"><i class="fa fa-search"></i><input type="text" placeholder="Qidiruv..."></div>
-    </div>
+    <div style="font-weight: 900; font-size: 20px; color: var(--main);">PEKIN TOVAR</div>
 </header>
+
+<div class="categories" id="catBar">
+    <div class="cat-item active" onclick="filterCat('Hammasi', this)">Hammasi</div>
+</div>
 
 <div class="container">
     <div id="home-page" class="page active">
         <div class="grid" id="mainGrid"></div>
     </div>
 
-    <div id="wishlist-page" class="page">
-        <h2 style="color:white; text-align:center;">Saralanganlar</h2>
-        <div class="grid" id="wishlistGrid"></div>
+    <div id="wish-page" class="page">
+        <h2 style="text-align: center;">Kerakli Mahsulotlar</h2>
+        <p style="font-size: 13px; color: #ccc; text-align: center;">Sizga qanday mahsulot kerakligini yozing, biz topib keltiramiz!</p>
+        <div style="background: #222; padding: 15px; border-radius: 15px;">
+            <input type="text" id="reqPhone" placeholder="Telefon raqamingiz">
+            <textarea id="reqText" placeholder="Mahsulot nomi yoki tarifi..." rows="4"></textarea>
+            <button onclick="sendRequest()" style="width:100%; background:var(--main); border:none; color:white; padding:15px; border-radius:10px; font-weight:bold;">Adminga yuborish</button>
+        </div>
     </div>
 
     <div id="cart-page" class="page">
-        <div style="background:white; padding:20px; border-radius:15px; max-width:500px; margin:auto;">
-            <h3>Sizning savatchangiz</h3>
-            <div id="cartItems"></div>
-            <hr>
-            <h4 id="cartTotal">Jami: 0 so'm</h4>
-            <button onclick="checkout()" style="width:100%; background:var(--main); color:white; border:none; padding:15px; border-radius:10px; font-weight:bold;">Buyurtma berish</button>
-        </div>
+        <h3>Sizning savatingiz</h3>
+        <div id="cartItems"></div>
+        <h4 id="cartTotal">Jami: 0 so'm</h4>
+        <button onclick="checkout()" style="width:100%; background:var(--main); color:white; border:none; padding:15px; border-radius:10px;">Buyurtma berish</button>
     </div>
 </div>
 
@@ -93,14 +81,9 @@
 
 <nav class="bottom-nav">
     <div class="nav-item active" onclick="showPage('home-page', this)"><i class="fa-solid fa-house"></i>Asosiy</div>
-    <div class="nav-item" onclick="showPage('wishlist-page', this)"><i class="fa-solid fa-heart"></i>Saralangan</div>
-    <div class="nav-item" onclick="showPage('cart-page', this)">
-        <i class="fa-solid fa-bag-shopping"></i>Savat
-        <span class="badge" id="cartCount">0</span>
-    </div>
-    <div class="nav-item" onclick="goToAdmin()">
-        <i class="fa-solid fa-user-shield"></i>Admin
-    </div>
+    <div class="nav-item" onclick="showPage('wish-page', this)"><i class="fa-solid fa-lightbulb"></i>Kerakli</div>
+    <div class="nav-item" onclick="showPage('cart-page', this)"><i class="fa-solid fa-bag-shopping"></i>Savat</div>
+    <div class="nav-item" onclick="goToAdmin()"><i class="fa-solid fa-user-shield"></i>Admin</div>
 </nav>
 
 <script>
@@ -108,116 +91,110 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
     
-    let products = {};
+    let allProducts = {};
+    let currentCat = "Hammasi";
     let cart = [];
-    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
 
-    db.ref('products').on('value', (snap) => {
-        products = snap.val() || {};
-        renderHome();
+    // Ma'lumotlarni yuklash
+    db.ref('categories').on('value', s => {
+        const bar = document.getElementById('catBar');
+        bar.innerHTML = '<div class="cat-item active" onclick="filterCat(\'Hammasi\', this)">Hammasi</div>';
+        s.forEach(c => {
+            const name = c.val().name;
+            bar.innerHTML += `<div class="cat-item" onclick="filterCat('${name}', this)">${name}</div>`;
+        });
     });
 
-    function renderHome() {
+    db.ref('products').on('value', s => {
+        allProducts = s.val() || {};
+        renderProducts();
+    });
+
+    function renderProducts() {
         const grid = document.getElementById('mainGrid');
         grid.innerHTML = '';
-        Object.keys(products).forEach(id => {
-            grid.innerHTML += createCard(id, products[id]);
-        });
-    }
-
-    function createCard(id, p) {
-        const img = Array.isArray(p.images) ? p.images[0] : p.image;
-        const isFav = wishlist.includes(id) ? 'active' : '';
-        return `
-            <div class="card" onclick="openDetail('${id}')">
-                <div class="wishlist-btn ${isFav}" onclick="event.stopPropagation(); toggleFav('${id}', this)">
-                    <i class="fa-solid fa-heart"></i>
-                </div>
-                <img src="${img}">
-                <div class="card-info">
-                    <div class="p-name">${p.name}</div>
-                    <div class="p-price">${parseInt(p.price).toLocaleString()} so'm</div>
-                    <div class="add-btn" onclick="event.stopPropagation(); addToCart('${id}')">
-                        <i class="fa fa-cart-plus"></i> Qo'shish
+        Object.keys(allProducts).forEach(id => {
+            const p = allProducts[id];
+            if(currentCat === "Hammasi" || p.category === currentCat) {
+                grid.innerHTML += `
+                <div class="card" onclick="openDetail('${id}')">
+                    <img src="${p.images ? p.images[0] : ''}">
+                    <div class="card-info">
+                        <div class="p-name">${p.name}</div>
+                        <div class="p-price">${parseInt(p.price).toLocaleString()} so'm</div>
+                        <button class="add-btn" onclick="event.stopPropagation(); addToCart('${id}')">Savatga</button>
                     </div>
-                </div>
-            </div>`;
-    }
-
-    function showPage(pageId, el) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(pageId).classList.add('active');
-        el.classList.add('active');
-        if(pageId === 'wishlist-page') renderWishlist();
-    }
-
-    function toggleFav(id, el) {
-        if(wishlist.includes(id)) {
-            wishlist = wishlist.filter(i => i !== id);
-            el.classList.remove('active');
-        } else {
-            wishlist.push(id);
-            el.classList.add('active');
-        }
-        localStorage.setItem('wishlist', JSON.stringify(wishlist));
-    }
-
-    function renderWishlist() {
-        const grid = document.getElementById('wishlistGrid');
-        grid.innerHTML = wishlist.length ? '' : '<p style="color:white; text-align:center; grid-column:1/3;">Hali hech narsa yoqmadi...</p>';
-        wishlist.forEach(id => {
-            if(products[id]) grid.innerHTML += createCard(id, products[id]);
+                </div>`;
+            }
         });
+    }
+
+    function filterCat(name, el) {
+        currentCat = name;
+        document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
+        el.classList.add('active');
+        renderProducts();
     }
 
     function openDetail(id) {
-        const p = products[id];
+        const p = allProducts[id];
         const modal = document.getElementById('detail-modal');
         modal.style.display = 'block';
-        let imgs = Array.isArray(p.images) ? p.images.map(i => `<img src="${i}" style="width:100%">`).join('') : `<img src="${p.image}" style="width:100%">`;
+        let imgs = p.images ? p.images.map(i => `<img src="${i}" style="width:100%">`).join('') : '';
         document.getElementById('detailBody').innerHTML = `
             ${imgs}
             <div style="padding:20px;">
                 <h1>${p.name}</h1>
-                <h2 style="color:var(--main)">${parseInt(p.price).toLocaleString()} so'm</h2>
+                <h3 style="color:var(--main)">${parseInt(p.price).toLocaleString()} so'm</h3>
+                <p style="color:#aaa; line-height:1.6;">${p.desc || "Sharh mavjud emas."}</p>
                 <button onclick="addToCart('${id}')" style="width:100%; background:var(--main); color:white; border:none; padding:18px; border-radius:12px; font-weight:bold;">Savatga qo'shish</button>
             </div>`;
     }
 
     function closeDetail() { document.getElementById('detail-modal').style.display = 'none'; }
 
-    function addToCart(id) {
-        cart.push(products[id]);
-        document.getElementById('cartCount').innerText = cart.length;
-        updateCartUI();
+    function sendRequest() {
+        const phone = document.getElementById('reqPhone').value;
+        const text = document.getElementById('reqText').value;
+        if(!phone || !text) return alert("Iltimos to'ldiring!");
+        db.ref('customer_requests').push({ phone, text });
+        alert("Sizning istagingiz adminga yuborildi! ✅");
+        document.getElementById('reqPhone').value = '';
+        document.getElementById('reqText').value = '';
     }
 
-    function updateCartUI() {
+    function showPage(id, el) {
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById(id).classList.add('active');
+        el.classList.add('active');
+    }
+
+    function addToCart(id) {
+        cart.push(allProducts[id]);
+        alert("Savatga qo'shildi!");
+        updateCart();
+    }
+
+    function updateCart() {
         const div = document.getElementById('cartItems');
         let total = 0;
         div.innerHTML = '';
-        cart.forEach(item => {
-            total += parseInt(item.price);
-            div.innerHTML += `<p>${item.name} - <b>${parseInt(item.price).toLocaleString()} so'm</b></p>`;
+        cart.forEach(i => {
+            total += parseInt(i.price);
+            div.innerHTML += `<div style="padding:10px; border-bottom:1px solid #333;">${i.name} - ${i.price} so'm</div>`;
         });
         document.getElementById('cartTotal').innerText = `Jami: ${total.toLocaleString()} so'm`;
     }
 
     function checkout() {
-        let msg = "Yangi buyurtma:\n";
-        cart.forEach((i, n) => msg += `${n+1}. ${i.name}\n`);
+        let msg = "Yangi Buyurtma:\n";
+        cart.forEach(i => msg += `- ${i.name} (${i.price} so'm)\n`);
         window.open(`https://t.me/Jahongir3616?text=${encodeURIComponent(msg)}`);
     }
 
-    // ADMINGA O'TISH FUNKSIYASI
     function goToAdmin() {
-        let pass = prompt("Admin parolini kiriting:");
-        if(pass === "7777") {
-            window.location.href = "admin.html";
-        } else {
-            alert("Parol noto'g'ri!");
-        }
+        if(prompt("Parol:") === "7777") window.location.href = "admin.html";
     }
 </script>
 </body>
