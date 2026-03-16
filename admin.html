@@ -3,32 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin | Boshqaruv Markazi</title>
+    <title>Pekin Admin | Boshqaruv</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --admin-theme: #1a1a2e; --accent: #7000ff; --danger: #ff4757; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f5; margin: 0; padding-bottom: 50px; }
-        
         #login-screen { position: fixed; inset: 0; background: var(--admin-theme); display: flex; align-items: center; justify-content: center; z-index: 9999; }
         .login-card { background: white; padding: 30px; border-radius: 20px; width: 90%; max-width: 350px; text-align: center; }
-        
         #admin-panel { display: none; }
         header { background: var(--admin-theme); color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        
         .nav-tabs { display: flex; overflow-x: auto; gap: 10px; padding: 10px 20px; background: white; border-bottom: 1px solid #ddd; }
         .tab-link { padding: 10px 20px; white-space: nowrap; cursor: pointer; border-radius: 20px; background: #eee; font-size: 13px; font-weight: bold; }
         .tab-link.active { background: var(--accent); color: white; }
-
         .sidebar { background: white; padding: 20px; border-radius: 15px; margin: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
-
-        input, select, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; outline: none; box-sizing: border-box; }
+        input, select, textarea, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; outline: none; box-sizing: border-box; font-family: inherit; }
         button { background: var(--accent); color: white; border: none; font-weight: bold; cursor: pointer; transition: 0.3s; }
         .btn-red { background: var(--danger); width: auto; padding: 8px 15px; font-size: 12px; }
-
         .list-card { background: white; border-radius: 12px; padding: 10px; margin: 10px 15px; display: flex; align-items: center; gap: 15px; border: 1px solid #eee; }
         .list-card img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
         .list-info { flex-grow: 1; }
@@ -47,23 +41,24 @@
 <div id="admin-panel">
     <header>
         <div style="font-weight: 800;">PEKIN CONTROL</div>
-        <div style="font-size: 12px;">Admin: @Jahongir3616</div>
     </header>
 
     <div class="nav-tabs">
-        <div class="tab-link active" onclick="openTab(event, 'add-p')">Yangi Mahsulot</div>
+        <div class="tab-link active" onclick="openTab(event, 'add-p')">Qo'shish</div>
         <div class="tab-link" onclick="openTab(event, 'manage-p')">Mahsulotlar</div>
         <div class="tab-link" onclick="openTab(event, 'manage-m')">Menyular</div>
+        <div class="tab-link" onclick="openTab(event, 'requests')">Mijoz istaklari</div>
     </div>
 
     <div id="add-p" class="tab-content active">
         <div class="sidebar">
-            <h3>Mahsulot qo'shish</h3>
+            <h3>Yangi mahsulot</h3>
             <input type="text" id="pTitle" placeholder="Nomi">
             <input type="number" id="pPrice" placeholder="Narxi">
             <select id="pCategory"><option value="">Kategoriya tanlang</option></select>
+            <textarea id="pDesc" placeholder="Mahsulot haqida sharh/tavsif" rows="3"></textarea>
             <input type="file" id="pImgs" multiple accept="image/*">
-            <button onclick="uploadProduct()" id="upBtn">Bazaga Saqlash</button>
+            <button onclick="uploadProduct()" id="upBtn">Saqlash</button>
         </div>
     </div>
 
@@ -78,6 +73,10 @@
             <button onclick="saveMenu()">Qo'shish</button>
         </div>
         <div id="all-menus-list"></div>
+    </div>
+
+    <div id="requests" class="tab-content">
+        <div id="request-list" style="padding: 15px;"></div>
     </div>
 </div>
 
@@ -101,7 +100,6 @@
         evt.currentTarget.classList.add('active');
     }
 
-    // RASMNI SIQISH (TEZLIK UCHUN)
     async function compressImage(file) {
         return new Promise((resolve) => {
             const reader = new FileReader();
@@ -126,18 +124,18 @@
         const name = document.getElementById('pTitle').value;
         const price = document.getElementById('pPrice').value;
         const cat = document.getElementById('pCategory').value;
+        const desc = document.getElementById('pDesc').value;
         const files = document.getElementById('pImgs').files;
         const btn = document.getElementById('upBtn');
 
-        if(!name || !price || files.length === 0) return alert("To'ldiring!");
+        if(!name || !price || !cat || files.length === 0) return alert("Kategoriyani ham tanlang!");
 
-        btn.disabled = true; btn.innerText = "🚀 Tezkor saqlanmoqda...";
-        
+        btn.disabled = true; btn.innerText = "Yuklanmoqda...";
         try {
             const imgs = [];
             for(let f of files) { imgs.push(await compressImage(f)); }
-            await db.ref('products').push({ name, price, category: cat, images: imgs });
-            alert("Saqlandi! ✅");
+            await db.ref('products').push({ name, price, category: cat, desc, images: imgs });
+            alert("Saqlandi!");
             location.reload();
         } catch (e) { alert("Xato!"); btn.disabled = false; }
     }
@@ -170,13 +168,17 @@
             list.innerHTML = '';
             s.forEach(child => {
                 const p = child.val();
-                const img = Array.isArray(p.images) ? p.images[0] : p.image;
-                list.innerHTML += `
-                <div class="list-card">
-                    <img src="${img}">
-                    <div class="list-info"><b>${p.name}</b><br><small>${p.price} so'm</small></div>
-                    <button class="btn-red" onclick="deleteThis('products','${child.key}')">O'chirish</button>
-                </div>`;
+                const img = p.images ? p.images[0] : '';
+                list.innerHTML += `<div class="list-card"><img src="${img}"><div class="list-info"><b>${p.name}</b><br><small>${p.category}</small></div><button class="btn-red" onclick="deleteThis('products','${child.key}')">O'chirish</button></div>`;
+            });
+        });
+
+        db.ref('customer_requests').on('value', s => {
+            const list = document.getElementById('request-list');
+            list.innerHTML = '';
+            s.forEach(child => {
+                const r = child.val();
+                list.innerHTML += `<div class="sidebar"><b>Mijoz:</b> ${r.phone}<br><b>Suraq:</b> ${r.text}<br><button class="btn-red" onclick="deleteThis('customer_requests','${child.key}')">Bajarildi (O'chirish)</button></div>`;
             });
         });
     }
