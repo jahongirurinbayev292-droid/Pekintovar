@@ -3,51 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tovar | Online Store</title>
+    <title>Pekin Tovar | Premium Store</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main: #7000ff; --bg: #f4f7f9; --text: #1f2026; --gray: #8b8e99; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); margin: 0; color: var(--text); padding-bottom: 70px; }
+        :root { --main: #7000ff; --text: #1f2026; --gray: #8b8e99; }
         
-        /* Header & Nav */
-        header { background: white; padding: 12px 15px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 15px rgba(0,0,0,0.08); }
+        /* Chiroyli va sifatli orqa fon */
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            background-attachment: fixed;
+            margin: 0; 
+            color: var(--text); 
+            padding-bottom: 80px; 
+        }
+        
+        header { background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); padding: 12px 15px; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .nav-content { max-width: 1200px; margin: auto; display: flex; align-items: center; gap: 15px; }
-        .logo { font-size: 24px; font-weight: 800; color: var(--main); text-decoration: none; letter-spacing: -1px; }
-        .search { background: #edeff2; border-radius: 10px; flex-grow: 1; padding: 10px 15px; display: flex; align-items: center; }
+        .logo { font-size: 24px; font-weight: 900; color: var(--main); text-decoration: none; text-transform: uppercase; }
+        .search { background: #f0f2f5; border-radius: 12px; flex-grow: 1; padding: 10px 15px; display: flex; align-items: center; border: 1px solid #e1e4e8; }
         .search input { background: none; border: none; outline: none; width: 100%; font-size: 15px; }
 
-        /* Product Grid */
         .container { max-width: 1200px; margin: auto; padding: 15px; }
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
         @media (min-width: 768px) { .grid { grid-template-columns: repeat(5, 1fr); gap: 20px; } }
 
         /* Card Design */
-        .card { background: white; border-radius: 16px; overflow: hidden; position: relative; transition: 0.3s; cursor: pointer; border: 1px solid #eee; }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
-        .card img { width: 100%; height: 220px; object-fit: cover; }
-        .card-info { padding: 12px; }
-        .p-name { font-size: 14px; height: 40px; overflow: hidden; margin-bottom: 8px; font-weight: 400; }
-        .p-price { font-weight: 700; font-size: 17px; color: var(--text); }
-        .add-btn { position: absolute; bottom: 12px; right: 12px; border: 1px solid #ddd; width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: white; color: var(--main); }
+        .card { background: white; border-radius: 20px; overflow: hidden; position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); cursor: pointer; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+        .card:hover { transform: translateY(-8px); box-shadow: 0 15px 35px rgba(0,0,0,0.12); }
+        .card img { width: 100%; height: 220px; object-fit: cover; transition: 0.5s; }
+        .card:hover img { transform: scale(1.05); }
+        
+        /* Yurakcha tugmasi */
+        .wishlist-btn { position: absolute; top: 12px; right: 12px; background: rgba(255, 255, 255, 0.8); width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 10; transition: 0.2s; color: #ccc; }
+        .wishlist-btn.active { color: #ff4757; background: white; }
 
-        /* Product Detail Modal */
-        #detail-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 3000; display: none; overflow-y: auto; animation: slideUp 0.3s ease; }
+        .card-info { padding: 15px; background: white; }
+        .p-name { font-size: 14px; height: 38px; overflow: hidden; margin-bottom: 5px; color: #444; }
+        .p-price { font-weight: 800; font-size: 18px; color: var(--text); }
+        .add-btn { position: absolute; bottom: 12px; right: 12px; border: 1.5px solid #eee; width: 38px; height: 38px; border-radius: 12px; display: flex; align-items: center; justify-content: center; background: white; color: var(--main); transition: 0.2s; }
+        .add-btn:hover { background: var(--main); color: white; border-color: var(--main); }
+
+        /* Detail Modal */
+        #detail-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 3000; display: none; overflow-y: auto; animation: slideUp 0.4s ease; }
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .detail-content { max-width: 800px; margin: auto; padding: 20px; }
-        .detail-img-grid { display: grid; grid-template-columns: 1fr; gap: 10px; }
-        .detail-img-grid img { width: 100%; border-radius: 15px; }
-        .close-detail { position: fixed; top: 20px; right: 20px; font-size: 28px; background: rgba(0,0,0,0.5); color: white; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 3100; }
+        .detail-img-grid img { width: 100%; border-radius: 0 0 25px 25px; }
 
-        /* Bottom Menu */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #eee; z-index: 1000; }
-        .nav-item { text-align: center; color: var(--gray); font-size: 12px; text-decoration: none; }
+        /* Bottom Menu (Profil ochirildi) */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(15px); display: flex; justify-content: space-around; padding: 15px 0; border-top: 1px solid #eee; z-index: 1000; }
+        .nav-item { text-align: center; color: var(--gray); font-size: 11px; text-decoration: none; font-weight: 500; }
         .nav-item.active { color: var(--main); }
-        .nav-item i { font-size: 22px; display: block; margin-bottom: 4px; }
-
-        /* Cart Badge */
-        .badge { background: var(--main); color: white; border-radius: 10px; padding: 2px 6px; font-size: 10px; position: absolute; top: -5px; right: -5px; }
+        .nav-item i { font-size: 22px; display: block; margin-bottom: 5px; }
+        .badge { background: var(--main); color: white; border-radius: 8px; padding: 2px 7px; font-size: 10px; position: absolute; top: -5px; right: -8px; border: 2px solid white; }
     </style>
 </head>
 <body>
@@ -67,19 +76,20 @@
 </div>
 
 <div id="detail-modal">
-    <div class="close-detail" onclick="closeDetail()">&times;</div>
-    <div class="detail-content" id="detailBody"></div>
+    <div style="position:fixed; top:20px; left:20px; z-index:3100;" onclick="closeDetail()">
+        <i class="fa fa-chevron-left" style="background:white; padding:12px 16px; border-radius:50%; box-shadow:0 5px 15px rgba(0,0,0,0.1);"></i>
+    </div>
+    <div id="detailBody"></div>
 </div>
 
 <nav class="bottom-nav">
     <a href="#" class="nav-item active"><i class="fa-solid fa-house"></i>Asosiy</a>
     <a href="#" class="nav-item"><i class="fa-solid fa-magnifying-glass"></i>Katalog</a>
-    <a href="#" class="nav-item" style="position:relative;">
+    <a href="javascript:void(0)" class="nav-item" onclick="showCart()" style="position:relative;">
         <i class="fa-solid fa-bag-shopping"></i>Savat
         <span class="badge" id="cartCount">0</span>
     </a>
     <a href="#" class="nav-item"><i class="fa-solid fa-heart"></i>Saralangan</a>
-    <a href="admin.html" class="nav-item"><i class="fa-solid fa-user"></i>Profil</a>
 </nav>
 
 <script>
@@ -89,8 +99,8 @@
     
     let productsData = {};
     let cart = [];
+    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
 
-    // Ma'lumotlarni yuklash
     db.ref('products').on('value', (snap) => {
         const grid = document.getElementById('mainGrid');
         grid.innerHTML = '';
@@ -99,68 +109,67 @@
         Object.keys(productsData).forEach(id => {
             const p = productsData[id];
             const img = Array.isArray(p.images) ? p.images[0] : p.image;
+            const isFav = wishlist.includes(id) ? 'active' : '';
+
             grid.innerHTML += `
                 <div class="card" onclick="openDetail('${id}')">
+                    <div class="wishlist-btn ${isFav}" onclick="event.stopPropagation(); toggleWishlist('${id}', this)">
+                        <i class="fa-solid fa-heart"></i>
+                    </div>
                     <img src="${img}" loading="lazy">
                     <div class="card-info">
                         <div class="p-name">${p.name}</div>
-                        <div style="font-size:12px; color:#f39c12; margin-bottom:5px;">
-                            <i class="fa fa-star"></i> 5.0 (Sharhlar)
-                        </div>
                         <div class="p-price">${parseInt(p.price).toLocaleString()} so'm</div>
                     </div>
                     <div class="add-btn" onclick="event.stopPropagation(); addToCart('${id}')">
-                        <i class="fa fa-cart-plus"></i>
+                        <i class="fa-solid fa-plus"></i>
                     </div>
                 </div>`;
         });
     });
 
-    // Batafsil ochish
+    function toggleWishlist(id, el) {
+        if(wishlist.includes(id)) {
+            wishlist = wishlist.filter(item => item !== id);
+            el.classList.remove('active');
+        } else {
+            wishlist.push(id);
+            el.classList.add('active');
+        }
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    }
+
     function openDetail(id) {
         const p = productsData[id];
         const modal = document.getElementById('detail-modal');
-        const body = document.getElementById('detailBody');
         modal.style.display = 'block';
         document.body.style.overflow = 'hidden';
 
-        let imagesHtml = '';
-        if(Array.isArray(p.images)) {
-            p.images.forEach(img => imagesHtml += `<img src="${img}">`);
-        } else { imagesHtml = `<img src="${p.image}">`; }
+        let imgs = Array.isArray(p.images) ? p.images.map(i => `<img src="${i}">`).join('') : `<img src="${p.image}">`;
 
-        body.innerHTML = `
-            <div class="detail-img-grid">${imagesHtml}</div>
-            <h1 style="font-size:24px; margin:20px 0 10px;">${p.name}</h1>
-            <div style="font-size:28px; font-weight:bold; color:var(--main); margin-bottom:20px;">
-                ${parseInt(p.price).toLocaleString()} so'm
+        document.getElementById('detailBody').innerHTML = `
+            <div class="detail-img-grid">${imgs}</div>
+            <div style="padding:20px;">
+                <h1 style="font-size:24px; margin:0 0 10px;">${p.name}</h1>
+                <div style="font-size:26px; font-weight:900; color:var(--main);">${parseInt(p.price).toLocaleString()} so'm</div>
+                <hr style="margin:20px 0; border:0; border-top:1px solid #eee;">
+                <h3>Mahsulot haqida</h3>
+                <p style="color:#666; line-height:1.6;">Sifatli mahsulot. Razmerlar: S, M, L mavjud. Admin bilan bog'lanish: @Jahongir3616</p>
+                <button onclick="addToCart('${id}')" style="width:100%; background:var(--main); color:white; border:none; padding:18px; border-radius:18px; font-size:18px; font-weight:bold; margin-top:20px;">Savatchaga qo'shish</button>
             </div>
-            <div style="background:#fff; border:1px solid #eee; padding:15px; border-radius:12px; margin-bottom:20px;">
-                <h3 style="margin-top:0;">Mahsulot haqida</h3>
-                <p style="color:#666; line-height:1.6;">Bu mahsulot yuqori sifatli materiallardan tayyorlangan. Razmerlar: S, M, L, XL mavjud. Batafsil ma'lumot uchun admin bilan bog'laning.</p>
-            </div>
-            <button onclick="addToCart('${id}')" style="width:100%; background:var(--main); color:white; border:none; padding:18px; border-radius:15px; font-size:18px; font-weight:bold; cursor:pointer;">
-                Savatchaga qo'shish
-            </button>
         `;
     }
 
-    function closeDetail() {
-        document.getElementById('detail-modal').style.display = 'none';
-        document.body.style.overflow = 'auto';
-    }
+    function closeDetail() { document.getElementById('detail-modal').style.display = 'none'; document.body.style.overflow = 'auto'; }
 
     function addToCart(id) {
-        const p = productsData[id];
-        cart.push(p);
+        cart.push(productsData[id]);
         document.getElementById('cartCount').innerText = cart.length;
-        alert("Savatchaga qo'shildi! ✅");
     }
 
-    // Buyurtmani Telegramga yuborish (Savat tugmasi uchun funksiya)
-    function checkout() {
-        if(cart.length === 0) return;
-        let msg = "Assalomu alaykum! Buyurtmalarim:\n";
+    function showCart() {
+        if(cart.length === 0) return alert("Savat bo'sh!");
+        let msg = "Assalomu alaykum @Jahongir3616! Buyurtmalarim:\n";
         cart.forEach((item, i) => msg += `${i+1}. ${item.name} - ${item.price} so'm\n`);
         window.open(`https://t.me/Jahongir3616?text=${encodeURIComponent(msg)}`);
     }
