@@ -3,137 +3,73 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tovar Pro do'koni</title>
+    <title>Pekin Tovar Pro</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --main-color: #0088cc; --bg-color: #f8f9fa; --text-color: #333; --card-bg: white; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--bg-color); margin: 0; padding: 0; color: var(--text-color); }
-        header { background: var(--main-color); padding: 15px; color: white; text-align: center; box-shadow: 0 4px 10px rgba(0,0,0,0.1); position: sticky; top: 0; z-index: 1000; }
-        header h2 { margin: 0; font-size: 20px; }
-        .toggle-admin { background: rgba(255, 255, 255, 0.2); border: 1px solid white; padding: 5px 12px; border-radius: 8px; font-size: 13px; margin-top: 10px; color: white; cursor: pointer; font-weight: bold;}
+        :root { --main-color: #0088cc; --bg: #f4f4f7; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; }
+        
+        /* Header va Bo'limlar */
+        header { background: var(--main-color); color: white; padding: 20px; text-align: center; sticky: top; }
+        .nav-categories { display: flex; overflow-x: auto; background: white; padding: 10px; gap: 10px; sticky: top; }
+        .nav-item { background: #eee; padding: 8px 15px; border-radius: 20px; white-space: nowrap; font-size: 14px; cursor: pointer; }
+        .nav-item.active { background: var(--main-color); color: white; }
 
-        /* Admin panel */
-        .admin-panel { background: #333; color: white; padding: 25px; margin: 15px; border-radius: 15px; display: none; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .admin-panel h3 { margin-top: 0; text-align: center;}
-        .admin-panel input, .admin-panel select, .admin-panel .file-input-wrapper { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: none; font-size: 14px; box-sizing: border-box;}
-        .admin-panel .file-input-wrapper { background: #555; cursor: pointer; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;}
-        .admin-panel .file-input-wrapper input[type="file"] { position: absolute; left: 0; top: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;}
-        .admin-panel .file-input-wrapper label { cursor: pointer; color: white;}
-        .add-btn { background: #28a745; color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; margin-top: 15px; font-weight: bold; font-size: 15px; cursor: pointer; transition: 0.3s;}
-        .add-btn:hover { background: #218838; }
-
-        /* Bo'limlar va mahsulotlar */
-        .category-section { padding: 15px; }
-        .category-header { background: #e0e0e0; color: #555; padding: 8px 15px; border-radius: 8px; font-weight: bold; font-size: 14px; margin-bottom: 10px; }
-        .product-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-
-        /* Mahsulot kartasi */
-        .card { background: var(--card-bg); border-radius: 15px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.05); transition: 0.3s; position: relative;}
-        .card img { width: 100%; height: 150px; object-fit: cover; border-bottom: 1px solid #eee; }
-        .card-info { padding: 10px; text-align: center; }
-        .card-info h3 { margin: 5px 0; font-size: 14px; height: 35px; overflow: hidden; }
-        .price { color: var(--main-color); font-weight: bold; font-size: 16px; margin-bottom: 10px;}
-        .buy-btn { background: var(--main-color); color: white; border: none; width: 100%; padding: 11px; cursor: pointer; font-weight: bold; font-size: 14px;}
-        .buy-btn:hover { background: #007bb5; }
-        .card:hover { transform: translateY(-3px); box-shadow: 0 6px 18px rgba(0,0,0,0.1); }
-        .card:active { transform: scale(0.98); }
-
+        /* Mahsulotlar */
+        .container { padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
+        .card img { width: 100%; height: 160px; object-fit: cover; }
+        .card-body { padding: 10px; text-align: center; }
+        .card-body h3 { margin: 5px 0; font-size: 15px; height: 40px; overflow: hidden; }
+        .price { color: var(--main-color); font-weight: bold; margin: 10px 0; }
+        .buy-btn { background: var(--main-color); color: white; border: none; width: 100%; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        
+        h2.cat-title { padding: 10px 15px; margin: 10px 0 0 0; font-size: 18px; color: #555; }
     </style>
 </head>
 <body>
 
 <header>
-    <h2>🛍 Pekin Tovar Pro</h2>
-    <button class="toggle-admin" onclick="toggleAdmin()">⚙️ Admin Panel (Faqat men uchun)</button>
+    <h2 style="margin:0;">🛍 Pekin Tovar Do'koni</h2>
 </header>
 
-<div class="admin-panel" id="adminPanel">
-    <h3><i class="fas fa-plus-circle"></i> Yangi mahsulot qo'shish</h3>
-    <input type="text" id="pName" placeholder="Mahsulot nomi">
-    <input type="text" id="pPrice" placeholder="Narxi (masalan: 100 000 UZS)">
-    <select id="pCat">
-        <option value="bolalar">Bolalar</option>
-        <option value="kiyimlar">Kiyimlar</option>
-        <option value="oyoqkiyim">Oyoq kiyim</option>
-        <option value="ayollar">Ayollar</option>
-    </select>
-    <div class="file-input-wrapper">
-        <label for="pImg"><i class="fas fa-image"></i> Rasm yuborish (Rasm yuborish tugmasi)</label>
-        <input type="file" id="pImg" accept="image/*">
-    </div>
-    <button class="add-btn" onclick="addProduct()"><i class="fas fa-save"></i> Qo'shish va Kompyuterda Saqlash Buyrug'ini Yaratish</button>
+<div class="nav-categories">
+    <div class="nav-item active">Barchasi</div>
+    <div class="nav-item">Bolalar</div>
+    <div class="nav-item">Kiyimlar</div>
+    <div class="nav-item">Oyoq kiyim</div>
 </div>
 
-<div id="shopContent">
-    <div class="category-section" id="bolalarSection" style="display: none;">
-        <div class="category-header"><i class="fas fa-child"></i> Bolalar mahsulotlari</div>
-        <div class="product-grid" id="bolalarGrid"></div>
+<h2 class="cat-title">👶 Bolalar uchun</h2>
+<div class="container" id="bolalar">
+    <div class="card">
+        <img src="https://images.uzum.uz/clv686lennt1tkof81bg/original.jpg">
+        <div class="card-body">
+            <h3>Bolalar kombinezoni</h3>
+            <p class="price">180 000 UZS</p>
+            <button class="buy-btn" onclick="order('Bolalar kombinezoni')">Sotib olish</button>
+        </div>
     </div>
-    
-    <div class="category-section" id="kiyimlarSection" style="display: none;">
-        <div class="category-header"><i class="fas fa-tshirt"></i> Kiyimlar</div>
-        <div class="product-grid" id="kiyimlarGrid"></div>
-    </div>
-    
-    <div class="category-section" id="oyoqkiyimSection" style="display: none;">
-        <div class="category-header"><i class="fas fa-shoe-prints"></i> Oyoq kiyimlar</div>
-        <div class="product-grid" id="oyoqkiyimGrid"></div>
-    </div>
-    
-    <div class="category-section" id="ayollarSection" style="display: none;">
-        <div class="category-header"><i class="fas fa-female"></i> Ayollar mahsulotlari</div>
-        <div class="product-grid" id="ayollarGrid"></div>
+</div>
+
+<h2 class="cat-title">👕 Kiyimlar</h2>
+<div class="container" id="kiyimlar">
+    <div class="card">
+        <img src="https://images.uzum.uz/cm0u5dns99ouqbfre32g/original.jpg">
+        <div class="card-body">
+            <h3>Pekin Erkaklar kurtkasi</h3>
+            <p class="price">350 000 UZS</p>
+            <button class="buy-btn" onclick="order('Erkaklar kurtkasi')">Sotib olish</button>
+        </div>
     </div>
 </div>
 
 <script>
     let tg = window.Telegram.WebApp;
     tg.expand();
-    let adminPanel = document.getElementById('adminPanel');
 
-    function toggleAdmin() {
-        adminPanel.style.display = adminPanel.style.display === 'block' ? 'none' : 'block';
-    }
-
-    function addProduct() {
-        let name = document.getElementById('pName').value;
-        let price = document.getElementById('pPrice').value;
-        let cat = document.getElementById('pCat').value;
-        let imgInput = document.getElementById('pImg');
-
-        if(!name || !price || !cat || imgInput.files.length === 0) {
-            alert("Hamma joyni to'ldiring va rasm yuboring!");
-            return;
-        }
-
-        let gridId = cat + 'Grid';
-        let sectionId = cat + 'Section';
-        let grid = document.getElementById(gridId);
-        let section = document.getElementById(sectionId);
-
-        let reader = new FileReader();
-        reader.onload = function(e) {
-            let imgSource = e.target.result;
-            let newCard = `
-                <div class="card">
-                    <img src="${imgSource}">
-                    <div class="card-info">
-                        <h3>${name}</h3>
-                        <p class="price">${price}</p>
-                        <button class="buy-btn" onclick="buy('${name}')">Sotib olish</button>
-                    </div>
-                </div>`;
-            grid.innerHTML += newCard;
-            section.style.display = 'block'; // Bo'limni ko'rsatish
-            alert("Muvaffaqiyatli qo'shildi!");
-            toggleAdmin(); // Panelni yopish
-        }
-        reader.readAsDataURL(imgInput.files[0]);
-    }
-
-    function buy(name) {
-        tg.sendData("Buyurtma: " + name);
+    function order(item) {
+        tg.sendData("Buyurtma: " + item);
         tg.close();
     }
 </script>
