@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tovar | Online</title>
+    <title>Pekin Tovar | Online Store</title>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -36,6 +36,7 @@
         .nav-item i { font-size: 20px; display: block; margin-bottom: 3px; }
 
         input, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; background: #111; border: 1px solid #333; color: white; }
+        button { background: var(--main); color: white; border: none; padding: 15px; border-radius: 10px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
@@ -53,15 +54,15 @@
         <h2 style="text-align: center;">Kerakli Mahsulotlar</h2>
         <div style="background: #111; padding: 20px; border-radius: 15px; border: 1px solid #222;">
             <input type="text" id="reqPhone" placeholder="Telefon raqamingiz">
-            <textarea id="reqText" placeholder="Sizga qanday mahsulot kerak? (Nomi, rangi, o'lchami...)" rows="4"></textarea>
-            <button onclick="sendRequest()" style="width:100%; background:var(--main); border:none; color:white; padding:15px; border-radius:10px; font-weight:bold;">Adminga yuborish</button>
+            <textarea id="reqText" placeholder="Sizga qanday mahsulot kerak?" rows="4"></textarea>
+            <button onclick="sendRequest()" style="width:100%;">Adminga yuborish</button>
         </div>
     </div>
 
     <div id="cart-page" class="page">
         <h3>Savat</h3><div id="cartItems"></div>
         <h4 id="cartTotal">Jami: 0 so'm</h4>
-        <button onclick="checkout()" style="width:100%; background:var(--main); color:white; border:none; padding:15px; border-radius:10px;">Buyurtma berish</button>
+        <button onclick="checkout()" style="width:100%;">Buyurtma berish</button>
     </div>
 </div>
 
@@ -108,7 +109,7 @@
             if(currentCat === "Hammasi" || p.category === currentCat) {
                 grid.innerHTML += `
                 <div class="card" onclick="openDetail('${id}')">
-                    <img src="${p.images[0]}">
+                    <img src="${p.images ? p.images[0] : ''}">
                     <div class="card-info">
                         <div class="p-name">${p.name}</div>
                         <div class="p-price">${parseInt(p.price).toLocaleString()} so'm</div>
@@ -129,14 +130,14 @@
         const p = allProducts[id];
         const modal = document.getElementById('detail-modal');
         modal.style.display = 'block';
-        let imgs = p.images.map(i => `<img src="${i}" style="width:100%; margin-bottom:5px;">`).join('');
+        let imgs = p.images ? p.images.map(i => `<img src="${i}" style="width:100%; margin-bottom:5px;">`).join('') : '';
         document.getElementById('detailBody').innerHTML = `
             ${imgs}
             <div style="padding:20px;">
                 <h1>${p.name}</h1>
                 <h3 style="color:var(--main)">${parseInt(p.price).toLocaleString()} so'm</h3>
-                <p style="color:#888; line-height:1.6;">${p.desc || "Tavsif yo'q."}</p>
-                <button onclick="addToCart('${id}')" style="width:100%; background:var(--main); color:white; border:none; padding:18px; border-radius:12px; font-weight:bold;">Savatga qo'shish</button>
+                <p style="color:#888;">${p.desc || "Tavsif yo'q."}</p>
+                <button onclick="addToCart('${id}')" style="width:100%;">Savatga qo'shish</button>
             </div>`;
     }
 
