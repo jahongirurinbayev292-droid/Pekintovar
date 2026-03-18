@@ -9,71 +9,69 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --primary: #7000ff; --bg: #f4f7f6; --dark: #1a1a2e; --white: #ffffff; --danger: #ff4757; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; }
-        
-        /* Header */
-        header { background: var(--dark); color: white; padding: 20px; text-align: center; font-size: 22px; font-weight: 800; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        
-        /* Navigation */
-        .tabs { display: flex; background: var(--white); overflow-x: auto; sticky; top: 65px; z-index: 999; border-bottom: 2px solid #ddd; }
-        .tab-btn { flex: 1; padding: 15px; border: none; background: none; font-weight: bold; cursor: pointer; color: #666; transition: 0.3s; white-space: nowrap; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); margin: 0; padding-bottom: 50px; }
+        header { background: var(--dark); color: white; padding: 20px; text-align: center; font-size: 22px; font-weight: 800; position: sticky; top: 0; z-index: 1000; }
+        .tabs { display: flex; background: var(--white); overflow-x: auto; border-bottom: 2px solid #ddd; position: sticky; top: 65px; z-index: 999; }
+        .tab-btn { flex: 1; padding: 15px; border: none; background: none; font-weight: bold; cursor: pointer; color: #666; white-space: nowrap; }
         .tab-btn.active { color: var(--primary); border-bottom: 3px solid var(--primary); background: #f0e6ff; }
-
-        /* Form & Cards */
         .container { max-width: 600px; margin: 20px auto; padding: 0 15px; }
         .card { background: var(--white); padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.05); margin-bottom: 20px; }
-        h3 { margin-top: 0; color: var(--dark); border-left: 4px solid var(--primary); padding-left: 10px; }
-
-        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-size: 15px; outline: none; }
-        input:focus { border-color: var(--primary); }
-        
+        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; outline: none; }
         .row { display: flex; gap: 10px; }
         
-        button.main-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s; }
-        button.main-btn:disabled { background: #ccc; cursor: not-allowed; }
+        /* Maxsus Checkbox Style */
+        .switch-container { display: flex; align-items: center; gap: 10px; margin: 15px 0; background: #f9f9f9; padding: 10px; border-radius: 10px; border: 1px dashed var(--primary); }
+        .switch { position: relative; display: inline-block; width: 45px; height: 22px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
+        .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 4px; bottom: 3px; background-color: white; transition: .4s; border-radius: 50%; }
+        input:checked + .slider { background-color: var(--primary); }
+        input:checked + .slider:before { transform: translateX(23px); }
 
-        /* Status Bar */
-        #status-box { text-align: center; margin: 10px 0; font-weight: bold; color: var(--primary); }
-        
-        /* Product List */
+        button.main-btn { width: 100%; padding: 15px; border: none; border-radius: 12px; background: var(--primary); color: white; font-weight: bold; cursor: pointer; }
+        #status-box { text-align: center; margin: 10px 0; font-weight: bold; color: var(--primary); font-size: 14px; }
         .item-row { display: flex; align-items: center; gap: 15px; padding: 10px; border-bottom: 1px solid #eee; }
         .item-row img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; }
-        .item-info { flex: 1; }
         .del-btn { background: var(--danger); color: white; border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; }
-
         .tab-content { display: none; }
         .tab-content.active { display: block; }
     </style>
 </head>
 <body>
 
-<header>PEKIN CONTROL PANEL</header>
+<header>PEKIN ADMIN MUKAMMAL</header>
 
 <div class="tabs">
-    <button class="tab-btn active" onclick="showTab(event, 'tab-add')"><i class="fa fa-plus-circle"></i> Qo'shish</button>
-    <button class="tab-btn" onclick="showTab(event, 'tab-list')"><i class="fa fa-boxes"></i> Mahsulotlar</button>
-    <button class="tab-btn" onclick="showTab(event, 'tab-menu')"><i class="fa fa-list"></i> Menyular</button>
-    <button class="tab-btn" onclick="showTab(event, 'tab-orders')"><i class="fa fa-envelope"></i> Istaklar</button>
+    <button class="tab-btn active" onclick="showTab(event, 'tab-add')">Qo'shish</button>
+    <button class="tab-btn" onclick="showTab(event, 'tab-list')">Mahsulotlar</button>
+    <button class="tab-btn" onclick="showTab(event, 'tab-menu')">Menyular</button>
+    <button class="tab-btn" onclick="showTab(event, 'tab-orders')">Istaklar</button>
 </div>
 
 <div class="container">
     
     <div id="tab-add" class="tab-content active">
         <div class="card">
-            <h3>Yangi Mahsulot</h3>
-            <input type="text" id="pTitle" placeholder="Mahsulot nomi">
-            <input type="number" id="pPrice" placeholder="Narxi (masalan: 150000)">
+            <h3>Mahsulot Ma'lumotlari</h3>
+            <input type="text" id="pTitle" placeholder="Nomi">
+            <input type="number" id="pPrice" placeholder="Narxi">
             <select id="pCategory"><option value="">Kategoriya tanlang</option></select>
             
             <div class="row">
-                <input type="text" id="pAge" placeholder="Yosh (5-10 yosh)">
-                <input type="text" id="pSize" placeholder="Razmer (32, 34, XL)">
+                <input type="text" id="pAge" placeholder="Yosh (masalan: 2-7)">
+                <input type="text" id="pSize" placeholder="Razmer (masalan: 36, 38)">
             </div>
             
-            <textarea id="pDesc" placeholder="Mahsulot haqida batafsil ma'lumot (tavsif)..." rows="4"></textarea>
-            
-            <label style="font-size: 13px; color: #666;">Rasmlarni tanlang (30 tagacha):</label>
+            <textarea id="pDesc" placeholder="Mahsulot haqida tavsif..." rows="3"></textarea>
             <input type="file" id="pImgs" multiple accept="image/*">
+
+            <div class="switch-container">
+                <label class="switch">
+                    <input type="checkbox" id="splitUpload">
+                    <span class="slider"></span>
+                </label>
+                <span style="font-size: 14px; font-weight: bold; color: var(--dark);">Rasmlarni alohida mahsulot qilib yuklash</span>
+            </div>
             
             <div id="status-box"></div>
             <button class="main-btn" id="saveBtn" onclick="processUpload()">SAQLASH</button>
@@ -81,37 +79,28 @@
     </div>
 
     <div id="tab-list" class="tab-content">
-        <div class="card">
-            <h3>Barcha Mahsulotlar</h3>
-            <div id="list-container">Yuklanmoqda...</div>
-        </div>
+        <div class="card" id="list-container">Yuklanmoqda...</div>
     </div>
 
     <div id="tab-menu" class="tab-content">
         <div class="card">
-            <h3>Kategoriya qo'shish</h3>
-            <input type="text" id="newCatName" placeholder="Kategoriya nomi (masalan: Oyoq kiyimlar)">
+            <input type="text" id="newCatName" placeholder="Yangi kategoriya">
             <button class="main-btn" onclick="addCategory()">Qo'shish</button>
         </div>
         <div class="card" id="cat-list-container"></div>
     </div>
 
     <div id="tab-orders" class="tab-content">
-        <div class="card">
-            <h3>Mijozlar istaklari</h3>
-            <div id="orders-container">Xabarlar yo'q.</div>
-        </div>
+        <div class="card" id="orders-container">Xabarlar yo'q.</div>
     </div>
 
 </div>
 
 <script>
-    // 1. FIREBASE CONFIG
     const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // 2. TABLARNI ALMASHTIRISH
     function showTab(evt, tabId) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
@@ -119,7 +108,6 @@
         evt.currentTarget.classList.add('active');
     }
 
-    // 3. RASMLARNI SIQISH (Ultra-Tez WebP)
     async function compressImage(file) {
         return new Promise((resolve) => {
             const reader = new FileReader();
@@ -129,19 +117,17 @@
                 img.src = e.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const width = 600; // Optimal o'lcham
-                    const scaleFactor = width / img.width;
-                    canvas.width = width;
-                    canvas.height = img.height * scaleFactor;
-                    const ctx = canvas.getContext('2d');
-                    ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-                    resolve(canvas.toDataURL('image/webp', 0.5)); // 50% sifat
+                    const MAX_WIDTH = 600;
+                    let width = img.width, height = img.height;
+                    if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                    canvas.width = width; canvas.height = height;
+                    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+                    resolve(canvas.toDataURL('image/webp', 0.5));
                 };
             };
         });
     }
 
-    // 4. MAHSULOTNI YUKLASH (Asosiy Funksiya)
     async function processUpload() {
         const name = document.getElementById('pTitle').value;
         const price = document.getElementById('pPrice').value;
@@ -149,93 +135,83 @@
         const age = document.getElementById('pAge').value;
         const size = document.getElementById('pSize').value;
         const desc = document.getElementById('pDesc').value;
-        const fileInput = document.getElementById('pImgs');
-        const files = Array.from(fileInput.files);
+        const files = Array.from(document.getElementById('pImgs').files);
+        const isSplit = document.getElementById('splitUpload').checked;
         const btn = document.getElementById('saveBtn');
         const status = document.getElementById('status-box');
 
-        if(!name || !price || !cat || files.length === 0) return alert("Hamma ma'lumotni to'ldiring!");
+        if(!name || !price || !cat || files.length === 0) return alert("Ma'lumotlarni to'ldiring!");
 
         btn.disabled = true;
-        const compressedImages = [];
-
+        
         try {
-            for(let i = 0; i < files.length; i++) {
-                status.innerText = `🔄 Siqilmoqda: ${i+1} / ${files.length}`;
-                const base64 = await compressImage(files[i]);
-                compressedImages.push(base64);
+            if (isSplit) {
+                // ALOHIDA-ALOHIDA YUKLASH REJIMY
+                for(let i = 0; i < files.length; i++) {
+                    status.innerText = `🔄 Alohida yuklanmoqda: ${i+1}/${files.length}`;
+                    const b64 = await compressImage(files[i]);
+                    await db.ref('products').push({
+                        name, price, category: cat, age, size, desc,
+                        images: [b64],
+                        date: Date.now() + i
+                    });
+                }
+            } else {
+                // BITTA MAHSULOT (GALEREYA) REJIMY
+                const imagesArray = [];
+                for(let i = 0; i < files.length; i++) {
+                    status.innerText = `🔄 Galereya tayyorlanmoqda: ${i+1}/${files.length}`;
+                    imagesArray.push(await compressImage(files[i]));
+                }
+                await db.ref('products').push({
+                    name, price, category: cat, age, size, desc,
+                    images: imagesArray,
+                    date: Date.now()
+                });
             }
 
-            status.innerText = "📤 Bazaga yuborilmoqda...";
-            await db.ref('products').push({
-                name, price, category: cat, age, size, desc,
-                images: compressedImages,
-                date: Date.now()
-            });
-
-            alert("Muvaffaqiyatli saqlandi! ✅");
+            alert("Tayyor! ✅");
             location.reload();
         } catch (e) {
-            alert("Xatolik: " + e.message);
+            alert("Xato yuz berdi!");
             btn.disabled = false;
         }
     }
 
-    // 5. KATEGORIYA QO'SHISH
     function addCategory() {
         const name = document.getElementById('newCatName').value;
-        if(name) {
-            db.ref('categories').push({ name });
-            document.getElementById('newCatName').value = '';
-        }
+        if(name) { db.ref('categories').push({ name }); document.getElementById('newCatName').value = ''; }
     }
 
-    // 6. O'CHIRISH FUNKSIYASI
     function deleteItem(path, id) {
-        if(confirm("Haqiqatan ham o'chirmoqchimisiz?")) {
-            db.ref(path + '/' + id).remove();
-        }
+        if(confirm("O'chirilsinmi?")) db.ref(path + '/' + id).remove();
     }
 
-    // 7. MA'LUMOTLARNI SINXRONLASH (Real-time)
     db.ref('categories').on('value', s => {
         const select = document.getElementById('pCategory');
-        const catList = document.getElementById('cat-list-container');
+        const list = document.getElementById('cat-list-container');
         select.innerHTML = '<option value="">Kategoriya tanlang</option>';
-        catList.innerHTML = '<h3>Kategoriyalar</h3>';
-        s.forEach(child => {
-            const data = child.val();
-            select.innerHTML += `<option value="${data.name}">${data.name}</option>`;
-            catList.innerHTML += `<div class="item-row">
-                <div class="item-info">${data.name}</div>
-                <button class="del-btn" onclick="deleteItem('categories','${child.key}')">O'chirish</button>
-            </div>`;
+        list.innerHTML = '<h3>Kategoriyalar</h3>';
+        s.forEach(c => {
+            select.innerHTML += `<option value="${c.val().name}">${c.val().name}</option>`;
+            list.innerHTML += `<div class="item-row"><span>${c.val().name}</span> <button class="del-btn" onclick="deleteItem('categories','${c.key}')">X</button></div>`;
         });
     });
 
     db.ref('products').on('value', s => {
-        const container = document.getElementById('list-container');
-        container.innerHTML = '';
-        s.forEach(child => {
-            const p = child.val();
-            container.innerHTML += `<div class="item-row">
-                <img src="${p.images[0]}">
-                <div class="item-info"><b>${p.name}</b><br><small>${p.price} so'm</small></div>
-                <button class="del-btn" onclick="deleteItem('products','${child.key}')">O'chirish</button>
-            </div>`;
+        const list = document.getElementById('list-container');
+        list.innerHTML = '<h3>Mahsulotlar</h3>';
+        s.forEach(c => {
+            const p = c.val();
+            list.innerHTML += `<div class="item-row"><img src="${p.images[0]}"><span>${p.name}</span> <button class="del-btn" onclick="deleteItem('products','${c.key}')">O'chirish</button></div>`;
         });
     });
 
     db.ref('customer_requests').on('value', s => {
-        const container = document.getElementById('orders-container');
-        container.innerHTML = '';
-        s.forEach(child => {
-            const r = child.val();
-            container.innerHTML += `<div class="card" style="border:1px solid #ddd;">
-                <b>Tel:</b> ${r.phone}<br>
-                <b>Xabar:</b> ${r.text}<br>
-                <button class="del-btn" style="margin-top:10px;" onclick="deleteItem('customer_requests','${child.key}')">O'chirish</button>
-            </div>`;
+        const list = document.getElementById('orders-container');
+        list.innerHTML = '<h3>Istaklar</h3>';
+        s.forEach(c => {
+            list.innerHTML += `<div class="card"><b>${c.val().phone}</b>: ${c.val().text} <br><button class="del-btn" onclick="deleteItem('customer_requests','${c.key}')">O'chirish</button></div>`;
         });
     });
 </script>
