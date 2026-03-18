@@ -8,35 +8,68 @@
     <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --dark: #1a1a2e; --accent: #7000ff; }
+        :root { --dark: #1a1a2e; --accent: #7000ff; --danger: #ff4757; }
         body { font-family: 'Inter', sans-serif; background: #f0f2f5; margin: 0; padding-bottom: 50px; }
-        header { background: var(--dark); color: white; padding: 15px; text-align: center; font-weight: 800; }
+        header { background: var(--dark); color: white; padding: 15px; text-align: center; font-weight: 800; font-size: 20px; position: sticky; top: 0; z-index: 100; }
+        .nav-tabs { display: flex; overflow-x: auto; gap: 10px; padding: 10px; background: white; border-bottom: 1px solid #ddd; }
+        .tab-link { padding: 10px 20px; white-space: nowrap; cursor: pointer; border-radius: 20px; background: #eee; font-size: 13px; font-weight: bold; }
+        .tab-link.active { background: var(--accent); color: white; }
         .sidebar { background: white; padding: 20px; border-radius: 15px; margin: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        input, select, textarea, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+        input, select, textarea, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ddd; box-sizing: border-box; font-family: inherit; }
         button { background: var(--accent); color: white; border: none; font-weight: bold; cursor: pointer; }
         .row { display: flex; gap: 10px; }
-        #upBtn:disabled { background: #ccc; }
+        .list-card { background: white; border-radius: 12px; padding: 10px; margin: 10px 15px; display: flex; align-items: center; gap: 15px; border: 1px solid #eee; }
+        .list-card img { width: 60px; height: 60px; border-radius: 10px; object-fit: cover; }
+        .btn-red { background: var(--danger); width: auto; padding: 8px 15px; font-size: 12px; }
+        #status { font-size: 13px; color: var(--accent); font-weight: bold; text-align: center; }
     </style>
 </head>
 <body>
 
-<header>PEKIN CONTROL PANEL</header>
+<header>PEKIN ADMIN PANEL</header>
 
-<div class="sidebar">
-    <h3>Yangi mahsulot qo'shish</h3>
-    <input type="text" id="pTitle" placeholder="Mahsulot nomi">
-    <input type="number" id="pPrice" placeholder="Narxi (so'mda)">
-    <select id="pCategory"><option value="">Kategoriya tanlang</option></select>
-    
-    <div class="row">
-        <input type="text" id="pAge" placeholder="Yosh (masalan: 5-12 yosh)">
-        <input type="text" id="pSize" placeholder="Razmerlar (masalan: 32, 34, 36)">
+<div class="nav-tabs">
+    <div class="tab-link active" onclick="openTab(event, 'add-p')">Qo'shish</div>
+    <div class="tab-link" onclick="openTab(event, 'manage-p')">Mahsulotlar</div>
+    <div class="tab-link" onclick="openTab(event, 'manage-m')">Menyular</div>
+    <div class="tab-link" onclick="openTab(event, 'requests')">Istaklar</div>
+</div>
+
+<div id="add-p" class="tab-content active">
+    <div class="sidebar">
+        <h3>Yangi mahsulot</h3>
+        <input type="text" id="pTitle" placeholder="Mahsulot nomi">
+        <input type="number" id="pPrice" placeholder="Narxi (so'm)">
+        <select id="pCategory"><option value="">Kategoriya tanlang</option></select>
+        
+        <div class="row">
+            <input type="text" id="pAge" placeholder="Yosh (masalan: 2-5 yosh)">
+            <input type="text" id="pSize" placeholder="Razmerlar (32, 34, XL)">
+        </div>
+
+        <textarea id="pDesc" placeholder="Mahsulot haqida sharh/tavsif..." rows="3"></textarea>
+        <input type="file" id="pImgs" multiple accept="image/*">
+        <p id="status"></p>
+        <button onclick="uploadProduct()" id="upBtn">Saqlash</button>
     </div>
+</div>
 
-    <textarea id="pDesc" placeholder="Mahsulot haqida qo'shimcha ma'lumot..." rows="3"></textarea>
-    <input type="file" id="pImgs" multiple accept="image/*">
-    <p id="status" style="font-size: 12px; color: var(--accent); font-weight: bold;"></p>
-    <button onclick="uploadProduct()" id="upBtn">Saqlash</button>
+<div id="manage-p" class="tab-content">
+    <div id="all-products-list"></div>
+</div>
+
+<div id="manage-m" class="tab-content">
+    <div class="sidebar">
+        <input type="text" id="mName" placeholder="Yangi menyu nomi">
+        <button onclick="saveMenu()">Menyu qo'shish</button>
+    </div>
+    <div id="all-menus-list"></div>
+</div>
+
+<div id="requests" class="tab-content">
+    <div id="request-list" style="padding: 10px;"></div>
 </div>
 
 <script>
@@ -44,14 +77,13 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    // Kategoriyalarni yuklash
-    db.ref('categories').on('value', s => {
-        const select = document.getElementById('pCategory');
-        select.innerHTML = '<option value="">Kategoriya tanlang</option>';
-        s.forEach(c => { select.innerHTML += `<option value="${c.val().name}">${c.val().name}</option>`; });
-    });
+    function openTab(evt, tabName) {
+        document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+        document.getElementById(tabName).classList.add('active');
+        evt.currentTarget.classList.add('active');
+    }
 
-    // Rasmni o'ta kuchli siqish (Hajmni 80% gacha kamaytiradi)
     async function compressImage(file) {
         return new Promise((resolve) => {
             const reader = new FileReader();
@@ -61,12 +93,11 @@
                 img.src = e.target.result;
                 img.onload = () => {
                     const canvas = document.createElement('canvas');
-                    const MAX_WIDTH = 600; // Hajmni kichikroq qildik (tezlik uchun)
+                    const MAX_WIDTH = 600;
                     let width = img.width, height = img.height;
                     if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
                     canvas.width = width; canvas.height = height;
                     canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-                    // WebP va 0.5 sifat (eng tezkor va yengil format)
                     resolve(canvas.toDataURL('image/webp', 0.5));
                 };
             };
@@ -84,22 +115,20 @@
         const btn = document.getElementById('upBtn');
         const status = document.getElementById('status');
 
-        if(!name || !price || !cat || files.length === 0) return alert("Ma'lumotlar yetarli emas!");
+        if(!name || !price || !cat || files.length === 0) return alert("Ma'lumotlar to'liq emas!");
 
         btn.disabled = true;
-        status.innerText = "⏳ Rasmlar ishlanmoqda (30 tagacha rasm)...";
+        status.innerText = "⏳ Rasmlar siqilmoqda...";
 
         try {
-            // Rasmlarni bittada emas, ketma-ket siqish (Xotira to'lmasligi uchun)
             const compressedImages = [];
-            for(let file of files) {
-                const img = await compressImage(file);
+            for(let i = 0; i < files.length; i++) {
+                status.innerText = `🔄 Tayyorlanmoqda: ${i+1}/${files.length}`;
+                const img = await compressImage(files[i]);
                 compressedImages.push(img);
-                status.innerText = `🔄 Tayyorlandi: ${compressedImages.length}/${files.length}`;
             }
 
             status.innerText = "📤 Bazaga yuborilmoqda...";
-            
             await db.ref('products').push({
                 name, price, category: cat, age, size, desc,
                 images: compressedImages,
@@ -109,11 +138,50 @@
             alert("Muvaffaqiyatli saqlandi! ✅");
             location.reload();
         } catch (e) {
-            console.error(e);
-            alert("Xatolik! Rasmlar sonini kamaytirib ko'ring.");
+            alert("Xato!");
             btn.disabled = false;
         }
     }
+
+    function saveMenu() {
+        const name = document.getElementById('mName').value;
+        if(name) db.ref('categories').push({ name });
+        document.getElementById('mName').value = '';
+    }
+
+    function deleteThis(path, id) {
+        if(confirm("O'chirilsinmi?")) db.ref(path + '/' + id).remove();
+    }
+
+    // Ma'lumotlarni sinxronlash
+    db.ref('categories').on('value', s => {
+        const list = document.getElementById('all-menus-list');
+        const select = document.getElementById('pCategory');
+        list.innerHTML = '';
+        select.innerHTML = '<option value="">Kategoriya tanlang</option>';
+        s.forEach(child => {
+            list.innerHTML += `<div class="list-card"><b>${child.val().name}</b> <button class="btn-red" onclick="deleteThis('categories','${child.key}')">O'chirish</button></div>`;
+            select.innerHTML += `<option value="${child.val().name}">${child.val().name}</option>`;
+        });
+    });
+
+    db.ref('products').on('value', s => {
+        const list = document.getElementById('all-products-list');
+        list.innerHTML = '';
+        s.forEach(child => {
+            const p = child.val();
+            list.innerHTML += `<div class="list-card"><img src="${p.images[0]}"><div><b>${p.name}</b></div><button class="btn-red" onclick="deleteThis('products','${child.key}')">O'chirish</button></div>`;
+        });
+    });
+
+    db.ref('customer_requests').on('value', s => {
+        const list = document.getElementById('request-list');
+        list.innerHTML = '';
+        s.forEach(child => {
+            const r = child.val();
+            list.innerHTML += `<div class="sidebar"><b>Tel:</b> ${r.phone}<br><b>Xabar:</b> ${r.text}<br><button class="btn-red" onclick="deleteThis('customer_requests','${child.key}')">O'chirish</button></div>`;
+        });
+    });
 </script>
 </body>
 </html>
