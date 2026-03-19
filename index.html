@@ -2,287 +2,281 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Pekin Tavor 2026 - Do'kon</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pekin Tavor 2026 | Premium Store</title>
+    
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700&display=swap" rel="stylesheet">
+
     <style>
-        /* ———————————————— GLOBAL STYLES ———————————————— */
         :root {
-            --primary: #f5576c; /* Yorqin pushti */
-            --secondary: #667eea; /* Binafsha */
-            --background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); /* Yorqin gradient */
-            --text: white;
-            --text-dark: #333;
-            --card-bg: rgba(255, 255, 255, 0.95);
+            --accent: #00f2fe;
+            --main-grad: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            --card-shadow: 0 20px 40px rgba(0,0,0,0.2);
         }
 
         body {
             margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background: var(--background);
-            color: var(--text);
-            min-height: 100vh;
-            overflow-x: hidden;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-
-        h1, h2, h3 { text-shadow: 2px 2px 4px rgba(0,0,0,0.1); }
-
-        /* ———————————————— HEADER ———————————————— */
-        .header {
-            text-align: center;
-            padding: 40px 20px;
-            position: relative;
-        }
-
-        .admin-link {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            padding: 8px 15px;
-            border: 2px solid white;
-            border-radius: 20px;
+            font-family: 'Montserrat', sans-serif;
+            background: #0f172a; /* To'q va zamonaviy fon */
             color: white;
+            min-height: 100vh;
+        }
+
+        /* NAVBAR & ADMIN */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 5%;
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(10px);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .admin-btn {
+            background: transparent;
+            border: 1px solid var(--accent);
+            color: var(--accent);
+            padding: 8px 20px;
+            border-radius: 30px;
             text-decoration: none;
-            font-size: 0.9rem;
+            font-weight: bold;
             transition: 0.3s;
         }
-        .admin-link:hover { background: white; color: var(--primary); }
 
-        /* ———————————————— MENYU (BO'LIMLAR) ———————————————— */
+        .admin-btn:hover {
+            background: var(--accent);
+            color: #000;
+            box-shadow: 0 0 20px var(--accent);
+        }
+
+        /* CATEGORY MENU */
         .menu {
             display: flex;
             justify-content: center;
             gap: 15px;
-            margin-bottom: 30px;
-            flex-wrap: wrap;
+            padding: 30px 0;
         }
+
         .menu button {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
             padding: 12px 25px;
-            border: none;
-            border-radius: 25px;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
+            border-radius: 12px;
             cursor: pointer;
-            backdrop-filter: blur(10px);
             transition: 0.3s;
             font-weight: 600;
         }
-        .menu button:hover { background: white; color: var(--secondary); transform: scale(1.05); }
 
-        /* ———————————————— MAHSULOTLAR SETKASI ———————————————— */
-        .products-grid {
+        .menu button.active, .menu button:hover {
+            background: var(--main-grad);
+            color: #000;
+            transform: translateY(-3px);
+        }
+
+        /* PRODUCT GRID (3 QATOR) */
+        .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(3, 1fr); /* ANIQ 3 QATOR */
+            gap: 30px;
+            padding: 0 5% 50px 5%;
+            max-width: 1400px;
+            margin: 0 auto;
         }
 
-        /* ———————————————— MAHSULOT KARTASI ———————————————— */
+        /* PRODUCT CARD */
         .card {
-            background: var(--card-bg);
-            color: var(--text-dark);
-            border-radius: 20px;
+            background: #1e293b;
+            border-radius: 25px;
             overflow: hidden;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .card:hover { transform: translateY(-10px); box-shadow: 0 15px 30px rgba(0,0,0,0.2); }
-        .card img { width: 100%; height: 280px; object-fit: cover; }
-        .card-body { padding: 20px; }
-        .price { color: var(--primary); font-size: 1.4rem; font-weight: bold; margin: 10px 0; }
-        .category-tag { 
-            font-size: 0.8rem; 
-            background: #eee; 
-            padding: 3px 10px; 
-            border-radius: 10px;
-            display: inline-block;
-            margin-bottom: 5px;
-        }
-
-        /* SAVATGA QO'SHISH TUGMASI VA EFFEKT */
-        .add-to-cart-btn {
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 10px;
-            background: var(--secondary);
-            color: white;
-            font-weight: 600;
-            cursor: pointer;
-            transition: 0.3s;
             position: relative;
-        }
-        .add-to-cart-btn:hover { background: #5563d1; }
-
-        /* Savatga qo'shish effekti: Tepadagi savat belgisiga borish */
-        @keyframes flyToCart {
-            0% { transform: scale(1); opacity: 1; top: 0; left: 0; }
-            100% { transform: scale(0.1); opacity: 0; top: calc(-100% - 150px); left: calc(100% - 120px); }
-        }
-        .flying-product {
-            position: fixed;
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            background: rgba(255, 87, 108, 0.5); /* Primary rangli yarim shaffof aylana */
-            z-index: 1000;
-            animation: flyToCart 1s ease-in-out;
+            transition: 0.4s;
+            border: 1px solid rgba(255,255,255,0.1);
         }
 
-        /* ———————————————— SAVAT ———————————————— */
-        .cart-icon {
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background: var(--primary);
-            color: white;
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--accent);
+            box-shadow: var(--card-shadow);
+        }
+
+        .card img {
+            width: 100%;
+            height: 350px;
+            object-fit: cover;
+        }
+
+        .info { padding: 20px; }
+        .price {
+            font-size: 1.6rem;
+            font-weight: 700;
+            color: var(--accent);
+            margin: 10px 0;
+        }
+
+        /* SAVATGA QO'SHISH EFFEKTI (NEON GLOW) */
+        .buy-btn {
+            width: 100%;
             padding: 15px;
-            border-radius: 50%;
+            border: none;
+            background: var(--main-grad);
+            color: #000;
+            font-weight: 800;
+            border-radius: 15px;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            z-index: 900;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
         }
-        .cart-count {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: white;
-            color: var(--primary);
-            width: 20px;
-            height: 20px;
+
+        .buy-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* CART ICON */
+        .cart-float {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: var(--main-grad);
+            width: 70px;
+            height: 70px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.8rem;
+            font-size: 30px;
+            box-shadow: 0 10px 30px rgba(0,242,254,0.4);
+            cursor: pointer;
+            z-index: 1001;
+        }
+
+        .count {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: white;
+            color: black;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
             font-weight: bold;
+        }
+
+        /* MOBILE OPTIMIZATSIYA (Telefonda 1 qator bo'lib qolmasligi uchun) */
+        @media (max-width: 900px) {
+            .grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: repeat(1, 1fr); }
         }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <div class="header">
-        <h1>✨ PEKIN TAVOR 2026 ✨</h1>
-        <p>Hamyonbop narxlar, sifatli kiyimlar do'koni</p>
-        <a href="admin.html" class="admin-link">🛠 Admin</a>
-    </div>
-    
+    <nav class="navbar">
+        <div style="font-size: 24px; font-weight: 900; letter-spacing: 2px;">PEKIN TAVOR <span style="color:var(--accent)">2026</span></div>
+        <a href="admin.html" class="admin-btn">⚙️ ADMIN PANELI</a>
+    </nav>
+
     <div class="menu">
-        <button onclick="loadData('Hammasi')">Barchasi</button>
-        <button onclick="loadData('Erkaklar')">Erkaklar</button>
-        <button onclick="loadData('Ayollar')">Ayollar</button>
-        <button onclick="loadData('Bolalar')">Bolalar</button>
+        <button onclick="load('Hammasi')" class="active">BARCHASI</button>
+        <button onclick="load('Erkaklar')">ERKAKLAR</button>
+        <button onclick="load('Ayollar')">AYOLLAR</button>
+        <button onclick="load('Bolalar')">BOLALAR</button>
     </div>
 
-    <div id="loader" style="text-align: center;">Yuklanmoqda...</div>
-    <div class="products-grid" id="productContainer"></div>
-</div>
+    <div class="grid" id="container"></div>
 
-<div class="cart-icon" onclick="toggleCart()">
-    🛒 <span class="cart-count" id="cartCount">0</span>
-</div>
+    <div class="cart-float">
+        🛒 <div class="count" id="c_count">0</div>
+    </div>
 
-<script>
-    // FIREBASE SOZLAMALARI (2026-yilga mos ma'lumotlar bazasi URLsi)
-    const firebaseConfig = {
-        databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com"
-    };
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    <script>
+        // FIREBASE SOZLAMALARI
+        const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-    // SAVAT MA'LUMOTLARI
-    let cart = [];
+        let cartCount = 0;
 
-    // MAHSULOTLARNI YUKLASH (KATEGORIYA VA SARALASH)
-    function loadData(catName) {
-        const container = document.getElementById('productContainer');
-        const loader = document.getElementById('loader');
-        container.innerHTML = "";
-        loader.style.display = "block";
-
-        let dbRef = database.ref('products');
-        
-        if (catName !== 'Hammasi') {
-            dbRef = dbRef.orderByChild('category').equalTo(catName);
-        }
-
-        dbRef.on('value', (snapshot) => {
-            loader.style.display = "none";
-            const data = snapshot.val();
-            if (!data) {
-                container.innerHTML = "<p>Bu bo'limda mahsulot yo'q.</p>";
-                return;
+        function load(category) {
+            const box = document.getElementById('container');
+            box.innerHTML = "<h2 style='grid-column: 1/4; text-align:center;'>Yuklanmoqda...</h2>";
+            
+            let ref = db.ref('products');
+            if (category !== 'Hammasi') {
+                ref = ref.orderByChild('category').equalTo(category);
             }
 
-            // Ma'lumotlarni o'qib, saralash (buni soddalashtiramiz, hamma ma'lumotni ko'rsatamiz)
-            const productsList = Object.keys(data).map(key => ({ id: key, ...data[key] }));
+            ref.on('value', (snap) => {
+                box.innerHTML = "";
+                const data = snap.val();
+                if (!data) return box.innerHTML = "<h2 style='grid-column: 1/4; text-align:center;'>Hozircha mahsulot yo'q</h2>";
 
-            productsList.forEach(p => {
-                container.innerHTML += `
-                    <div class="card">
-                        <img src="${p.images ? p.images[0] : ''}" alt="Mahsulot">
-                        <div class="card-body">
-                            <span class="category-tag">${p.category}</span>
-                            <h3>${p.name || 'Nomsiz'}</h3>
-                            <p>O'lcham: ${p.size || 'Mavjud emas'}</p>
-                            <div class="price">${p.price.toLocaleString()} so'm</div>
-                            <button class="add-to-cart-btn" onclick="addToCart(event, '${p.id}', '${p.name}', ${p.price}, '${p.images ? p.images[0] : ''}')">Savatga qo'shish</button>
+                Object.values(data).reverse().forEach(p => {
+                    box.innerHTML += `
+                        <div class="card">
+                            <img src="${p.images[0]}" alt="Kiyim">
+                            <div class="info">
+                                <small style="color:var(--accent)">${p.category}</small>
+                                <h3 style="margin:5px 0;">${p.name}</h3>
+                                <div class="price">${p.price.toLocaleString()} SO'M</div>
+                                <button class="buy-btn" onclick="addToCart(this)">Savatga qo'shish</button>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                });
             });
-        });
-    }
+        }
 
-    // SAVATGA QO'SHISH VA EFFEKT
-    function addToCart(event, id, name, price, img) {
-        // Savatga ma'lumot qo'shish
-        cart.push({ id, name, price, img });
-        updateCartCount();
+        // SAVATGA QO'SHISH EFFEKTI (GLOW SPLASH)
+        function addToCart(btn) {
+            cartCount++;
+            document.getElementById('c_count').innerText = cartCount;
 
-        // Savatga qo'shish effekti
-        const productCard = event.target.closest('.card');
-        const productImage = productCard.querySelector('img');
-        
-        const flyingImage = document.createElement('div');
-        flyingImage.classList.add('flying-product');
-        
-        // Effektdagi rasmni tanlash (oddiy aylana o'rniga rasmning o'zini ishlatsak ham bo'ladi, lekin aylana soddaroq)
-        
-        const rect = productImage.getBoundingClientRect();
-        flyingImage.style.top = rect.top + 'px';
-        flyingImage.style.left = rect.left + 'px';
-        flyingImage.style.backgroundImage = `url(${img})`;
-        flyingImage.style.backgroundSize = 'cover';
-        
-        document.body.appendChild(flyingImage);
-        
-        // Effekt tugagandan so'ng o'chirish
-        setTimeout(() => {
-            flyingImage.remove();
-        }, 1000);
-    }
+            // Tugma effekti
+            btn.style.background = "white";
+            btn.innerText = "QO'SHILDI ✅";
+            
+            setTimeout(() => {
+                btn.style.background = "";
+                btn.innerText = "SAVATGA QO'SHISH";
+            }, 1000);
 
-    function updateCartCount() {
-        document.getElementById('cartCount').innerText = cart.length;
-    }
+            // Portlash effekti (Visual feedback)
+            const splash = document.createElement('div');
+            splash.style.position = 'fixed';
+            splash.style.top = '50%';
+            splash.style.left = '50%';
+            splash.style.transform = 'translate(-50%, -50%)';
+            splash.style.width = '0px';
+            splash.style.height = '0px';
+            splash.style.boxShadow = '0 0 100px 50px rgba(0, 242, 254, 0.3)';
+            splash.style.borderRadius = '50%';
+            splash.style.transition = '0.5s';
+            splash.style.zIndex = '2000';
+            document.body.appendChild(splash);
 
-    function toggleCart() {
-        alert("Savat funksiyasi hali to'liq ishlamaydi (savatni ko'rish kodini qo'shish kerak). Lekin siz ${cart.length} ta mahsulot qo'shdingiz.");
-    }
+            setTimeout(() => {
+                splash.style.width = '500px';
+                splash.style.height = '500px';
+                splash.style.opacity = '0';
+            }, 10);
+            
+            setTimeout(() => splash.remove(), 500);
+        }
 
-    // Boshida hammasini chiqarish
-    loadData('Hammasi');
-</script>
-
+        load('Hammasi');
+    </script>
 </body>
 </html>
