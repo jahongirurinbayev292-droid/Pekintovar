@@ -3,80 +3,86 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tavor | Premium Purple</title>
+    <title>Pekin Tavor 2026</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
-        /* DIZAYN VA FON */
         body { 
             margin: 0; font-family: 'Segoe UI', sans-serif; 
-            background: linear-gradient(135deg, #2d033b 0%, #810ca8 100%); 
-            color: #fff; min-height: 100vh;
+            background: linear-gradient(45deg, #301934, #702963); 
+            color: #fff; min-height: 100vh; overflow-x: hidden;
         }
 
         header {
-            background: rgba(0, 0, 0, 0.4); padding: 15px 5%; 
+            background: rgba(0,0,0,0.6); padding: 10px 5%; 
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid #c147e9; backdrop-filter: blur(10px);
-            position: sticky; top: 0; z-index: 1000;
+            border-bottom: 1px solid #da70d6; position: sticky; top: 0; z-index: 1000;
         }
-        .logo { font-size: 20px; font-weight: 900; color: #e5b8f4; text-shadow: 0 0 10px #e5b8f4; }
-        .nav-icons { display: flex; gap: 20px; align-items: center; }
-        .nav-item { cursor: pointer; position: relative; font-size: 16px; transition: 0.3s; }
-        .badge { background: #ff00ff; color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -10px; right: -12px; }
+        .logo { font-size: 18px; font-weight: 900; color: #ff00ff; }
+        .nav-icons { display: flex; gap: 15px; }
+        .nav-item { cursor: pointer; position: relative; font-size: 14px; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 8px; }
+        .badge { background: #ff00ff; border-radius: 50%; padding: 2px 5px; font-size: 9px; position: absolute; top: -5px; right: -5px; }
 
-        /* KATEGORIYALAR */
-        .cats { text-align: center; padding: 20px; }
+        .cats { text-align: center; padding: 15px; overflow-x: auto; white-space: nowrap; }
         .cats button { 
-            padding: 8px 18px; margin: 5px; border: 1px solid #e5b8f4; 
-            background: transparent; color: #fff; cursor: pointer; border-radius: 20px;
+            padding: 6px 12px; margin: 3px; border: 1px solid #da70d6; 
+            background: transparent; color: #fff; cursor: pointer; border-radius: 15px; font-size: 12px;
         }
-        .cats button:hover, .cats button.active { background: #e5b8f4; color: #2d033b; font-weight: bold; }
+        .cats button.active { background: #da70d6; }
 
-        /* 3 QATORLI GRID */
+        /* 3 QATORLI JUDA IXCHAM GRID */
         .grid {
-            display: grid; grid-template-columns: repeat(3, 1fr); 
-            gap: 15px; padding: 10px 5%; max-width: 1200px; margin: 0 auto;
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); /* DOIM 3 QATOR */
+            gap: 10px; padding: 10px; max-width: 900px; margin: 0 auto;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.1); border-radius: 15px; border: 1px solid rgba(229, 184, 244, 0.2);
-            overflow: hidden; text-align: center; padding-bottom: 15px; transition: 0.3s; cursor: pointer;
+            background: rgba(255, 255, 255, 0.08); border-radius: 10px; 
+            border: 1px solid rgba(218, 112, 214, 0.3);
+            overflow: hidden; text-align: center; padding-bottom: 8px; transition: 0.2s;
         }
-        .card:hover { transform: translateY(-5px); border-color: #e5b8f4; background: rgba(255, 255, 255, 0.15); }
-        .card img { width: 100%; height: 200px; object-fit: cover; }
-        .card h4 { margin: 10px 0; font-size: 14px; }
-        .price { color: #00ffcc; font-weight: bold; font-size: 17px; margin-bottom: 10px; }
+        .card:hover { border-color: #ff00ff; background: rgba(255, 255, 255, 0.15); }
+        
+        /* RASM O'LCHAMI KICHIKLASHTIRILDI */
+        .card img { width: 100%; height: 130px; object-fit: cover; cursor: pointer; }
+        
+        .card h4 { margin: 5px 0; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 5px; }
+        .price { color: #00ffcc; font-weight: bold; font-size: 14px; margin-bottom: 5px; }
+        .btn-savat { background: #ff00ff; border: none; color: #fff; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; width: 80%; }
 
-        .btn-buy { background: #c147e9; border: none; color: #fff; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
-
-        /* MODAL (MA'LUMOT VA SAVAT) */
+        /* MODAL (Batafsil ma'lumot) */
         #modal {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center;
         }
         .modal-box {
-            background: #2d033b; padding: 25px; border-radius: 20px; max-width: 380px; width: 90%;
-            text-align: center; border: 2px solid #e5b8f4; position: relative;
+            background: #301934; padding: 20px; border-radius: 15px; max-width: 320px; width: 85%;
+            text-align: center; border: 2px solid #ff00ff; position: relative;
         }
-        .close { position: absolute; top: 10px; right: 15px; font-size: 25px; cursor: pointer; }
+        .close { position: absolute; top: 5px; right: 12px; font-size: 25px; cursor: pointer; }
 
-        @media (max-width: 800px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 500px) { .grid { grid-template-columns: repeat(1, 1fr); } }
+        @media (max-width: 600px) {
+            .grid { grid-template-columns: repeat(3, 1fr); gap: 5px; } /* Telefondayam 3 qator */
+            .card img { height: 100px; }
+            .card h4 { font-size: 10px; }
+            .price { font-size: 11px; }
+        }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">PEKIN TAVOR 2026</div>
+    <div class="logo">PEKIN TAVOR</div>
     <div class="nav-icons">
         <div class="nav-item" onclick="openAdmin()">⚙️ Admin</div>
         <div class="nav-item" onclick="sendOrder()">🛒 <span id="cart-count" class="badge">0</span></div>
-    </header>
+    </div>
+</header>
 
 <div class="cats">
-    <button onclick="load('Hammasi')">Barchasi</button>
+    <button onclick="load('Hammasi')" class="active">Barchasi</button>
     <button onclick="load('Erkaklar')">Erkaklar</button>
     <button onclick="load('Ayollar')">Ayollar</button>
     <button onclick="load('Bolalar')">Bolalar</button>
@@ -87,34 +93,28 @@
 <div id="modal">
     <div class="modal-box">
         <span class="close" onclick="closeM()">&times;</span>
-        <img id="m-img" style="width:100%; border-radius:10px; height:220px; object-fit:cover; margin-bottom:15px;">
-        <h2 id="m-title" style="color:#e5b8f4; margin:5px 0;"></h2>
-        <div id="m-price" style="font-size:20px; color:#00ffcc; font-weight:bold; margin-bottom:15px;"></div>
-        <div style="text-align: left; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; font-size: 14px;">
+        <img id="m-img" style="width:100%; border-radius:8px; height:200px; object-fit:cover; margin-bottom:10px;">
+        <h3 id="m-title" style="color:#ff00ff; margin:5px 0; font-size:18px;"></h3>
+        <div id="m-price" style="font-size:18px; color:#00ffcc; font-weight:bold; margin-bottom:10px;"></div>
+        <div style="text-align: left; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 13px;">
             <p><b>📏 O'lcham:</b> <span id="m-size"></span></p>
             <p><b>👶 Yosh:</b> <span id="m-age"></span></p>
             <p><b>📝 Izoh:</b> <span id="m-desc"></span></p>
         </div>
-        <button class="btn-buy" style="width:100%; margin-top:15px; padding:12px;" onclick="addToCart()">SAVATGA QO'SHISH</button>
+        <button class="btn-savat" style="width:100%; margin-top:15px; padding:10px; font-size:14px;" onclick="addToCart()">SAVATGA QO'SHISH</button>
     </div>
 </div>
 
 <script>
-    // FIREBASE
     const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let cart = []; // Savatdagi mahsulotlar ro'yxati
+    let cart = [];
 
-    // ADMIN KIRISH (4321)
     function openAdmin() {
-        let p = prompt("Admin parolini kiriting:");
-        if (p === "4321") {
-            window.location.href = "https://t.me/Jahongir3616";
-        } else {
-            alert("Xato kod!");
-        }
+        if (prompt("Admin paroli:") === "4321") window.location.href = "https://t.me/Jahongir3616";
+        else alert("Xato!");
     }
 
     function load(cat) {
@@ -126,26 +126,25 @@
         ref.on('value', snap => {
             grid.innerHTML = "";
             const data = snap.val();
-            if(!data) return grid.innerHTML = "Mahsulot yo'q.";
+            if(!data) return grid.innerHTML = "Bo'sh";
 
             Object.keys(data).reverse().forEach(id => {
                 let p = data[id];
                 grid.innerHTML += `
-                    <div class="card" onclick="openM('${p.name}', '${p.price}', '${p.images[0]}', '${p.size || 'M'}', '${p.age || '15+'}', '${p.desc || 'Sifatli'}')">
+                    <div class="card" onclick="openM('${p.name}', '${p.price}', '${p.images[0]}', '${p.size || 'S/M'}', '${p.age || '3-15'}', '${p.desc || 'A'lo'}')">
                         <img src="${p.images[0]}">
                         <h4>${p.name}</h4>
-                        <div class="price">${parseInt(p.price).toLocaleString()} so'm</div>
-                        <button class="btn-buy" onclick="event.stopPropagation(); addToCartDirect('${p.name}', '${p.price}')">Savatga</button>
+                        <div class="price">${parseInt(p.price).toLocaleString()}</div>
+                        <button class="btn-savat" onclick="event.stopPropagation(); addQuick('${p.name}', '${p.price}')">Savat</button>
                     </div>
                 `;
             });
         });
     }
 
-    // MODAL OCHISH
-    let currentP = {};
+    let cur = {};
     function openM(t, p, i, s, a, d) {
-        currentP = {name: t, price: p};
+        cur = {name: t, price: p};
         document.getElementById('m-title').innerText = t;
         document.getElementById('m-price').innerText = parseInt(p).toLocaleString() + " so'm";
         document.getElementById('m-img').src = i;
@@ -157,35 +156,18 @@
 
     function closeM() { document.getElementById('modal').style.display = "none"; }
 
-    // SAVATGA QO'SHISH
-    function addToCart() {
-        cart.push(currentP);
-        updateCart();
-        closeM();
-    }
-    function addToCartDirect(name, price) {
-        cart.push({name, price});
-        updateCart();
-    }
-    function updateCart() {
-        document.getElementById('cart-count').innerText = cart.length;
-    }
+    function addToCart() { cart.push(cur); updateC(); closeM(); }
+    function addQuick(n, p) { cart.push({name:n, price:p}); updateC(); }
+    function updateC() { document.getElementById('cart-count').innerText = cart.length; }
 
-    // BUYURTMANI ADMINGA YUBORISH
     function sendOrder() {
         if(cart.length === 0) return alert("Savat bo'sh!");
-        
-        let text = "Yangi Buyurtma:\n\n";
-        cart.forEach((item, index) => {
-            text += `${index+1}. ${item.name} - ${item.price} so'm\n`;
-        });
-        
-        let url = `https://t.me/Jahongir3616?text=${encodeURIComponent(text)}`;
-        window.location.href = url;
+        let t = "Yangi Buyurtma:\n";
+        cart.forEach((m, i) => t += `${i+1}. ${m.name} - ${m.price} so'm\n`);
+        window.location.href = `https://t.me/Jahongir3616?text=${encodeURIComponent(t)}`;
     }
 
     load('Hammasi');
 </script>
-
 </body>
 </html>
