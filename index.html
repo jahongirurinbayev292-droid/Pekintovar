@@ -8,66 +8,61 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
+        * { box-sizing: border-box; }
         body { 
-            margin: 0; font-family: 'Segoe UI', sans-serif; 
-            background: linear-gradient(45deg, #301934, #702963); 
-            color: #fff; min-height: 100vh; overflow-x: hidden;
+            margin: 0; font-family: sans-serif; 
+            background: linear-gradient(180deg, #2e0249 0%, #570a57 100%); 
+            color: #fff; min-height: 100vh;
         }
 
+        /* HEADER */
         header {
-            background: rgba(0,0,0,0.6); padding: 10px 5%; 
+            background: rgba(0,0,0,0.5); padding: 10px 5%; 
             display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #da70d6; position: sticky; top: 0; z-index: 1000;
+            border-bottom: 2px solid #f806cc; position: sticky; top: 0; z-index: 1000;
         }
-        .logo { font-size: 18px; font-weight: 900; color: #ff00ff; }
+        .logo { font-size: 18px; font-weight: bold; color: #f806cc; }
         .nav-icons { display: flex; gap: 15px; }
-        .nav-item { cursor: pointer; position: relative; font-size: 14px; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 8px; }
-        .badge { background: #ff00ff; border-radius: 50%; padding: 2px 5px; font-size: 9px; position: absolute; top: -5px; right: -5px; }
+        .btn-top { cursor: pointer; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 5px; font-size: 13px; }
 
-        .cats { text-align: center; padding: 15px; overflow-x: auto; white-space: nowrap; }
+        /* KATEGORIYA */
+        .cats { text-align: center; padding: 15px; white-space: nowrap; overflow-x: auto; }
         .cats button { 
-            padding: 6px 12px; margin: 3px; border: 1px solid #da70d6; 
-            background: transparent; color: #fff; cursor: pointer; border-radius: 15px; font-size: 12px;
+            padding: 6px 15px; margin: 3px; border: 1px solid #f806cc; 
+            background: transparent; color: #fff; cursor: pointer; border-radius: 20px; font-size: 12px;
         }
-        .cats button.active { background: #da70d6; }
+        .cats button.active { background: #f806cc; }
 
-        /* 3 QATORLI JUDA IXCHAM GRID */
+        /* 3 QATORLI IXCHAM GRID */
         .grid {
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); /* DOIM 3 QATOR */
-            gap: 10px; padding: 10px; max-width: 900px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(3, 1fr); 
+            gap: 8px; padding: 10px; max-width: 1000px; margin: 0 auto;
         }
 
         .card {
-            background: rgba(255, 255, 255, 0.08); border-radius: 10px; 
-            border: 1px solid rgba(218, 112, 214, 0.3);
-            overflow: hidden; text-align: center; padding-bottom: 8px; transition: 0.2s;
+            background: rgba(255,255,255,0.05); border-radius: 10px; 
+            border: 1px solid rgba(248, 6, 204, 0.2);
+            overflow: hidden; text-align: center; padding-bottom: 10px; transition: 0.2s;
         }
-        .card:hover { border-color: #ff00ff; background: rgba(255, 255, 255, 0.15); }
-        
-        /* RASM O'LCHAMI KICHIKLASHTIRILDI */
-        .card img { width: 100%; height: 130px; object-fit: cover; cursor: pointer; }
-        
-        .card h4 { margin: 5px 0; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 5px; }
-        .price { color: #00ffcc; font-weight: bold; font-size: 14px; margin-bottom: 5px; }
-        .btn-savat { background: #ff00ff; border: none; color: #fff; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 11px; width: 80%; }
+        .card img { width: 100%; height: 120px; object-fit: cover; display: block; }
+        .card h4 { margin: 5px 0; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 3px; }
+        .price { color: #00ffab; font-weight: bold; font-size: 13px; margin-bottom: 5px; }
+        .add-cart { background: #f806cc; border: none; color: white; padding: 5px; border-radius: 4px; width: 90%; font-size: 10px; cursor: pointer; }
 
-        /* MODAL (Batafsil ma'lumot) */
+        /* MODAL OYNASI */
         #modal {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
             background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center;
         }
-        .modal-box {
-            background: #301934; padding: 20px; border-radius: 15px; max-width: 320px; width: 85%;
-            text-align: center; border: 2px solid #ff00ff; position: relative;
+        .m-box {
+            background: #2e0249; padding: 20px; border-radius: 15px; max-width: 320px; width: 90%;
+            text-align: center; border: 2px solid #f806cc; position: relative;
         }
-        .close { position: absolute; top: 5px; right: 12px; font-size: 25px; cursor: pointer; }
+        .close { position: absolute; top: 5px; right: 15px; font-size: 25px; cursor: pointer; }
 
-        @media (max-width: 600px) {
-            .grid { grid-template-columns: repeat(3, 1fr); gap: 5px; } /* Telefondayam 3 qator */
+        @media (max-width: 500px) {
+            .grid { grid-template-columns: repeat(3, 1fr); gap: 5px; }
             .card img { height: 100px; }
-            .card h4 { font-size: 10px; }
-            .price { font-size: 11px; }
         }
     </style>
 </head>
@@ -76,76 +71,85 @@
 <header>
     <div class="logo">PEKIN TAVOR</div>
     <div class="nav-icons">
-        <div class="nav-item" onclick="openAdmin()">⚙️ Admin</div>
-        <div class="nav-item" onclick="sendOrder()">🛒 <span id="cart-count" class="badge">0</span></div>
+        <div class="btn-top" onclick="checkAdmin()">⚙️ Admin</div>
+        <div class="btn-top" onclick="sendToTelegram()">🛒 Savat (<span id="count">0</span>)</div>
     </div>
 </header>
 
 <div class="cats">
-    <button onclick="load('Hammasi')" class="active">Barchasi</button>
+    <button onclick="load('Hammasi')" id="btn-all" class="active">Barchasi</button>
     <button onclick="load('Erkaklar')">Erkaklar</button>
     <button onclick="load('Ayollar')">Ayollar</button>
     <button onclick="load('Bolalar')">Bolalar</button>
 </div>
 
-<div class="grid" id="box"></div>
+<div class="grid" id="product_box"></div>
 
 <div id="modal">
-    <div class="modal-box">
+    <div class="m-box">
         <span class="close" onclick="closeM()">&times;</span>
-        <img id="m-img" style="width:100%; border-radius:8px; height:200px; object-fit:cover; margin-bottom:10px;">
-        <h3 id="m-title" style="color:#ff00ff; margin:5px 0; font-size:18px;"></h3>
-        <div id="m-price" style="font-size:18px; color:#00ffcc; font-weight:bold; margin-bottom:10px;"></div>
-        <div style="text-align: left; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 8px; font-size: 13px;">
+        <img id="m-img" style="width:100%; height:200px; object-fit:cover; border-radius:10px; margin-bottom:10px;">
+        <h3 id="m-name" style="color:#f806cc; margin:5px 0;"></h3>
+        <div id="m-price" style="font-size:20px; color:#00ffab; font-weight:bold; margin-bottom:10px;"></div>
+        <div style="text-align:left; font-size:13px; background:rgba(255,255,255,0.05); padding:10px; border-radius:8px;">
             <p><b>📏 O'lcham:</b> <span id="m-size"></span></p>
             <p><b>👶 Yosh:</b> <span id="m-age"></span></p>
             <p><b>📝 Izoh:</b> <span id="m-desc"></span></p>
         </div>
-        <button class="btn-savat" style="width:100%; margin-top:15px; padding:10px; font-size:14px;" onclick="addToCart()">SAVATGA QO'SHISH</button>
+        <button onclick="addToCartModal()" style="width:100%; margin-top:15px; background:#f806cc; border:none; color:white; padding:10px; border-radius:5px; cursor:pointer;">SAVATGA QO'SHISH</button>
     </div>
 </div>
 
 <script>
-    const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(firebaseConfig);
+    // 1. Firebase bog'lanish
+    const config = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(config);
     const db = firebase.database();
 
-    let cart = [];
+    let cartList = [];
+    let currentItem = {};
 
-    function openAdmin() {
-        if (prompt("Admin paroli:") === "4321") window.location.href = "https://t.me/Jahongir3616";
-        else alert("Xato!");
+    // 2. Admin tekshirish
+    function checkAdmin() {
+        if(prompt("Admin paroli:") === "4321") window.location.href = "https://t.me/Jahongir3616";
+        else alert("Xato kod!");
     }
 
+    // 3. Ma'lumotlarni yuklash
     function load(cat) {
-        const grid = document.getElementById('box');
-        grid.innerHTML = "Yuklanmoqda...";
+        const box = document.getElementById('product_box');
+        box.innerHTML = "Yuklanmoqda...";
+        
+        // Aktiv tugmani belgilash
+        document.querySelectorAll('.cats button').forEach(b => b.classList.remove('active'));
+        event.target.classList.add('active');
+
         let ref = db.ref('products');
-        if (cat !== 'Hammasi') ref = ref.orderByChild('category').equalTo(cat);
+        if(cat !== 'Hammasi') ref = ref.orderByChild('category').equalTo(cat);
 
         ref.on('value', snap => {
-            grid.innerHTML = "";
+            box.innerHTML = "";
             const data = snap.val();
-            if(!data) return grid.innerHTML = "Bo'sh";
+            if(!data) return box.innerHTML = "Mahsulot yo'q.";
 
-            Object.keys(data).reverse().forEach(id => {
-                let p = data[id];
-                grid.innerHTML += `
-                    <div class="card" onclick="openM('${p.name}', '${p.price}', '${p.images[0]}', '${p.size || 'S/M'}', '${p.age || '3-15'}', '${p.desc || 'A'lo'}')">
+            Object.keys(data).reverse().forEach(key => {
+                let p = data[key];
+                box.innerHTML += `
+                    <div class="card" onclick="openM('${p.name}', '${p.price}', '${p.images[0]}', '${p.size || 'M'}', '${p.age || '10+'}', '${p.desc || 'Yo'q'}')">
                         <img src="${p.images[0]}">
                         <h4>${p.name}</h4>
                         <div class="price">${parseInt(p.price).toLocaleString()}</div>
-                        <button class="btn-savat" onclick="event.stopPropagation(); addQuick('${p.name}', '${p.price}')">Savat</button>
+                        <button class="add-cart" onclick="event.stopPropagation(); quickAdd('${p.name}', '${p.price}')">Savat</button>
                     </div>
                 `;
             });
         });
     }
 
-    let cur = {};
-    function openM(t, p, i, s, a, d) {
-        cur = {name: t, price: p};
-        document.getElementById('m-title').innerText = t;
+    // 4. Modal Funksiyalari
+    function openM(n, p, i, s, a, d) {
+        currentItem = {name: n, price: p};
+        document.getElementById('m-name').innerText = n;
         document.getElementById('m-price').innerText = parseInt(p).toLocaleString() + " so'm";
         document.getElementById('m-img').src = i;
         document.getElementById('m-size').innerText = s;
@@ -153,18 +157,25 @@
         document.getElementById('m-desc').innerText = d;
         document.getElementById('modal').style.display = "flex";
     }
-
     function closeM() { document.getElementById('modal').style.display = "none"; }
 
-    function addToCart() { cart.push(cur); updateC(); closeM(); }
-    function addQuick(n, p) { cart.push({name:n, price:p}); updateC(); }
-    function updateC() { document.getElementById('cart-count').innerText = cart.length; }
+    // 5. Savat Funksiyalari
+    function quickAdd(n, p) {
+        cartList.push({name: n, price: p});
+        document.getElementById('count').innerText = cartList.length;
+    }
+    function addToCartModal() {
+        cartList.push(currentItem);
+        document.getElementById('count').innerText = cartList.length;
+        closeM();
+    }
 
-    function sendOrder() {
-        if(cart.length === 0) return alert("Savat bo'sh!");
-        let t = "Yangi Buyurtma:\n";
-        cart.forEach((m, i) => t += `${i+1}. ${m.name} - ${m.price} so'm\n`);
-        window.location.href = `https://t.me/Jahongir3616?text=${encodeURIComponent(t)}`;
+    // 6. Buyurtmani yuborish
+    function sendToTelegram() {
+        if(cartList.length === 0) return alert("Savat bo'sh!");
+        let msg = "Yangi Buyurtma:\n\n";
+        cartList.forEach((item, i) => msg += `${i+1}. ${item.name} (${item.price} so'm)\n`);
+        window.location.href = `https://t.me/Jahongir3616?text=${encodeURIComponent(msg)}`;
     }
 
     load('Hammasi');
