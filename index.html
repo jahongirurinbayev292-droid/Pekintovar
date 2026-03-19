@@ -3,179 +3,186 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tavor | Purple Edition</title>
+    <title>Pekin Tavor | Premium Purple</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
-        /* ASOSIY FON BINAFSHA */
+        /* DIZAYN VA FON */
         body { 
-            margin: 0; 
-            font-family: 'Segoe UI', sans-serif; 
-            background: linear-gradient(135deg, #2e0249 0%, #570a57 100%); 
-            color: white; 
-            min-height: 100vh;
+            margin: 0; font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #2d033b 0%, #810ca8 100%); 
+            color: #fff; min-height: 100vh;
         }
-        
-        /* HEADER */
-        header {
-            background: rgba(0, 0, 0, 0.3); padding: 15px 5%; display: flex; 
-            justify-content: space-between; align-items: center;
-            border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);
-            position: sticky; top: 0; z-index: 100;
-        }
-        .logo { font-weight: bold; font-size: 20px; color: #f806cc; text-shadow: 0 0 10px #f806cc; }
-        .nav-links { display: flex; gap: 20px; align-items: center; }
-        .nav-item { cursor: pointer; font-size: 15px; position: relative; }
-        .badge { background: #f806cc; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -10px; right: -12px; }
 
-        /* KATEGORIYA */
-        .categories { text-align: center; padding: 20px; }
-        .categories button { 
-            padding: 8px 18px; margin: 5px; border: 1px solid #f806cc; 
-            background: transparent; color: white; cursor: pointer; border-radius: 20px; transition: 0.3s;
+        header {
+            background: rgba(0, 0, 0, 0.4); padding: 15px 5%; 
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 2px solid #c147e9; backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 1000;
         }
-        .categories button:hover, .categories button.active { background: #f806cc; color: white; }
+        .logo { font-size: 20px; font-weight: 900; color: #e5b8f4; text-shadow: 0 0 10px #e5b8f4; }
+        .nav-icons { display: flex; gap: 20px; align-items: center; }
+        .nav-item { cursor: pointer; position: relative; font-size: 16px; transition: 0.3s; }
+        .badge { background: #ff00ff; color: #fff; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -10px; right: -12px; }
+
+        /* KATEGORIYALAR */
+        .cats { text-align: center; padding: 20px; }
+        .cats button { 
+            padding: 8px 18px; margin: 5px; border: 1px solid #e5b8f4; 
+            background: transparent; color: #fff; cursor: pointer; border-radius: 20px;
+        }
+        .cats button:hover, .cats button.active { background: #e5b8f4; color: #2d033b; font-weight: bold; }
 
         /* 3 QATORLI GRID */
         .grid {
             display: grid; grid-template-columns: repeat(3, 1fr); 
-            gap: 15px; padding: 10px 5%; max-width: 1100px; margin: 0 auto;
+            gap: 15px; padding: 10px 5%; max-width: 1200px; margin: 0 auto;
         }
 
-        /* MAHSULOT KARTASI */
         .card {
-            background: rgba(255, 255, 255, 0.1); border-radius: 15px; 
-            overflow: hidden; text-align: center; padding-bottom: 15px;
-            transition: 0.3s; position: relative; cursor: pointer;
-            border: 1px solid rgba(255,255,255,0.05);
+            background: rgba(255, 255, 255, 0.1); border-radius: 15px; border: 1px solid rgba(229, 184, 244, 0.2);
+            overflow: hidden; text-align: center; padding-bottom: 15px; transition: 0.3s; cursor: pointer;
         }
-        .card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.2); }
+        .card:hover { transform: translateY(-5px); border-color: #e5b8f4; background: rgba(255, 255, 255, 0.15); }
         .card img { width: 100%; height: 200px; object-fit: cover; }
-        .card h4 { margin: 10px 0 5px; font-size: 14px; color: #eee; }
-        .price { color: #00ffab; font-weight: bold; font-size: 17px; margin-bottom: 10px; }
-        
-        .buy-btn {
-            background: #f806cc; color: white; border: none; 
-            padding: 7px 15px; border-radius: 5px; cursor: pointer; font-size: 12px;
-        }
+        .card h4 { margin: 10px 0; font-size: 14px; }
+        .price { color: #00ffcc; font-weight: bold; font-size: 17px; margin-bottom: 10px; }
 
-        /* MODAL (MA'LUMOT OYNASI) */
+        .btn-buy { background: #c147e9; border: none; color: #fff; padding: 8px 15px; border-radius: 5px; cursor: pointer; font-weight: bold; }
+
+        /* MODAL (MA'LUMOT VA SAVAT) */
         #modal {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center;
         }
-        .modal-content {
-            background: #2e0249; padding: 20px; border-radius: 20px; max-width: 350px; width: 90%;
-            position: relative; text-align: center; border: 2px solid #f806cc;
+        .modal-box {
+            background: #2d033b; padding: 25px; border-radius: 20px; max-width: 380px; width: 90%;
+            text-align: center; border: 2px solid #e5b8f4; position: relative;
         }
-        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 25px; cursor: pointer; color: #fff; }
+        .close { position: absolute; top: 10px; right: 15px; font-size: 25px; cursor: pointer; }
 
-        @media (max-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 480px) { .grid { grid-template-columns: repeat(1, 1fr); } }
+        @media (max-width: 800px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 500px) { .grid { grid-template-columns: repeat(1, 1fr); } }
     </style>
 </head>
 <body>
 
 <header>
-    <div class="logo">PEKIN TAVOR</div>
-    <div class="nav-links">
-        <div class="nav-item" onclick="adminCheck()">⚙️ Admin</div>
-        <div class="nav-item">❤️ <span id="w_count" class="badge">0</span></div>
-        <div class="nav-item">🛒 <span id="c_count" class="badge">0</span></div>
-    </div>
-</header>
+    <div class="logo">PEKIN TAVOR 2026</div>
+    <div class="nav-icons">
+        <div class="nav-item" onclick="openAdmin()">⚙️ Admin</div>
+        <div class="nav-item" onclick="sendOrder()">🛒 <span id="cart-count" class="badge">0</span></div>
+    </header>
 
-<div class="categories">
+<div class="cats">
     <button onclick="load('Hammasi')">Barchasi</button>
     <button onclick="load('Erkaklar')">Erkaklar</button>
     <button onclick="load('Ayollar')">Ayollar</button>
     <button onclick="load('Bolalar')">Bolalar</button>
 </div>
 
-<div class="grid" id="container"></div>
+<div class="grid" id="box"></div>
 
 <div id="modal">
-    <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        <img id="m-img" style="width:100%; border-radius:10px; height:230px; object-fit:cover; margin-bottom:15px;">
-        <h2 id="m-title" style="margin:5px 0;"></h2>
-        <p id="m-price" style="font-size:22px; color:#00ffab; font-weight:bold;"></p>
-        <div style="text-align: left; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; font-size: 14px;">
+    <div class="modal-box">
+        <span class="close" onclick="closeM()">&times;</span>
+        <img id="m-img" style="width:100%; border-radius:10px; height:220px; object-fit:cover; margin-bottom:15px;">
+        <h2 id="m-title" style="color:#e5b8f4; margin:5px 0;"></h2>
+        <div id="m-price" style="font-size:20px; color:#00ffcc; font-weight:bold; margin-bottom:15px;"></div>
+        <div style="text-align: left; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; font-size: 14px;">
             <p><b>📏 O'lcham:</b> <span id="m-size"></span></p>
             <p><b>👶 Yosh:</b> <span id="m-age"></span></p>
             <p><b>📝 Izoh:</b> <span id="m-desc"></span></p>
         </div>
-        <button class="buy-btn" style="width:100%; padding:12px; margin-top:15px;" onclick="addCart()">SAVATGA QO'SHISH</button>
+        <button class="btn-buy" style="width:100%; margin-top:15px; padding:12px;" onclick="addToCart()">SAVATGA QO'SHISH</button>
     </div>
 </div>
 
 <script>
-    // FIREBASE BOG'LANISH
+    // FIREBASE
     const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let count = 0;
+    let cart = []; // Savatdagi mahsulotlar ro'yxati
 
-    // ADMIN TEKSHIRISH (4321)
-    function adminCheck() {
-        let p = prompt("Maxfiy kodni kiriting:");
+    // ADMIN KIRISH (4321)
+    function openAdmin() {
+        let p = prompt("Admin parolini kiriting:");
         if (p === "4321") {
             window.location.href = "https://t.me/Jahongir3616";
         } else {
-            alert("Kod xato!");
+            alert("Xato kod!");
         }
     }
 
     function load(cat) {
-        const box = document.getElementById('container');
-        box.innerHTML = "<p>Yuklanmoqda...</p>";
-        
+        const grid = document.getElementById('box');
+        grid.innerHTML = "Yuklanmoqda...";
         let ref = db.ref('products');
         if (cat !== 'Hammasi') ref = ref.orderByChild('category').equalTo(cat);
 
         ref.on('value', snap => {
-            box.innerHTML = "";
+            grid.innerHTML = "";
             const data = snap.val();
-            if(!data) return box.innerHTML = "<p>Mahsulot topilmadi.</p>";
+            if(!data) return grid.innerHTML = "Mahsulot yo'q.";
 
-            Object.keys(data).reverse().forEach(key => {
-                let p = data[key];
-                box.innerHTML += `
-                    <div class="card" onclick="show('${p.name}', '${p.price}', '${p.images[0]}', '${p.size || 'Mavjud emas'}', '${p.age || 'Noma'lum'}', '${p.desc || ''}')">
+            Object.keys(data).reverse().forEach(id => {
+                let p = data[id];
+                grid.innerHTML += `
+                    <div class="card" onclick="openM('${p.name}', '${p.price}', '${p.images[0]}', '${p.size || 'M'}', '${p.age || '15+'}', '${p.desc || 'Sifatli'}')">
                         <img src="${p.images[0]}">
                         <h4>${p.name}</h4>
                         <div class="price">${parseInt(p.price).toLocaleString()} so'm</div>
-                        <button class="buy-btn" onclick="event.stopPropagation(); addCart();">Savatga</button>
+                        <button class="btn-buy" onclick="event.stopPropagation(); addToCartDirect('${p.name}', '${p.price}')">Savatga</button>
                     </div>
                 `;
             });
         });
     }
 
-    // TAFSILOTLARNI KO'RSATISH
-    function show(title, price, img, size, age, desc) {
-        document.getElementById('m-title').innerText = title;
-        document.getElementById('m-price').innerText = parseInt(price).toLocaleString() + " so'm";
-        document.getElementById('m-img').src = img;
-        document.getElementById('m-size').innerText = size;
-        document.getElementById('m-age').innerText = age;
-        document.getElementById('m-desc').innerText = desc;
+    // MODAL OCHISH
+    let currentP = {};
+    function openM(t, p, i, s, a, d) {
+        currentP = {name: t, price: p};
+        document.getElementById('m-title').innerText = t;
+        document.getElementById('m-price').innerText = parseInt(p).toLocaleString() + " so'm";
+        document.getElementById('m-img').src = i;
+        document.getElementById('m-size').innerText = s;
+        document.getElementById('m-age').innerText = a;
+        document.getElementById('m-desc').innerText = d;
         document.getElementById('modal').style.display = "flex";
     }
 
-    function closeModal() { document.getElementById('modal').style.display = "none"; }
-    
-    function addCart() {
-        count++;
-        document.getElementById('c_count').innerText = count;
-        alert("Savatga qo'shildi!");
-        closeModal();
+    function closeM() { document.getElementById('modal').style.display = "none"; }
+
+    // SAVATGA QO'SHISH
+    function addToCart() {
+        cart.push(currentP);
+        updateCart();
+        closeM();
+    }
+    function addToCartDirect(name, price) {
+        cart.push({name, price});
+        updateCart();
+    }
+    function updateCart() {
+        document.getElementById('cart-count').innerText = cart.length;
     }
 
-    // Modal tashqarisini bossa yopish
-    window.onclick = (e) => { if(e.target == document.getElementById('modal')) closeModal(); }
+    // BUYURTMANI ADMINGA YUBORISH
+    function sendOrder() {
+        if(cart.length === 0) return alert("Savat bo'sh!");
+        
+        let text = "Yangi Buyurtma:\n\n";
+        cart.forEach((item, index) => {
+            text += `${index+1}. ${item.name} - ${item.price} so'm\n`;
+        });
+        
+        let url = `https://t.me/Jahongir3616?text=${encodeURIComponent(text)}`;
+        window.location.href = url;
+    }
 
     load('Hammasi');
 </script>
