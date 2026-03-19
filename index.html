@@ -2,63 +2,69 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pekin Tavor 2026</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
-        body { font-family: Arial, sans-serif; margin: 0; background-color: #f4f4f4; color: #333; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #ffffff; color: #333; }
         
-        /* HEADER - Admin, Savat, Istaklar tepada */
+        /* HEADER */
         header {
             background: #fff; padding: 10px 5%; display: flex; 
             justify-content: space-between; align-items: center;
-            border-bottom: 1px solid #ddd; position: sticky; top: 0; z-index: 100;
+            border-bottom: 2px solid #f0f0f0; position: sticky; top: 0; z-index: 100;
         }
-        .logo { font-weight: bold; font-size: 20px; color: #000; }
+        .logo { font-weight: bold; font-size: 22px; color: #000; letter-spacing: 1px; }
         .nav-links { display: flex; gap: 20px; align-items: center; }
-        .nav-links a, .nav-links span { cursor: pointer; text-decoration: none; color: #333; font-size: 14px; }
-        .badge { background: red; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; margin-top: -10px; }
+        .nav-item { cursor: pointer; font-size: 15px; font-weight: 500; position: relative; }
+        .badge { background: #ff4757; color: white; border-radius: 50%; padding: 2px 6px; font-size: 11px; position: absolute; top: -10px; right: -15px; }
 
-        /* KATEGORIYA MENYUSI */
-        .categories { text-align: center; padding: 15px; background: #fff; }
+        /* KATEGORIYA */
+        .categories { text-align: center; padding: 20px; background: #fafafa; border-bottom: 1px solid #eee; }
         .categories button { 
-            padding: 8px 15px; margin: 0 5px; border: 1px solid #ccc; 
-            background: #fff; cursor: pointer; border-radius: 4px; 
+            padding: 10px 20px; margin: 5px; border: 1px solid #ddd; 
+            background: #fff; cursor: pointer; border-radius: 25px; transition: 0.3s;
         }
-        .categories button:hover { background: #eee; }
+        .categories button:hover { background: #000; color: #fff; }
 
-        /* 3 QATORLI GRID (Kichik mahsulotlar) */
+        /* 3 QATORLI GRID */
         .product-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr); /* ANIQLIK */
-            gap: 15px; padding: 20px 5%;
-            max-width: 1000px; margin: 0 auto;
+            display: grid; grid-template-columns: repeat(3, 1fr); 
+            gap: 20px; padding: 25px 5%; max-width: 1100px; margin: 0 auto;
         }
 
-        /* MAHSULOT KARTASI (IXCHAM) */
+        /* MAHSULOT KARTASI */
         .card {
-            background: #fff; border: 1px solid #ddd; border-radius: 8px; 
-            overflow: hidden; text-align: center; padding-bottom: 10px;
-            transition: 0.2s; position: relative;
+            background: #fff; border: 1px solid #eee; border-radius: 12px; 
+            overflow: hidden; text-align: center; padding-bottom: 15px;
+            transition: 0.3s; position: relative; cursor: pointer;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
         }
-        .card img { width: 100%; height: 180px; object-fit: cover; } /* Rasm kichikroq */
-        .card h4 { margin: 10px 0 5px; font-size: 14px; padding: 0 5px; }
-        .price { color: #d32f2f; font-weight: bold; font-size: 16px; margin-bottom: 10px; }
+        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
+        .card img { width: 100%; height: 220px; object-fit: cover; }
+        .card h4 { margin: 12px 0 5px; font-size: 15px; color: #444; }
+        .price { color: #2ed573; font-weight: bold; font-size: 18px; margin-bottom: 12px; }
         
-        /* SAVATGA QO'SHISH TUGMASI */
         .add-btn {
-            background: #28a745; color: white; border: none; 
-            padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 12px;
+            background: #000; color: white; border: none; 
+            padding: 8px 18px; border-radius: 6px; cursor: pointer; font-size: 13px;
         }
-        .add-btn:active { transform: scale(0.95); background: #218838; }
 
-        /* ISTAKLAR (YURAKCHA) */
-        .wish { position: absolute; top: 10px; right: 10px; font-size: 20px; color: #ccc; cursor: pointer; }
-        .wish.active { color: red; }
+        /* MODAL (MA'LUMOT OYNASI) */
+        #modal {
+            display: none; position: fixed; top:0; left:0; width:100%; height:100%;
+            background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: #fff; padding: 25px; border-radius: 15px; max-width: 400px; width: 90%;
+            position: relative; text-align: center; color: #333;
+        }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 25px; cursor: pointer; }
 
-        /* MOBILE */
         @media (max-width: 768px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px) { .product-grid { grid-template-columns: repeat(1, 1fr); } }
     </style>
 </head>
 <body>
@@ -66,14 +72,14 @@
 <header>
     <div class="logo">PEKIN TAVOR</div>
     <div class="nav-links">
-        <a href="admin.html">⚙️ Admin</a>
-        <span onclick="alert('Istaklar ro\'yxati')">❤️ Istaklar <b id="w_count" class="badge">0</b></span>
-        <span onclick="alert('Savat ochildi')">🛒 Savat <b id="c_count" class="badge">0</b></span>
+        <div class="nav-item" onclick="adminLogin()">⚙️ Admin</div>
+        <div class="nav-item">❤️ <span id="w_count" class="badge">0</span></div>
+        <div class="nav-item">🛒 <span id="c_count" class="badge">0</span></div>
     </div>
 </header>
 
 <div class="categories">
-    <button onclick="load('Hammasi')">Hammasi</button>
+    <button onclick="load('Hammasi')">Barchasi</button>
     <button onclick="load('Erkaklar')">Erkaklar</button>
     <button onclick="load('Ayollar')">Ayollar</button>
     <button onclick="load('Bolalar')">Bolalar</button>
@@ -81,13 +87,36 @@
 
 <div class="product-grid" id="main_box"></div>
 
+<div id="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <img id="m-img" style="width:100%; border-radius:10px; height:250px; object-fit:cover;">
+        <h2 id="m-title"></h2>
+        <p id="m-price" style="font-size:20px; color:#2ed573; font-weight:bold;"></p>
+        <hr>
+        <p align="left"><b>📏 O'lcham:</b> <span id="m-size"></span></p>
+        <p align="left"><b>👶 Yosh:</b> <span id="m-age"></span></p>
+        <p align="left"><b>📝 Izoh:</b> <span id="m-desc"></span></p>
+        <button class="add-btn" style="width:100%; padding:12px;" onclick="addToCart()">Savatga qo'shish</button>
+    </div>
+</div>
+
 <script>
-    // Firebase Config
     const config = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
     firebase.initializeApp(config);
     const db = firebase.database();
 
-    let c = 0; let w = 0;
+    let c = 0; 
+
+    // ADMIN LOGIN
+    function adminLogin() {
+        let pass = prompt("Admin kodini kiriting:");
+        if (pass === "4321") {
+            window.location.href = "https://t.me/Jahongir3616";
+        } else {
+            alert("Kod noto'g'ri!");
+        }
+    }
 
     function load(cat) {
         const box = document.getElementById('main_box');
@@ -101,19 +130,44 @@
             const data = snap.val();
             if(!data) return box.innerHTML = "Mahsulot topilmadi.";
 
-            Object.values(data).reverse().forEach(p => {
+            Object.keys(data).reverse().forEach(id => {
+                let p = data[id];
                 box.innerHTML += `
-                    <div class="card">
-                        <span class="wish" onclick="this.classList.toggle('active'); w++; document.getElementById('w_count').innerText=w;">❤</span>
+                    <div class="card" onclick="openProduct('${p.name}', '${p.price}', '${p.images[0]}', '${p.size || 'Mavjud emas'}', '${p.age || 'Noma'lum'}', '${p.desc || 'Izoh yo'q'}')">
                         <img src="${p.images[0]}">
                         <h4>${p.name}</h4>
-                        <div class="price">${p.price.toLocaleString()} so'm</div>
-                        <button class="add-btn" onclick="c++; document.getElementById('c_count').innerText=c; this.innerText='Qo\'shildi ✅'">Savatga qo'shish</button>
+                        <div class="price">${parseInt(p.price).toLocaleString()} so'm</div>
+                        <button class="add-btn" onclick="event.stopPropagation(); addToCart();">Savatga</button>
                     </div>
                 `;
             });
         });
     }
+
+    // MODAL FUNKSIYALARI
+    function openProduct(name, price, img, size, age, desc) {
+        document.getElementById('m-title').innerText = name;
+        document.getElementById('m-price').innerText = parseInt(price).toLocaleString() + " so'm";
+        document.getElementById('m-img').src = img;
+        document.getElementById('m-size').innerText = size;
+        document.getElementById('m-age').innerText = age;
+        document.getElementById('m-desc').innerText = desc;
+        document.getElementById('modal').style.display = "flex";
+    }
+
+    function closeModal() { document.getElementById('modal').style.display = "none"; }
+    
+    function addToCart() {
+        c++;
+        document.getElementById('c_count').innerText = c;
+        alert("Savatga qo'shildi!");
+        closeModal();
+    }
+
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('modal')) closeModal();
+    }
+
     load('Hammasi');
 </script>
 
