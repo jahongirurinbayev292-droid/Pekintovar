@@ -2,175 +2,110 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tovar</title>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.17.1/firebase-database-compat.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <title>Pekin Tavor - Yorqin Katalog</title>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --main: #7000ff; }
-        body { font-family: 'Inter', sans-serif; margin: 0; padding-bottom: 80px; background: #000; color: white; }
-        header { background: rgba(0,0,0,0.9); padding: 15px; position: sticky; top: 0; z-index: 100; border-bottom: 1px solid #222; }
-        .categories { display: flex; overflow-x: auto; gap: 10px; padding: 10px 15px; background: #111; scrollbar-width: none; }
-        .cat-item { background: #222; padding: 8px 18px; border-radius: 20px; white-space: nowrap; cursor: pointer; font-size: 13px; border: 1px solid #333; }
-        .cat-item.active { background: var(--main); border-color: var(--main); }
-        .container { padding: 12px; }
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
-        .card { background: #111; border-radius: 15px; overflow: hidden; border: 1px solid #222; }
-        .card img { width: 100%; height: 180px; object-fit: cover; }
-        .card-info { padding: 10px; }
-        .p-name { font-size: 13px; height: 36px; overflow: hidden; margin-bottom: 5px; }
-        .p-price { font-weight: bold; color: #bb86fc; font-size: 15px; }
-        .page { display: none; }
-        .page.active { display: block; }
-        #detail-modal { position: fixed; inset: 0; background: #000; z-index: 2000; display: none; overflow-y: auto; }
-        .close-btn { position: fixed; top: 15px; left: 15px; background: rgba(255,255,255,0.2); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; z-index: 2100; border: none; color: white; }
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: #000; display: flex; justify-content: space-around; padding: 12px 0; border-top: 1px solid #222; z-index: 1000; }
-        .nav-item { text-align: center; color: #666; font-size: 10px; cursor: pointer; }
-        .nav-item.active { color: var(--main); }
-        .nav-item i { font-size: 20px; display: block; margin-bottom: 3px; }
-        input, textarea, .main-btn { width: 100%; padding: 15px; margin: 10px 0; border-radius: 12px; box-sizing: border-box; border: none; font-weight: bold; }
-        input, textarea { background: #111; border: 1px solid #333; color: white; }
-        .main-btn { background: var(--main); color: white; cursor: pointer; }
-        .badge { display: inline-block; padding: 4px 10px; border-radius: 6px; font-size: 12px; margin-right: 5px; background: rgba(112, 0, 255, 0.2); color: #bb86fc; border: 1px solid var(--main); }
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%); /* Yorqin pushti-to'q sariq gradient */
+            min-height: 100vh;
+            color: #333;
+        }
+        .header { text-align: center; padding: 40px 20px; color: white; text-shadow: 2px 2px 10px rgba(0,0,0,0.2); }
+        
+        .nav { display: flex; justify-content: center; gap: 10px; margin-bottom: 30px; flex-wrap: wrap; }
+        .nav button {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 30px;
+            background: white;
+            color: #f5576c;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: 0.3s;
+        }
+        .nav button:hover { transform: scale(1.1); background: #333; color: white; }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 25px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+            transition: 0.3s;
+        }
+        .card:hover { transform: translateY(-10px); }
+        .card img { width: 100%; height: 300px; object-fit: cover; }
+        .card-info { padding: 20px; }
+        .price { font-size: 1.5rem; color: #ff4757; font-weight: bold; margin: 10px 0; }
+        .cat-badge { background: #eee; padding: 5px 12px; border-radius: 15px; font-size: 0.8rem; }
     </style>
 </head>
 <body>
 
-<header><div style="font-weight: 900; font-size: 20px; color: var(--main);">PEKIN TOVAR</div></header>
-
-<div class="categories" id="catBar">
-    <div class="cat-item active" onclick="filterCat('Hammasi', this)">Hammasi</div>
-</div>
-
-<div class="container">
-    <div id="home-page" class="page active"><div class="grid" id="mainGrid"></div></div>
-
-    <div id="wish-page" class="page">
-        <h2 style="text-align: center;">Buyurtma bering</h2>
-        <div style="background: #111; padding: 20px; border-radius: 20px; border: 1px solid #222;">
-            <input type="text" id="reqPhone" placeholder="Telefon raqamingiz">
-            <textarea id="reqText" placeholder="Sizga qanday mahsulot kerak?" rows="4"></textarea>
-            <button class="main-btn" onclick="sendRequest()">Yuborish</button>
-        </div>
+    <div class="header">
+        <h1>✨ PEKIN TAVOR ✨</h1>
+        <p>Sifatli va hamyonbop kiyimlar olami</p>
     </div>
 
-    <div id="cart-page" class="page">
-        <h3>Savat</h3><div id="cartItems"></div>
-        <h4 id="cartTotal">Jami: 0 so'm</h4>
-        <button class="main-btn" onclick="checkout()">Buyurtmani yuborish</button>
+    <div class="nav">
+        <button onclick="load('Hammasi')">Barchasi</button>
+        <button onclick="load('Erkaklar')">Erkaklar</button>
+        <button onclick="load('Ayollar')">Ayollar</button>
+        <button onclick="load('Bolalar')">Bolalar</button>
     </div>
-</div>
 
-<div id="detail-modal">
-    <button class="close-btn" onclick="closeDetail()"><i class="fa fa-arrow-left"></i></button>
-    <div id="detailBody"></div>
-</div>
+    <div class="grid" id="products"></div>
 
-<nav class="bottom-nav">
-    <div class="nav-item active" onclick="showPage('home-page', this)"><i class="fa-solid fa-house"></i>Asosiy</div>
-    <div class="nav-item" onclick="showPage('wish-page', this)"><i class="fa-solid fa-star"></i>Kerakli</div>
-    <div class="nav-item" onclick="showPage('cart-page', this)"><i class="fa-solid fa-cart-shopping"></i>Savat</div>
-    <div class="nav-item" onclick="goToAdmin()"><i class="fa-solid fa-lock"></i>Admin</div>
-</nav>
+    <script>
+        const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
 
-<script>
-    const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
-    
-    let allProducts = {};
-    let currentCat = "Hammasi";
-    let cart = [];
-
-    db.ref('categories').on('value', s => {
-        const bar = document.getElementById('catBar');
-        bar.innerHTML = '<div class="cat-item active" onclick="filterCat(\'Hammasi\', this)">Hammasi</div>';
-        s.forEach(c => { bar.innerHTML += `<div class="cat-item" onclick="filterCat('${c.val().name}', this)">${c.val().name}</div>`; });
-    });
-
-    db.ref('products').on('value', s => {
-        allProducts = s.val() || {};
-        renderProducts();
-    });
-
-    function renderProducts() {
-        const grid = document.getElementById('mainGrid');
-        grid.innerHTML = '';
-        Object.keys(allProducts).reverse().forEach(id => {
-            const p = allProducts[id];
-            if(currentCat === "Hammasi" || p.category === currentCat) {
-                grid.innerHTML += `<div class="card" onclick="openDetail('${id}')"><img src="${p.images[0]}"><div class="card-info"><div class="p-name">${p.name}</div><div class="p-price">${parseInt(p.price).toLocaleString()} so'm</div></div></div>`;
+        function load(category) {
+            const container = document.getElementById('products');
+            container.innerHTML = "<h2 style='color:white'>Yuklanmoqda...</h2>";
+            
+            let query = db.ref('products');
+            if (category !== 'Hammasi') {
+                query = query.orderByChild('category').equalTo(category);
             }
-        });
-    }
 
-    function filterCat(name, el) {
-        currentCat = name;
-        document.querySelectorAll('.cat-item').forEach(i => i.classList.remove('active'));
-        el.classList.add('active');
-        renderProducts();
-    }
+            query.on('value', (snapshot) => {
+                container.innerHTML = "";
+                const data = snapshot.val();
+                if (!data) {
+                    container.innerHTML = "<h3 style='color:white'>Hozircha mahsulot yo'q</h3>";
+                    return;
+                }
 
-    function openDetail(id) {
-        const p = allProducts[id];
-        const modal = document.getElementById('detail-modal');
-        modal.style.display = 'block';
-        let imgs = p.images.map(i => `<img src="${i}" style="width:100%; margin-bottom:5px;">`).join('');
-        document.getElementById('detailBody').innerHTML = `
-            ${imgs}
-            <div style="padding:20px;">
-                <h1>${p.name}</h1>
-                <h2 style="color:#bb86fc;">${parseInt(p.price).toLocaleString()} so'm</h2>
-                <div>${p.age ? `<span class="badge">Yosh: ${p.age}</span>`:''}${p.size ? `<span class="badge">Razmer: ${p.size}</span>`:''}</div>
-                <p style="color:#aaa; line-height:1.6; margin-top:15px;">${p.desc || "Sharh yo'q."}</p>
-                <button class="main-btn" onclick="addToCart('${id}')">Savatga qo'shish</button>
-            </div>`;
-    }
-
-    function closeDetail() { document.getElementById('detail-modal').style.display = 'none'; }
-
-    function sendRequest() {
-        const phone = document.getElementById('reqPhone').value;
-        const text = document.getElementById('reqText').value;
-        if(!phone || !text) return alert("To'ldiring!");
-        db.ref('customer_requests').push({ phone, text });
-        alert("Yuborildi! ✅");
-        document.getElementById('reqPhone').value = ''; document.getElementById('reqText').value = '';
-    }
-
-    function showPage(id, el) {
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById(id).classList.add('active');
-        el.classList.add('active');
-    }
-
-    function addToCart(id) {
-        cart.push(allProducts[id]);
-        alert("Qo'shildi!");
-        updateCart();
-    }
-
-    function updateCart() {
-        const div = document.getElementById('cartItems');
-        let total = 0; div.innerHTML = '';
-        cart.forEach((i, idx) => {
-            total += parseInt(i.price);
-            div.innerHTML += `<div style="padding:10px; border-bottom:1px solid #222;">${i.name} - ${i.price} so'm <i class="fa fa-trash" style="float:right; color:red;" onclick="removeFromCart(${idx})"></i></div>`;
-        });
-        document.getElementById('cartTotal').innerText = `Jami: ${total.toLocaleString()} so'm`;
-    }
-
-    function removeFromCart(idx) { cart.splice(idx, 1); updateCart(); }
-
-    function checkout() {
-        let msg = "Buyurtma:\n";
-        cart.forEach(i => msg += `- ${i.name}\n`);
-        window.open(`https://t.me/Jahongir3616?text=${encodeURIComponent(msg)}`);
-    }
-
-    function goToAdmin() { if(prompt("Parol:") === "7777") window.location.href = "admin.html"; }
-</script>
+                Object.values(data).reverse().forEach(item => {
+                    container.innerHTML += `
+                        <div class="card">
+                            <img src="${item.images[0]}" alt="Kiyim">
+                            <div class="card-info">
+                                <span class="cat-badge">${item.category}</span>
+                                <h3>${item.name}</h3>
+                                <div class="price">${item.price.toLocaleString()} so'm</div>
+                                <p>${item.desc || ''}</p>
+                            </div>
+                        </div>
+                    `;
+                });
+            });
+        }
+        load('Hammasi'); // Boshida hammasini chiqarish
+    </script>
 </body>
 </html>
