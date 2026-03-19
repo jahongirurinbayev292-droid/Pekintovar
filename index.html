@@ -3,263 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tavor | Exclusive 2026</title>
-    
+    <title>Pekin Tavor | 2026 Store</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Roboto:wght@300;500&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap" rel="stylesheet">
 
     <style>
-        :root {
-            --gold: #ffca28;
-            --dark-bg: #121212;
-            --card-bg: #1e1e1e;
-            --text-gray: #b0b0b0;
-        }
+        :root { --gold: #ffd700; --bg: #0a0a0a; --card: #161616; }
+        body { margin: 0; font-family: 'Inter', sans-serif; background: var(--bg); color: white; }
 
-        body {
-            margin: 0;
-            font-family: 'Roboto', sans-serif;
-            background-color: var(--dark-bg);
-            color: white;
-            overflow-x: hidden;
-        }
-
-        /* HEADER & NAV */
+        /* HEADER */
         header {
-            background: rgba(0,0,0,0.8);
-            padding: 15px 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid rgba(255,202,40,0.3);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            backdrop-filter: blur(10px);
+            display: flex; justify-content: space-between; align-items: center;
+            padding: 10px 5%; background: #000; border-bottom: 1px solid #333;
+            position: sticky; top: 0; z-index: 100;
         }
+        .logo { font-weight: 900; color: var(--gold); font-size: 18px; }
+        .nav-right { display: flex; gap: 15px; align-items: center; }
+        .icon-btn { cursor: pointer; position: relative; font-size: 18px; transition: 0.3s; }
+        .icon-btn:hover { color: var(--gold); }
+        .badge { position: absolute; top: -8px; right: -10px; background: red; color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px; }
+        .admin-btn { border: 1px solid var(--gold); color: var(--gold); padding: 5px 12px; border-radius: 5px; text-decoration: none; font-size: 12px; }
 
-        .logo {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 22px;
-            color: var(--gold);
-            letter-spacing: 3px;
-        }
+        /* SEARCH & FILTER */
+        .filter-bar { display: flex; justify-content: center; gap: 10px; padding: 15px; background: #111; overflow-x: auto; }
+        .filter-bar button { background: #222; border: none; color: #ccc; padding: 7px 15px; border-radius: 20px; cursor: pointer; font-size: 13px; }
+        .filter-bar button.active { background: var(--gold); color: #000; font-weight: bold; }
 
-        .nav-icons {
-            display: flex;
-            gap: 20px;
-            align-items: center;
-        }
-
-        .nav-icons a, .nav-icons div {
-            cursor: pointer;
-            color: white;
-            text-decoration: none;
-            font-size: 18px;
-            transition: 0.3s;
-        }
-
-        .nav-icons div:hover, .nav-icons a:hover { color: var(--gold); }
-
-        /* ADMIN PANEL LINK */
-        .admin-link {
-            border: 1px solid var(--gold);
-            padding: 5px 15px;
-            border-radius: 5px;
-            font-size: 14px !important;
-        }
-
-        /* CATEGORY BAR */
-        .categories {
-            display: flex;
-            justify-content: center;
-            gap: 15px;
-            padding: 20px;
-            background: #1a1a1a;
-        }
-
-        .categories button {
-            background: none;
-            border: 1px solid rgba(255,255,255,0.1);
-            color: white;
-            padding: 8px 20px;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .categories button.active {
-            background: var(--gold);
-            color: black;
-            font-weight: bold;
-        }
-
-        /* PRODUCT GRID - 3 QATOR */
-        .products-container {
+        /* 3 QATORLI GRID (Kichik mahsulotlar) */
+        .grid {
             display: grid;
-            grid-template-columns: repeat(3, 1fr); /* ANIQ 3 TADAN */
-            gap: 25px;
-            padding: 30px 5%;
-            max-width: 1300px;
+            grid-template-columns: repeat(3, 1fr); /* ANIQLIK */
+            gap: 15px;
+            padding: 15px 5%;
+            max-width: 1100px;
             margin: 0 auto;
         }
 
-        .product-card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            overflow: hidden;
-            position: relative;
-            transition: 0.4s;
-            border: 1px solid rgba(255,255,255,0.05);
+        /* MAHSULOT KARTASI */
+        .p-card {
+            background: var(--card); border-radius: 12px; overflow: hidden;
+            border: 1px solid #222; transition: 0.3s; position: relative;
         }
+        .p-card:hover { border-color: var(--gold); transform: translateY(-5px); }
+        
+        /* Rasm o'lchami kichikroq */
+        .p-card img { width: 100%; height: 200px; object-fit: cover; }
+        
+        .p-info { padding: 10px; }
+        .p-info h4 { margin: 5px 0; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .p-price { color: var(--gold); font-weight: bold; font-size: 16px; margin-bottom: 8px; }
 
-        .product-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 10px 30px rgba(255,202,40,0.2);
+        /* SAVATGA QO'SHISH EFFEKTI (Neon Glow) */
+        .add-btn {
+            width: 100%; padding: 8px; background: transparent; border: 1px solid var(--gold);
+            color: var(--gold); border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: bold; transition: 0.3s;
         }
+        .add-btn:hover { background: var(--gold); color: #000; box-shadow: 0 0 15px var(--gold); }
+        
+        .wish { position: absolute; top: 8px; right: 8px; color: rgba(255,255,255,0.5); cursor: pointer; font-size: 20px; }
+        .wish.active { color: #ff4757; }
 
-        .product-card img {
-            width: 100%;
-            height: 380px;
-            object-fit: cover;
-        }
-
-        /* ISTAKLAR (HEART) */
-        .wish-btn {
-            position: absolute;
-            top: 15px;
-            right: 15px;
-            font-size: 24px;
-            color: rgba(255,255,255,0.5);
-            transition: 0.3s;
-            cursor: pointer;
-        }
-        .wish-btn.active { color: #ff4757; }
-
-        .p-info { padding: 15px; }
-        .p-info h3 { margin: 0; font-size: 18px; }
-        .p-price { color: var(--gold); font-size: 22px; font-weight: bold; margin: 10px 0; }
-
-        /* SAVATGA QO'SHISH (GLOW EFFECT) */
-        .cart-btn {
-            width: 100%;
-            padding: 12px;
-            background: none;
-            border: 1px solid var(--gold);
-            color: var(--gold);
-            border-radius: 8px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-
-        .cart-btn:hover {
-            background: var(--gold);
-            color: black;
-            box-shadow: 0 0 20px var(--gold);
-        }
-
-        /* SAVAT COUNTER */
-        .badge {
-            background: var(--gold);
-            color: black;
-            border-radius: 50%;
-            padding: 2px 6px;
-            font-size: 12px;
-            position: absolute;
-            margin-left: -10px;
-            margin-top: -10px;
-        }
-
-        /* MOBILE */
-        @media (max-width: 900px) { .products-container { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 600px) { .products-container { grid-template-columns: repeat(1, 1fr); } }
+        /* MOBILE OPTIMIZATSIYA */
+        @media (max-width: 800px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 500px) { .grid { grid-template-columns: repeat(1, 1fr); } }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">PEKIN TAVOR 2026</div>
-        <div class="nav-icons">
-            <a href="admin.html" class="admin-link">⚒ ADMIN</a>
-            <div title="Istaklar">❤️ <span id="wish-count" class="badge">0</span></div>
-            <div title="Savat" id="cart-icon">🛒 <span id="cart-count" class="badge">0</span></div>
-        </div>
-    </header>
-
-    <div class="categories">
-        <button onclick="load('Hammasi')" class="active">BARCHASI</button>
-        <button onclick="load('Erkaklar')">ERKAKLAR</button>
-        <button onclick="load('Ayollar')">AYOLLAR</button>
-        <button onclick="load('Bolalar')">BOLALAR</button>
+<header>
+    <div class="logo">PEKIN TAVOR 2026</div>
+    <div class="nav-right">
+        <a href="admin.html" class="admin-btn">ADMIN</a>
+        <div class="icon-btn" onclick="showWish()">❤️<span id="w_count" class="badge">0</span></div>
+        <div class="icon-btn" onclick="showCart()">🛒<span id="c_count" class="badge">0</span></div>
     </div>
+</header>
 
-    <div class="products-container" id="p-box"></div>
+<div class="filter-bar">
+    <button onclick="load('Hammasi')" class="active">Barchasi</button>
+    <button onclick="load('Erkaklar')">Erkaklar</button>
+    <button onclick="load('Ayollar')">Ayollar</button>
+    <button onclick="load('Bolalar')">Bolalar</button>
+</div>
 
-    <script>
-        // Firebase Config
-        const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
+<div class="grid" id="product_box"></div>
 
-        let carts = 0;
-        let wishes = 0;
+<script>
+    // Firebase bog'lash
+    const config = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(config);
+    const db = firebase.database();
 
-        function load(category) {
-            const box = document.getElementById('p-box');
-            box.innerHTML = "Yuklanmoqda...";
-            
-            let ref = db.ref('products');
-            if(category !== 'Hammasi') {
-                ref = ref.orderByChild('category').equalTo(category);
-            }
+    let cartCount = 0;
+    let wishCount = 0;
 
-            ref.on('value', snap => {
-                box.innerHTML = "";
-                const data = snap.val();
-                if(!data) return box.innerHTML = "Mahsulot topilmadi.";
+    function load(cat) {
+        const box = document.getElementById('product_box');
+        box.innerHTML = "<p>Yuklanmoqda...</p>";
+        
+        let ref = db.ref('products');
+        if (cat !== 'Hammasi') ref = ref.orderByChild('category').equalTo(cat);
 
-                Object.values(data).reverse().forEach(p => {
-                    box.innerHTML += `
-                        <div class="product-card">
-                            <div class="wish-btn" onclick="addWish(this)">❤</div>
-                            <img src="${p.images[0]}" alt="Kiyim">
-                            <div class="p-info">
-                                <small style="color:var(--text-gray)">${p.category}</small>
-                                <h3>${p.name}</h3>
-                                <div class="p-price">${p.price.toLocaleString()} so'm</div>
-                                <button class="cart-btn" onclick="addCart(this)">SAVATGA QO'SHISH</button>
-                            </div>
+        ref.on('value', snap => {
+            box.innerHTML = "";
+            const data = snap.val();
+            if(!data) return box.innerHTML = "Mahsulot yo'q";
+
+            Object.values(data).reverse().forEach(p => {
+                box.innerHTML += `
+                    <div class="p-card">
+                        <div class="wish" onclick="toggleWish(this)">❤</div>
+                        <img src="${p.images[0]}" alt="Kiyim">
+                        <div class="p-info">
+                            <h4>${p.name}</h4>
+                            <div class="p-price">${p.price.toLocaleString()} so'm</div>
+                            <button class="add-btn" onclick="addToCart(this)">SAVATGA QO'SHISH</button>
                         </div>
-                    `;
-                });
+                    </div>
+                `;
             });
-        }
+        });
+    }
 
-        // ISTAKLAR FUNKSIYASI
-        function addWish(el) {
-            el.classList.toggle('active');
-            if(el.classList.contains('active')) wishes++; else wishes--;
-            document.getElementById('wish-count').innerText = wishes;
-        }
+    function toggleWish(el) {
+        el.classList.toggle('active');
+        el.classList.contains('active') ? wishCount++ : wishCount--;
+        document.getElementById('w_count').innerText = wishCount;
+    }
 
-        // SAVATGA QO'SHISH (GLOW EFFEKT)
-        function addCart(btn) {
-            carts++;
-            document.getElementById('cart-count').innerText = carts;
-            
-            // Effekt
-            btn.innerText = "QO'SHILDI ✅";
-            btn.style.boxShadow = "0 0 30px #ffca28";
-            setTimeout(() => {
-                btn.innerText = "SAVATGA QO'SHISH";
-                btn.style.boxShadow = "";
-            }, 800);
-        }
+    function addToCart(btn) {
+        cartCount++;
+        document.getElementById('c_count').innerText = cartCount;
+        
+        // Neon Glow Effekt
+        btn.innerText = "QO'SHILDI ✅";
+        btn.style.borderColor = "#00ff00";
+        btn.style.color = "#00ff00";
+        
+        setTimeout(() => {
+            btn.innerText = "SAVATGA QO'SHISH";
+            btn.style.borderColor = "";
+            btn.style.color = "";
+        }, 800);
+    }
 
-        // Birinchi yuklash
-        load('Hammasi');
-    </script>
+    load('Hammasi');
+</script>
+
 </body>
 </html>
