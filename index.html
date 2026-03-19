@@ -3,68 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tavor 2026</title>
+    <title>Pekin Tavor | Purple Edition</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
-        body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; background-color: #ffffff; color: #333; }
+        /* ASOSIY FON BINAFSHA */
+        body { 
+            margin: 0; 
+            font-family: 'Segoe UI', sans-serif; 
+            background: linear-gradient(135deg, #2e0249 0%, #570a57 100%); 
+            color: white; 
+            min-height: 100vh;
+        }
         
         /* HEADER */
         header {
-            background: #fff; padding: 10px 5%; display: flex; 
+            background: rgba(0, 0, 0, 0.3); padding: 15px 5%; display: flex; 
             justify-content: space-between; align-items: center;
-            border-bottom: 2px solid #f0f0f0; position: sticky; top: 0; z-index: 100;
+            border-bottom: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(10px);
+            position: sticky; top: 0; z-index: 100;
         }
-        .logo { font-weight: bold; font-size: 22px; color: #000; letter-spacing: 1px; }
+        .logo { font-weight: bold; font-size: 20px; color: #f806cc; text-shadow: 0 0 10px #f806cc; }
         .nav-links { display: flex; gap: 20px; align-items: center; }
-        .nav-item { cursor: pointer; font-size: 15px; font-weight: 500; position: relative; }
-        .badge { background: #ff4757; color: white; border-radius: 50%; padding: 2px 6px; font-size: 11px; position: absolute; top: -10px; right: -15px; }
+        .nav-item { cursor: pointer; font-size: 15px; position: relative; }
+        .badge { background: #f806cc; color: white; border-radius: 50%; padding: 2px 6px; font-size: 10px; position: absolute; top: -10px; right: -12px; }
 
         /* KATEGORIYA */
-        .categories { text-align: center; padding: 20px; background: #fafafa; border-bottom: 1px solid #eee; }
+        .categories { text-align: center; padding: 20px; }
         .categories button { 
-            padding: 10px 20px; margin: 5px; border: 1px solid #ddd; 
-            background: #fff; cursor: pointer; border-radius: 25px; transition: 0.3s;
+            padding: 8px 18px; margin: 5px; border: 1px solid #f806cc; 
+            background: transparent; color: white; cursor: pointer; border-radius: 20px; transition: 0.3s;
         }
-        .categories button:hover { background: #000; color: #fff; }
+        .categories button:hover, .categories button.active { background: #f806cc; color: white; }
 
         /* 3 QATORLI GRID */
-        .product-grid {
+        .grid {
             display: grid; grid-template-columns: repeat(3, 1fr); 
-            gap: 20px; padding: 25px 5%; max-width: 1100px; margin: 0 auto;
+            gap: 15px; padding: 10px 5%; max-width: 1100px; margin: 0 auto;
         }
 
         /* MAHSULOT KARTASI */
         .card {
-            background: #fff; border: 1px solid #eee; border-radius: 12px; 
+            background: rgba(255, 255, 255, 0.1); border-radius: 15px; 
             overflow: hidden; text-align: center; padding-bottom: 15px;
             transition: 0.3s; position: relative; cursor: pointer;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
         }
-        .card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.05); }
-        .card img { width: 100%; height: 220px; object-fit: cover; }
-        .card h4 { margin: 12px 0 5px; font-size: 15px; color: #444; }
-        .price { color: #2ed573; font-weight: bold; font-size: 18px; margin-bottom: 12px; }
+        .card:hover { transform: translateY(-5px); background: rgba(255, 255, 255, 0.2); }
+        .card img { width: 100%; height: 200px; object-fit: cover; }
+        .card h4 { margin: 10px 0 5px; font-size: 14px; color: #eee; }
+        .price { color: #00ffab; font-weight: bold; font-size: 17px; margin-bottom: 10px; }
         
-        .add-btn {
-            background: #000; color: white; border: none; 
-            padding: 8px 18px; border-radius: 6px; cursor: pointer; font-size: 13px;
+        .buy-btn {
+            background: #f806cc; color: white; border: none; 
+            padding: 7px 15px; border-radius: 5px; cursor: pointer; font-size: 12px;
         }
 
         /* MODAL (MA'LUMOT OYNASI) */
         #modal {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
-            background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;
+            background: rgba(0,0,0,0.9); z-index: 1000; justify-content: center; align-items: center;
         }
         .modal-content {
-            background: #fff; padding: 25px; border-radius: 15px; max-width: 400px; width: 90%;
-            position: relative; text-align: center; color: #333;
+            background: #2e0249; padding: 20px; border-radius: 20px; max-width: 350px; width: 90%;
+            position: relative; text-align: center; border: 2px solid #f806cc;
         }
-        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 25px; cursor: pointer; }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 25px; cursor: pointer; color: #fff; }
 
-        @media (max-width: 768px) { .product-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 480px) { .product-grid { grid-template-columns: repeat(1, 1fr); } }
+        @media (max-width: 768px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 480px) { .grid { grid-template-columns: repeat(1, 1fr); } }
     </style>
 </head>
 <body>
@@ -72,7 +80,7 @@
 <header>
     <div class="logo">PEKIN TAVOR</div>
     <div class="nav-links">
-        <div class="nav-item" onclick="adminLogin()">⚙️ Admin</div>
+        <div class="nav-item" onclick="adminCheck()">⚙️ Admin</div>
         <div class="nav-item">❤️ <span id="w_count" class="badge">0</span></div>
         <div class="nav-item">🛒 <span id="c_count" class="badge">0</span></div>
     </div>
@@ -85,42 +93,44 @@
     <button onclick="load('Bolalar')">Bolalar</button>
 </div>
 
-<div class="product-grid" id="main_box"></div>
+<div class="grid" id="container"></div>
 
 <div id="modal">
     <div class="modal-content">
         <span class="close-btn" onclick="closeModal()">&times;</span>
-        <img id="m-img" style="width:100%; border-radius:10px; height:250px; object-fit:cover;">
-        <h2 id="m-title"></h2>
-        <p id="m-price" style="font-size:20px; color:#2ed573; font-weight:bold;"></p>
-        <hr>
-        <p align="left"><b>📏 O'lcham:</b> <span id="m-size"></span></p>
-        <p align="left"><b>👶 Yosh:</b> <span id="m-age"></span></p>
-        <p align="left"><b>📝 Izoh:</b> <span id="m-desc"></span></p>
-        <button class="add-btn" style="width:100%; padding:12px;" onclick="addToCart()">Savatga qo'shish</button>
+        <img id="m-img" style="width:100%; border-radius:10px; height:230px; object-fit:cover; margin-bottom:15px;">
+        <h2 id="m-title" style="margin:5px 0;"></h2>
+        <p id="m-price" style="font-size:22px; color:#00ffab; font-weight:bold;"></p>
+        <div style="text-align: left; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; font-size: 14px;">
+            <p><b>📏 O'lcham:</b> <span id="m-size"></span></p>
+            <p><b>👶 Yosh:</b> <span id="m-age"></span></p>
+            <p><b>📝 Izoh:</b> <span id="m-desc"></span></p>
+        </div>
+        <button class="buy-btn" style="width:100%; padding:12px; margin-top:15px;" onclick="addCart()">SAVATGA QO'SHISH</button>
     </div>
 </div>
 
 <script>
-    const config = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
-    firebase.initializeApp(config);
+    // FIREBASE BOG'LANISH
+    const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
+    firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let c = 0; 
+    let count = 0;
 
-    // ADMIN LOGIN
-    function adminLogin() {
-        let pass = prompt("Admin kodini kiriting:");
-        if (pass === "4321") {
+    // ADMIN TEKSHIRISH (4321)
+    function adminCheck() {
+        let p = prompt("Maxfiy kodni kiriting:");
+        if (p === "4321") {
             window.location.href = "https://t.me/Jahongir3616";
         } else {
-            alert("Kod noto'g'ri!");
+            alert("Kod xato!");
         }
     }
 
     function load(cat) {
-        const box = document.getElementById('main_box');
-        box.innerHTML = "Yuklanmoqda...";
+        const box = document.getElementById('container');
+        box.innerHTML = "<p>Yuklanmoqda...</p>";
         
         let ref = db.ref('products');
         if (cat !== 'Hammasi') ref = ref.orderByChild('category').equalTo(cat);
@@ -128,25 +138,25 @@
         ref.on('value', snap => {
             box.innerHTML = "";
             const data = snap.val();
-            if(!data) return box.innerHTML = "Mahsulot topilmadi.";
+            if(!data) return box.innerHTML = "<p>Mahsulot topilmadi.</p>";
 
-            Object.keys(data).reverse().forEach(id => {
-                let p = data[id];
+            Object.keys(data).reverse().forEach(key => {
+                let p = data[key];
                 box.innerHTML += `
-                    <div class="card" onclick="openProduct('${p.name}', '${p.price}', '${p.images[0]}', '${p.size || 'Mavjud emas'}', '${p.age || 'Noma'lum'}', '${p.desc || 'Izoh yo'q'}')">
+                    <div class="card" onclick="show('${p.name}', '${p.price}', '${p.images[0]}', '${p.size || 'Mavjud emas'}', '${p.age || 'Noma'lum'}', '${p.desc || ''}')">
                         <img src="${p.images[0]}">
                         <h4>${p.name}</h4>
                         <div class="price">${parseInt(p.price).toLocaleString()} so'm</div>
-                        <button class="add-btn" onclick="event.stopPropagation(); addToCart();">Savatga</button>
+                        <button class="buy-btn" onclick="event.stopPropagation(); addCart();">Savatga</button>
                     </div>
                 `;
             });
         });
     }
 
-    // MODAL FUNKSIYALARI
-    function openProduct(name, price, img, size, age, desc) {
-        document.getElementById('m-title').innerText = name;
+    // TAFSILOTLARNI KO'RSATISH
+    function show(title, price, img, size, age, desc) {
+        document.getElementById('m-title').innerText = title;
         document.getElementById('m-price').innerText = parseInt(price).toLocaleString() + " so'm";
         document.getElementById('m-img').src = img;
         document.getElementById('m-size').innerText = size;
@@ -157,16 +167,15 @@
 
     function closeModal() { document.getElementById('modal').style.display = "none"; }
     
-    function addToCart() {
-        c++;
-        document.getElementById('c_count').innerText = c;
+    function addCart() {
+        count++;
+        document.getElementById('c_count').innerText = count;
         alert("Savatga qo'shildi!");
         closeModal();
     }
 
-    window.onclick = function(event) {
-        if (event.target == document.getElementById('modal')) closeModal();
-    }
+    // Modal tashqarisini bossa yopish
+    window.onclick = (e) => { if(e.target == document.getElementById('modal')) closeModal(); }
 
     load('Hammasi');
 </script>
