@@ -10,61 +10,51 @@
     <style>
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { 
-            margin: 0; font-family: 'Segoe UI', Roboto, sans-serif; 
+            margin: 0; font-family: sans-serif; 
             background: linear-gradient(180deg, #2e0249 0%, #570a57 100%); 
             color: #fff; min-height: 100vh;
         }
 
         /* HEADER */
         header {
-            background: rgba(0,0,0,0.7); padding: 12px 5%; 
+            background: rgba(0,0,0,0.7); padding: 10px 5%; 
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 2px solid #f806cc; position: sticky; top: 0; z-index: 1000;
             backdrop-filter: blur(10px);
         }
-        .logo { font-size: 18px; font-weight: 900; color: #f806cc; letter-spacing: 1px; }
+        .logo { font-size: 18px; font-weight: 900; color: #f806cc; }
         .nav-right { display: flex; gap: 10px; }
-        .btn-nav { cursor: pointer; background: rgba(255,255,255,0.15); padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; border: 1px solid rgba(248, 6, 204, 0.3); }
+        .btn-top { cursor: pointer; background: rgba(255,255,255,0.1); padding: 7px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; border: 1px solid rgba(248, 6, 204, 0.3); }
 
-        /* KATEGORIYA TUGMALARI */
-        .cats { text-align: center; padding: 15px; overflow-x: auto; white-space: nowrap; }
-        .cats button { 
-            padding: 8px 16px; margin: 4px; border: 1px solid #f806cc; 
-            background: transparent; color: #fff; cursor: pointer; border-radius: 20px; font-size: 12px; transition: 0.3s;
+        /* ADMIN BO'LIMI (YASHIRIN) */
+        #admin-panel {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: #1a0033; z-index: 3000; padding: 20px; overflow-y: auto;
         }
-        .cats button.active { background: #f806cc; box-shadow: 0 0 10px #f806cc; }
 
-        /* 3 QATORLI JUDA IXCHAM GRID */
+        /* GRID 3 QATOR */
         .grid {
             display: grid; grid-template-columns: repeat(3, 1fr); 
             gap: 8px; padding: 10px 4%; max-width: 1000px; margin: 0 auto;
         }
-
         .card {
             background: rgba(255,255,255,0.08); border-radius: 12px; 
             border: 1px solid rgba(248, 6, 204, 0.2);
-            overflow: hidden; text-align: center; padding-bottom: 10px; transition: 0.2s;
-            display: flex; flex-direction: column; justify-content: space-between;
+            overflow: hidden; text-align: center; padding-bottom: 10px; cursor: pointer;
         }
-        .card:active { transform: scale(0.96); }
-        
-        /* Rasm bosiladigan qism */
-        .card img { width: 100%; height: 110px; object-fit: cover; cursor: pointer; display: block; }
-        
-        .card h4 { margin: 6px 0 3px; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 5px; font-weight: 500; }
-        .price { color: #00ffab; font-weight: 800; font-size: 13px; margin-bottom: 8px; }
-        .add-cart { background: #f806cc; border: none; color: white; padding: 6px; border-radius: 6px; width: 88%; font-size: 10px; cursor: pointer; font-weight: bold; margin: 0 auto; }
+        .card img { width: 100%; height: 110px; object-fit: cover; display: block; pointer-events: none; }
+        .card h4 { margin: 6px 0 3px; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 5px; }
+        .price { color: #00ffab; font-weight: bold; font-size: 13px; margin-bottom: 8px; }
 
-        /* MODAL (Batafsil ma'lumot oynasi) */
+        /* MODAL */
         #modal {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
             background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center;
         }
         .m-box {
             background: #2e0249; padding: 25px; border-radius: 20px; max-width: 340px; width: 90%;
-            text-align: center; border: 2px solid #f806cc; position: relative; animation: zoomIn 0.3s;
+            text-align: center; border: 2px solid #f806cc; position: relative;
         }
-        @keyframes zoomIn { from {transform: scale(0.8); opacity: 0;} to {transform: scale(1); opacity: 1;} }
         .close { position: absolute; top: 10px; right: 15px; font-size: 30px; cursor: pointer; color: #fff; }
 
         @media (max-width: 600px) {
@@ -78,16 +68,20 @@
 <header>
     <div class="logo">PEKIN TAVOR</div>
     <div class="nav-right">
-        <button class="btn-nav" onclick="adminAuth()">⚙️ Admin</button>
-        <button class="btn-nav" onclick="checkout()">🛒 Savat (<span id="cart-count">0</span>)</button>
+        <div class="btn-top" onclick="goToAdmin()">⚙️ Admin</div>
+        <div class="btn-top" onclick="sendOrder()">🛒 Savat (<span id="cart-num">0</span>)</div>
     </div>
 </header>
 
-<div class="cats" id="cat-list">
-    <button onclick="changeCat('Hammasi', this)" class="active">Barchasi</button>
-    <button onclick="changeCat('Erkaklar', this)">Erkaklar</button>
-    <button onclick="changeCat('Ayollar', this)">Ayollar</button>
-    <button onclick="changeCat('Bolalar', this)">Bolalar</button>
+<div id="admin-panel">
+    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #f806cc; padding-bottom: 10px;">
+        <h2>Admin Sozlamalari</h2>
+        <button onclick="closeAdmin()" style="background: #f806cc; color: white; border: none; padding: 10px; border-radius: 5px;">Yopish</button>
+    </div>
+    <div style="margin-top: 20px;">
+        <p>Bu yerda siz mahsulotlarni boshqarishingiz mumkin.</p>
+        <button onclick="window.location.href='https://t.me/Jahongir3616'" style="background: #0088cc; color: white; border: none; padding: 10px; width: 100%; border-radius: 8px;">Telegram orqali bog'lanish</button>
+        </div>
 </div>
 
 <div class="grid" id="main_box"></div>
@@ -95,131 +89,90 @@
 <div id="modal">
     <div class="m-box">
         <span class="close" onclick="closeM()">&times;</span>
-        <img id="m-img" style="width:100%; height:220px; object-fit:cover; border-radius:12px; margin-bottom:15px;">
+        <img id="m-img" style="width:100%; height:200px; object-fit:cover; border-radius:12px; margin-bottom:15px;">
         <h3 id="m-title" style="color:#f806cc; margin:0 0 10px 0;"></h3>
         <div id="m-price" style="font-size:22px; color:#00ffab; font-weight:bold; margin-bottom:15px;"></div>
-        <div style="text-align: left; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; font-size: 14px; line-height: 1.5;">
-            <p style="margin: 5px 0;"><b>📏 O'lcham:</b> <span id="m-size"></span></p>
-            <p style="margin: 5px 0;"><b>👶 Yosh:</b> <span id="m-age"></span></p>
-            <p style="margin: 5px 0;"><b>📝 Izoh:</b> <span id="m-desc"></span></p>
+        <div style="text-align: left; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; font-size: 14px;">
+            <p><b>📏 O'lcham:</b> <span id="m-size"></span></p>
+            <p><b>👶 Yosh:</b> <span id="m-age"></span></p>
+            <p><b>📝 Izoh:</b> <span id="m-desc"></span></p>
         </div>
-        <button onclick="addToCartFromModal()" style="width:100%; margin-top:20px; background:#f806cc; border:none; color:white; padding:14px; border-radius:10px; cursor:pointer; font-weight:bold; font-size: 16px;">SAVATGA QO'SHISH</button>
+        <button onclick="addToCart()" style="width:100%; margin-top:20px; background:#f806cc; border:none; color:white; padding:12px; border-radius:8px; cursor:pointer; font-weight:bold;">SAVATGA QO'SHISH</button>
     </div>
 </div>
 
 <script>
-    // 1. Firebase bog'lanish
     const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const db = firebase.database();
 
-    let basket = [];
-    let selectedProduct = {};
+    let myCart = [];
+    let activeItem = {};
 
-    // 2. Admin (4321)
-    function adminAuth() {
-        const pass = prompt("Admin paroli:");
-        if (pass === "4321") {
-            window.location.href = "https://t.me/Jahongir3616";
-        } else if (pass !== null) {
-            alert("Parol noto'g'ri!");
+    // 1. ADMIN TUGMASI (4321 kodi bilan bo'limga o'tish)
+    function goToAdmin() {
+        let code = prompt("Admin parolini kiriting:");
+        if (code === "4321") {
+            document.getElementById('admin-panel').style.display = "block";
+        } else if(code !== null) {
+            alert("Parol xato!");
         }
     }
+    function closeAdmin() { document.getElementById('admin-panel').style.display = "none"; }
 
-    // 3. Mahsulotlarni yuklash va Kategoriyalar
-    function changeCat(cat, btn) {
-        document.querySelectorAll('.cats button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        fetchProducts(cat);
-    }
+    // 2. MAHSULOTLARNI YUKLASH (3 QATOR)
+    function loadData() {
+        const box = document.getElementById('main_box');
+        db.ref('products').on('value', snap => {
+            box.innerHTML = "";
+            const data = snap.val();
+            if(!data) return;
 
-    function fetchProducts(filter = 'Hammasi') {
-        const container = document.getElementById('main_box');
-        container.innerHTML = "<p style='grid-column: span 3; text-align:center;'>Yuklanmoqda...</p>";
-
-        database.ref('products').on('value', (snapshot) => {
-            container.innerHTML = "";
-            const data = snapshot.val();
-            if (!data) {
-                container.innerHTML = "<p style='grid-column: span 3; text-align:center;'>Hozircha mahsulot yo'q.</p>";
-                return;
-            }
-
-            Object.keys(data).reverse().forEach(key => {
-                const p = data[key];
-                if (filter === 'Hammasi' || p.category === filter) {
-                    const card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-                        <img src="${p.images[0]}" onclick="openM('${p.name}', '${p.price}', '${p.images[0]}', '${p.size || 'M'}', '${p.age || '3-15'}', '${p.desc || 'Sifatli'}')">
-                        <div onclick="openM('${p.name}', '${p.price}', '${p.images[0]}', '${p.size || 'M'}', '${p.age || '3-15'}', '${p.desc || 'Sifatli'}')">
-                            <h4>${p.name}</h4>
-                            <div class="price">${parseInt(p.price).toLocaleString()}</div>
-                        </div>
-                        <button class="add-cart" onclick="quickAdd('${p.name}', '${p.price}')">Savatga</button>
-                    `;
-                    container.appendChild(card);
-                }
+            Object.keys(data).reverse().forEach(id => {
+                let p = data[id];
+                let card = document.createElement('div');
+                card.className = 'card';
+                // Mahsulot ustidan bosganda ma'lumotlarni ko'rsatish
+                card.onclick = function() {
+                    openModal(p.name, p.price, p.images[0], p.size, p.age, p.desc);
+                };
+                card.innerHTML = `
+                    <img src="${p.images[0]}">
+                    <h4>${p.name}</h4>
+                    <div class="price">${parseInt(p.price).toLocaleString()}</div>
+                `;
+                box.appendChild(card);
             });
         });
     }
 
-    // 4. Modal (Batafsil ma'lumot)
-    function openM(n, p, i, s, a, d) {
-        selectedProduct = {name: n, price: p};
+    // 3. MODAL OYNASI
+    function openModal(n, p, i, s, a, d) {
+        activeItem = {name: n, price: p};
         document.getElementById('m-title').innerText = n;
         document.getElementById('m-price').innerText = parseInt(p).toLocaleString() + " so'm";
         document.getElementById('m-img').src = i;
-        document.getElementById('m-size').innerText = s;
-        document.getElementById('m-age').innerText = a;
-        document.getElementById('m-desc').innerText = d;
+        document.getElementById('m-size').innerText = s || "Mavjud emas";
+        document.getElementById('m-age').innerText = a || "Noma'lum";
+        document.getElementById('m-desc').innerText = d || "Izoh yo'q";
         document.getElementById('modal').style.display = "flex";
     }
+    function closeM() { document.getElementById('modal').style.display = "none"; }
 
-    function closeM() {
-        document.getElementById('modal').style.display = "none";
-    }
-
-    // 5. Savat va Buyurtma (Jahongir3616 ga yuborish)
-    function quickAdd(name, price) {
-        basket.push({name, price});
-        updateBadge();
-    }
-
-    function addToCartFromModal() {
-        basket.push(selectedProduct);
-        updateBadge();
+    // 4. SAVAT VA BUYURTMA
+    function addToCart() {
+        myCart.push(activeItem);
+        document.getElementById('cart-num').innerText = myCart.length;
         closeM();
     }
-
-    function updateBadge() {
-        document.getElementById('cart-count').innerText = basket.length;
+    function sendOrder() {
+        if(myCart.length === 0) return alert("Savat bo'sh!");
+        let text = "Yangi Buyurtma:\n\n";
+        myCart.forEach((v, i) => text += `${i+1}. ${v.name} (${v.price} so'm)\n`);
+        window.location.href = `https://t.me/Jahongir3616?text=${encodeURIComponent(text)}`;
     }
 
-    function checkout() {
-        if (basket.length === 0) {
-            alert("Savat bo'sh! Avval mahsulot tanlang.");
-            return;
-        }
-        let orderText = "🛒 YANGI BUYURTMA (PEKIN TAVOR):\n\n";
-        let total = 0;
-        basket.forEach((item, index) => {
-            orderText += `${index + 1}. ${item.name} - ${parseInt(item.price).toLocaleString()} so'm\n`;
-            total += parseInt(item.price);
-        });
-        orderText += `\n💰 Jami: ${total.toLocaleString()} so'm`;
-        
-        const url = `https://t.me/Jahongir3616?text=${encodeURIComponent(orderText)}`;
-        window.location.href = url;
-    }
-
-    // Modal tashqarisini bossa yopish
-    window.onclick = function(event) {
-        if (event.target == document.getElementById('modal')) closeM();
-    }
-
-    // Dastlabki yuklash
-    fetchProducts();
+    loadData();
 </script>
 </body>
 </html>
