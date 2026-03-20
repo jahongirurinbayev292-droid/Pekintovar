@@ -3,154 +3,203 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tavor - Mini Shop</title>
+    <title>Pekin Tavor - Full System</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --pink: #ff4d6d; --light: #fff0f3; }
-        body { font-family: 'Arial', sans-serif; background: var(--light); margin: 0; padding-top: 60px; padding-bottom: 20px; }
+        :root { --pink: #ff0055; --dark-bg: #1a0005; --card-bg: #2d000f; }
+        body { background: var(--dark-bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding-top: 60px; }
         
         /* Yuqori Menyu */
-        header { position: fixed; top:0; width:100%; background: var(--pink); color:white; display:flex; justify-content:space-between; padding:10px 15px; box-sizing:border-box; z-index:1000; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .top-icons i { margin-left: 15px; cursor: pointer; font-size: 20px; }
+        header { position: fixed; top:0; width:100%; background: var(--pink); display:flex; justify-content:space-between; padding:12px 20px; box-sizing:border-box; z-index:1000; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        .logo { font-weight: bold; font-size: 20px; cursor: pointer; }
+        .nav-icons i { margin-left: 18px; cursor: pointer; font-size: 22px; transition: 0.3s; }
+        .nav-icons i:hover { opacity: 0.7; }
 
-        /* Mahsulotlar 3 talik Grid */
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 5px; }
-        .card { background: white; border-radius: 8px; overflow: hidden; border: 1px solid #ffccd5; cursor: pointer; }
-        .card img { width: 100%; height: 100px; object-fit: cover; }
-        .price-label { font-size: 11px; font-weight: bold; color: var(--pink); text-align: center; padding: 4px; }
+        /* Mahsulotlar Grid (3 talik) */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; padding: 10px; }
+        .card { background: var(--card-bg); border: 1px solid var(--pink); border-radius: 10px; overflow: hidden; position: relative; cursor: pointer; }
+        .card img { width: 100%; height: 110px; object-fit: cover; }
+        .p-price { font-size: 11px; font-weight: bold; color: var(--pink); text-align: center; padding: 5px; background: rgba(0,0,0,0.5); }
 
-        /* Modal / Oyna */
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:2000; justify-content:center; align-items:center; }
-        .m-box { background: white; width: 85%; border-radius: 15px; padding: 20px; text-align: center; position: relative; }
-        .close { position: absolute; top:10px; right:15px; font-size: 25px; color: var(--pink); }
+        /* Admin Panel Dizayni (307-rasmdek) */
+        .admin-box { background: #1a0033; border: 2px solid #ff00aa; border-radius: 20px; padding: 15px; margin: 15px; }
+        .admin-title { color: #ff00aa; font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
+        input, textarea, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid #ff00aa; background: #2d004d; color: white; box-sizing: border-box; }
+        .btn-pink { background: #ff00aa; color: white; border: none; padding: 12px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
 
-        /* Sahifalar */
-        .page { display: none; padding: 15px; }
+        /* Modal va Sahifalar */
+        .page { display: none; padding: 10px; }
         .active { display: block; }
-        
-        /* Tugmalar */
-        .btn { background: var(--pink); color:white; border:none; padding:12px; width:100%; border-radius:10px; margin-top:10px; font-weight:bold; cursor:pointer; }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border: 1px solid #ffccd5; border-radius: 8px; }
+        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; justify-content:center; align-items:center; }
+        .m-content { background: var(--card-bg); width: 90%; border-radius: 20px; padding: 20px; border: 1px solid var(--pink); text-align: center; }
+        .badge { background: var(--pink); padding: 4px 10px; border-radius: 15px; font-size: 12px; margin: 3px; display: inline-block; }
     </style>
 </head>
 <body>
 
     <header>
-        <div style="font-weight:bold;">PEKIN TAVOR</div>
-        <div class="top-icons">
+        <div class="logo" onclick="showPage('home')">PEKIN TAVOR</div>
+        <div class="nav-icons">
             <i class="fa-solid fa-cart-shopping" onclick="showPage('cart')"></i>
             <i class="fa-solid fa-heart" onclick="showPage('wishlist')"></i>
-            <i class="fa-solid fa-gear" onclick="openSettings()"></i>
+            <i class="fa-solid fa-gear" onclick="checkAdmin()"></i>
         </div>
     </header>
 
     <div id="home" class="page active">
-        <div class="grid" id="product-list"></div>
+        <div class="grid" id="main-list"></div>
     </div>
 
     <div id="cart" class="page">
-        <h2 style="color:var(--pink)">Savat</h2>
-        <div id="cart-content">Savat bo'sh</div>
-        <button class="btn" onclick="orderNow()">Buyurtma Berish (@Jahongir3616)</button>
-        <button class="btn" style="background:#666" onclick="showPage('home')">Orqaga</button>
+        <h2 style="color:var(--pink); text-align:center;">Savat</h2>
+        <div id="cart-items" style="margin-bottom:20px;">Savat bo'sh</div>
+        <button class="btn-pink" onclick="sendToTelegram()">Buyurtmani Tasdiqlash</button>
+        <button class="btn-pink" style="background:#444;" onclick="showPage('home')">Orqaga</button>
     </div>
 
     <div id="wishlist" class="page">
-        <h2 style="color:var(--pink)">Kerakli narsalar yozing</h2>
-        <textarea id="wish-text" placeholder="Sizga nima kerak? Masalan: 42 o'lchamli krasovka..."></textarea>
-        <button class="btn" onclick="saveWish()">Adminga yuborish</button>
-        <button class="btn" style="background:#666" onclick="showPage('home')">Orqaga</button>
+        <div class="admin-box">
+            <div class="admin-title">✍️ Kerakli narsa yozing</div>
+            <textarea id="wish-note" rows="4" placeholder="Sizga qanday poyabzal kerak?"></textarea>
+            <button class="btn-pink" onclick="submitWish()">Adminga yuborish</button>
+        </div>
+    </div>
+
+    <div id="admin" class="page">
+        <div class="admin-box">
+            <div class="admin-title">📂 1. Menyularni Boshqarish</div>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="new-cat" placeholder="Bo'lim nomi">
+                <button onclick="addCategory()" style="background:#ff00aa; border:none; color:white; border-radius:10px; padding:0 15px;">Qo'shish</button>
+            </div>
+            <div id="cat-display" style="margin-top:10px;"></div>
+        </div>
+
+        <div class="admin-box">
+            <div class="admin-title">📤 2. Mahsulot Yuklash</div>
+            <input type="text" id="p-name" placeholder="Mahsulot nomi">
+            <input type="number" id="p-price" placeholder="Narxi (faqat son)">
+            <input type="text" id="p-size" placeholder="O'lchamlari (masalan: 38-44)">
+            <input type="text" id="p-img" placeholder="Rasm URL manzili">
+            <button class="btn-pink" onclick="uploadProduct()">Saytga chiqarish</button>
+        </div>
     </div>
 
     <div id="modal" class="modal">
-        <div class="m-box">
-            <span class="close" onclick="closeM()">&times;</span>
-            <img id="m-img" style="width:100%; border-radius:10px; height:200px; object-fit:cover;">
-            <h3 id="m-price" style="color:var(--pink)"></h3>
-            <p id="m-info" style="font-size:14px; color:#555"></p>
-            <button class="btn" onclick="addToCart()">Savatga qo'shish</button>
+        <div class="m-content">
+            <img id="m-img" style="width:100%; border-radius:15px; height:250px; object-fit:cover;">
+            <h2 id="m-pr" style="color:var(--pink); margin:15px 0;"></h2>
+            <p id="m-det" style="color:#ccc;"></p>
+            <button class="btn-pink" onclick="addToCart()">Savatga qo'shish</button>
+            <button class="btn-pink" style="background:none; border:1px solid var(--pink);" onclick="closeM()">Yopish</button>
         </div>
     </div>
 
     <script>
-        const config = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(config);
+        // FIREBASE SOZLAMALARI
+        const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let current = {};
         let cart = [];
+        let tempItem = {};
 
-        // Mahsulotlarni o'qish
-        db.ref('products').on('value', (snap) => {
-            const list = document.getElementById('product-list');
+        // 1. MAHSULOTLARNI CHIQARISH
+        db.ref('products').on('value', (s) => {
+            const list = document.getElementById('main-list');
             list.innerHTML = "";
-            const data = snap.val();
+            const data = s.val();
             if(data) {
                 Object.keys(data).reverse().forEach(id => {
                     const p = data[id];
                     list.innerHTML += `
-                        <div class="card" onclick="openM('${p.images[0]}', '${p.price}', '${p.size}', '${p.age}')">
-                            <img src="${p.images[0]}">
-                            <div class="price-label">${p.price} so'm</div>
+                        <div class="card" onclick="openM('${p.image}','${p.price}','${p.size}','${p.name}')">
+                            <img src="${p.image}">
+                            <div class="p-price">${Number(p.price).toLocaleString()} so'm</div>
                         </div>`;
                 });
             }
         });
 
-        function openM(img, price, size, age) {
-            current = { img, price, size, age };
+        // 2. ADMIN FUNKSIYALARI
+        function checkAdmin() {
+            if(prompt("Admin paroli:") === "7777") showPage('admin');
+            else alert("Xato parol!");
+        }
+
+        function addCategory() {
+            const val = document.getElementById('new-cat').value;
+            if(val) {
+                db.ref('categories').push(val);
+                document.getElementById('new-cat').value = "";
+            }
+        }
+
+        db.ref('categories').on('value', s => {
+            const div = document.getElementById('cat-display');
+            div.innerHTML = "";
+            if(s.val()) Object.values(s.val()).forEach(v => div.innerHTML += `<span class="badge">${v} ×</span>`);
+        });
+
+        function uploadProduct() {
+            const data = {
+                name: document.getElementById('p-name').value,
+                price: document.getElementById('p-price').value,
+                size: document.getElementById('p-size').value,
+                image: document.getElementById('p-img').value
+            };
+            if(data.price && data.image) {
+                db.ref('products').push(data);
+                alert("Muvaffaqiyatli qo'shildi!");
+                showPage('home');
+            }
+        }
+
+        // 3. SAVAT VA BUYURTMA (@Jahongir3616)
+        function openM(img, pr, sz, nm) {
+            tempItem = { img, pr, sz, nm };
             document.getElementById('m-img').src = img;
-            document.getElementById('m-price').innerText = price + " so'm";
-            document.getElementById('m-info').innerText = `O'lcham: ${size} | Yosh: ${age}`;
+            document.getElementById('m-pr').innerText = Number(pr).toLocaleString() + " so'm";
+            document.getElementById('m-det').innerText = `${nm} | O'lcham: ${sz}`;
             document.getElementById('modal').style.display = 'flex';
         }
 
         function closeM() { document.getElementById('modal').style.display = 'none'; }
 
-        function showPage(id) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
-
         function addToCart() {
-            cart.push(current);
+            cart.push(tempItem);
             alert("Savatga qo'shildi!");
-            updateCart();
             closeM();
+            updateCartUI();
         }
 
-        function updateCart() {
-            const c = document.getElementById('cart-content');
-            if(cart.length == 0) { c.innerHTML = "Savat bo'sh"; return; }
-            c.innerHTML = cart.map((i, index) => `<div style="border-bottom:1px solid #ddd; padding:5px;">${index+1}. Pekin Tavor - ${i.price} so'm</div>`).join('');
+        function updateCartUI() {
+            const c = document.getElementById('cart-items');
+            c.innerHTML = cart.length ? cart.map(i => `<div style="padding:10px; border-bottom:1px solid #333;">${i.nm} - ${i.pr} so'm</div>`).join('') : "Savat bo'sh";
         }
 
-        function orderNow() {
-            if(cart.length == 0) return alert("Savat bo'sh!");
-            let msg = "YANGI BUYURTMA:%0A%0A";
-            cart.forEach((i, n) => {
-                msg += `${n+1}. Narxi: ${i.price}%0A👣 O'lcham: ${i.size}%0A🖼 Rasm: ${i.img}%0A%0A`;
-            });
+        function sendToTelegram() {
+            if(!cart.length) return alert("Savat bo'sh!");
+            let msg = "🚀 YANGI BUYURTMA:%0A%0A";
+            cart.forEach((i, n) => msg += `${n+1}. ${i.nm}%0A💰 Narxi: ${i.pr}%0A📏 O'lcham: ${i.sz}%0A🖼 Rasm: ${i.img}%0A%0A`);
             window.location.href = `https://t.me/Jahongir3616?text=${msg}`;
         }
 
-        function saveWish() {
-            const txt = document.getElementById('wish-text').value;
-            if(!txt) return alert("Matn yozing!");
-            db.ref('requirements').push({ text: txt, date: new Date().toLocaleString() });
-            alert("Sizning so'rovingiz sozlamalar bo'limiga (admin panelga) yuborildi!");
-            document.getElementById('wish-text').value = "";
-            showPage('home');
+        function submitWish() {
+            const t = document.getElementById('wish-note').value;
+            if(t) {
+                db.ref('wishes').push({ text: t, time: new Date().toLocaleString() });
+                alert("Adminga yuborildi!");
+                document.getElementById('wish-note').value = "";
+                showPage('home');
+            }
         }
 
-        function openSettings() {
-            if(prompt("Admin parolini kiriting:") === "7777") {
-                window.location.href = "admin.html";
-            } else {
-                alert("Parol xato!");
-            }
+        function showPage(id) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
         }
     </script>
 </body>
