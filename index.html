@@ -3,119 +3,129 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tavor - Shop</title>
+    <title>Pekin Tavor | Rasmiy</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --p: #ff0055; --bg: #1a0005; --card: #2d000f; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-top: 110px; }
+        :root { --p: #ff0055; --bg: #0d001a; --card: #1a0033; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-top: 120px; }
         
-        /* Fixed Header */
-        header { position: fixed; top:0; width:100%; background: var(--p); padding: 10px 15px; display: flex; justify-content: space-between; z-index: 1000; box-sizing: border-box; }
+        /* Header */
+        header { position: fixed; top:0; width:100%; background: var(--p); padding: 12px 20px; display: flex; justify-content: space-between; z-index: 1001; box-sizing: border-box; }
         
-        /* 307-rasmdagi kabi pushti menyular */
-        .category-scroll { 
-            position: fixed; top: 45px; width: 100%; background: #000; 
-            overflow-x: auto; white-space: nowrap; padding: 10px; 
-            z-index: 999; border-bottom: 1px solid var(--p);
+        /* 307-rasmdagi Menyular */
+        .cat-bar { 
+            position: fixed; top: 48px; width: 100%; background: #111; 
+            overflow-x: auto; white-space: nowrap; padding: 12px; 
+            z-index: 1000; border-bottom: 2px solid var(--p);
         }
-        .cat-btn { 
+        .cat-item { 
             display: inline-block; background: var(--p); color: white; 
-            padding: 6px 15px; border-radius: 20px; margin-right: 8px; 
-            font-size: 13px; font-weight: bold; cursor: pointer; border: none;
+            padding: 8px 18px; border-radius: 25px; margin-right: 10px; 
+            font-size: 14px; font-weight: bold; cursor: pointer; border: none;
         }
 
-        /* 3 qatorli grid */
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 10px; }
-        .card { background: var(--card); border: 1px solid var(--p); border-radius: 8px; overflow: hidden; }
-        .card img { width: 100%; height: 100px; object-fit: cover; }
-        .p-price { font-size: 10px; text-align: center; color: var(--p); padding: 5px; font-weight: bold; }
+        /* 3 talik Grid */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
+        .card { background: var(--card); border: 1px solid var(--p); border-radius: 12px; overflow: hidden; }
+        .card img { width: 100%; height: 110px; object-fit: cover; }
+        .price { font-size: 11px; text-align: center; color: var(--p); padding: 6px; font-weight: bold; }
 
-        /* Admin va Savat bo'limlari uchun sodda dizayn */
-        .page { display: none; padding: 15px; }
+        /* Sahifalar */
+        .page { display: none; padding: 20px; }
         .active { display: block; }
-        .btn-full { background: var(--p); color: white; border: none; width: 100%; padding: 12px; border-radius: 10px; margin-top: 10px; font-weight: bold; }
-        input, textarea { width: 100%; padding: 10px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--p); background: #3d0015; color: white; box-sizing: border-box; }
+        .admin-card { background: #1a0033; border: 2px solid var(--p); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        
+        input, select, textarea { 
+            width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; 
+            border: 1px solid var(--p); background: #0d001a; color: white; box-sizing: border-box;
+        }
+        .btn { background: var(--p); color: white; border: none; width: 100%; padding: 14px; border-radius: 12px; font-weight: bold; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <header>
-        <b onclick="location.reload()">PEKIN TAVOR</b>
+        <b onclick="location.reload()" style="font-size:20px;">PEKIN TAVOR</b>
         <div>
-            <i class="fa-solid fa-cart-shopping" onclick="showPage('cart')" style="margin-right:15px;"></i>
-            <i class="fa-solid fa-gear" onclick="checkAdmin()"></i>
+            <i class="fa-solid fa-cart-shopping" onclick="showPage('cart')" style="font-size:22px; margin-right:20px;"></i>
+            <i class="fa-solid fa-gear" onclick="openAdmin()" style="font-size:22px;"></i>
         </div>
     </header>
 
-    <div class="category-scroll" id="cat-list">
-        <button class="cat-btn" onclick="filterProducts('all')">Hammasi</button>
-        </div>
+    <div class="cat-bar" id="category-list">
+        <button class="cat-item" onclick="loadProducts('all')">Hammasi</button>
+    </div>
 
     <div id="home" class="page active">
-        <div class="grid" id="product-container"></div>
+        <div class="grid" id="products-grid"></div>
     </div>
 
     <div id="cart" class="page">
-        <h2>Savat</h2>
-        <div id="cart-items">Savat bo'sh</div>
-        <button class="btn-full" onclick="orderToTelegram()">@Jahongir3616 ga buyurtma berish</button>
+        <h2 style="color:var(--p)">Savat</h2>
+        <div id="cart-content">Savat bo'sh</div>
+        <button class="btn" style="margin-top:20px" onclick="sendToJahongir()">Buyurtmani yuborish (@Jahongir3616)</button>
+        <button class="btn" style="background:#444; margin-top:10px" onclick="showPage('home')">Orqaga</button>
     </div>
 
-    <div id="admin" class="page">
-        <div style="background:#2d0033; padding:15px; border-radius:15px; border:1px solid var(--p);">
-            <h3>📂 Menyularni Boshqarish</h3>
-            <div style="display:flex; gap:5px;">
-                <input type="text" id="cat-input" placeholder="Yangi bo'lim nomi">
-                <button onclick="saveCategory()" style="background:var(--p); border:none; color:white; border-radius:8px;">+</button>
+    <div id="admin-panel" class="page">
+        <div class="admin-card">
+            <h3 style="color:var(--p)">📂 1. Menyularni Boshqarish</h3>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="new-cat-name" placeholder="Masalan: Erkaklar kiyimi">
+                <button onclick="addCat()" style="background:var(--p); border:none; color:white; padding:0 20px; border-radius:10px;">+</button>
             </div>
-            <hr>
-            <h3>📤 Mahsulot Yuklash</h3>
-            <input type="text" id="p-name" placeholder="Nomi">
-            <input type="text" id="p-price" placeholder="Narxi">
-            <input type="text" id="p-size" placeholder="O'lchami">
-            <input type="text" id="p-img" placeholder="Rasm URL">
-            <select id="p-cat" style="width:100%; padding:10px; background:#3d0015; color:white; border:1px solid var(--p); border-radius:10px;">
-                <option value="all">Kategoriyani tanlang</option>
-            </select>
-            <button class="btn-full" onclick="saveProduct()">Saytga qo'shish</button>
         </div>
+
+        <div class="admin-card">
+            <h3 style="color:var(--p)">📤 2. Mahsulot Yuklash</h3>
+            <input type="text" id="p-title" placeholder="Mahsulot nomi">
+            <input type="number" id="p-price" placeholder="Narxi (son)">
+            <input type="text" id="p-img" placeholder="Rasm linki (URL)">
+            <select id="p-category-select">
+                <option value="all">Bo'limni tanlang</option>
+            </select>
+            <button class="btn" onclick="uploadP()">Saytga chiqarish</button>
+        </div>
+        <button class="btn" style="background:#444" onclick="showPage('home')">Chiqish</button>
     </div>
 
     <script>
-        const config = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(config);
+        // FIREBASE ULANISHI
+        const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let cart = [];
+
+        let myCart = [];
 
         // 1. Kategoriyalarni yuklash
-        db.ref('categories').on('value', s => {
-            const list = document.getElementById('cat-list');
-            const select = document.getElementById('p-cat');
-            list.innerHTML = `<button class="cat-btn" onclick="filterProducts('all')">Hammasi</button>`;
-            select.innerHTML = `<option value="all">Kategoriyani tanlang</option>`;
+        db.ref('categories').on('value', snap => {
+            const bar = document.getElementById('category-list');
+            const select = document.getElementById('p-category-select');
+            bar.innerHTML = `<button class="cat-item" onclick="loadProducts('all')">Hammasi</button>`;
+            select.innerHTML = `<option value="all">Bo'limni tanlang</option>`;
             
-            if(s.val()) {
-                Object.values(s.val()).forEach(v => {
-                    list.innerHTML += `<button class="cat-btn" onclick="filterProducts('${v}')">${v}</button>`;
-                    select.innerHTML += `<option value="${v}">${v}</option>`;
+            if(snap.val()) {
+                Object.values(snap.val()).forEach(name => {
+                    bar.innerHTML += `<button class="cat-item" onclick="loadProducts('${name}')">${name}</button>`;
+                    select.innerHTML += `<option value="${name}">${name}</option>`;
                 });
             }
         });
 
-        // 2. Mahsulotlarni yuklash va filtrlash
-        function filterProducts(catName) {
-            db.ref('products').once('value', s => {
-                const container = document.getElementById('product-container');
-                container.innerHTML = "";
-                if(s.val()) {
-                    Object.values(s.val()).forEach(p => {
-                        if(catName === 'all' || p.category === catName) {
-                            container.innerHTML += `
-                                <div class="card" onclick="addToCart('${p.image}', '${p.price}', '${p.name}')">
-                                    <img src="${p.image}">
-                                    <div class="p-price">${p.price} so'm</div>
+        // 2. Mahsulotlarni yuklash (Filtr bilan)
+        function loadProducts(filter) {
+            db.ref('products').once('value', snap => {
+                const grid = document.getElementById('products-grid');
+                grid.innerHTML = "";
+                if(snap.val()) {
+                    Object.values(snap.val()).forEach(p => {
+                        if(filter === 'all' || p.category === filter) {
+                            grid.innerHTML += `
+                                <div class="card" onclick="addToCart('${p.img}', '${p.price}', '${p.title}')">
+                                    <img src="${p.img}">
+                                    <div class="price">${Number(p.price).toLocaleString()} so'm</div>
                                 </div>`;
                         }
                     });
@@ -123,40 +133,53 @@
             });
             showPage('home');
         }
-        filterProducts('all');
+        loadProducts('all');
 
         // 3. Admin funksiyalari
-        function checkAdmin() { if(prompt("Kod?") === "7777") showPage('admin'); }
-        
-        function saveCategory() {
-            const val = document.getElementById('cat-input').value;
-            if(val) { db.ref('categories').push(val); document.getElementById('cat-input').value = ""; }
+        function openAdmin() {
+            let pass = prompt("Admin kodini kiriting:");
+            if(pass === "7777") showPage('admin-panel');
+            else alert("Xato kod!");
         }
 
-        function saveProduct() {
+        function addCat() {
+            const val = document.getElementById('new-cat-name').value;
+            if(val) { db.ref('categories').push(val); document.getElementById('new-cat-name').value = ""; }
+        }
+
+        function uploadP() {
             const data = {
-                name: document.getElementById('p-name').value,
+                title: document.getElementById('p-title').value,
                 price: document.getElementById('p-price').value,
-                size: document.getElementById('p-size').value,
-                image: document.getElementById('p-img').value,
-                category: document.getElementById('p-cat').value
+                img: document.getElementById('p-img').value,
+                category: document.getElementById('p-category-select').value
             };
-            db.ref('products').push(data);
-            alert("Qo'shildi!");
-            showPage('home');
+            if(data.img && data.price) {
+                db.ref('products').push(data);
+                alert("Mahsulot qo'shildi!");
+                showPage('home');
+            }
         }
 
-        // 4. Savat va Telegram
-        function addToCart(img, price, name) {
-            cart.push({img, price, name});
+        // 4. Savat va Telegram (@Jahongir3616)
+        function addToCart(img, price, title) {
+            myCart.push({img, price, title});
             alert("Savatga qo'shildi!");
-            document.getElementById('cart-items').innerHTML = cart.map(i => `<p>✅ ${i.name} - ${i.price} so'm</p>`).join('');
+            updateCartUI();
         }
 
-        function orderToTelegram() {
-            let msg = "BUYURTMA:%0A";
-            cart.forEach(i => msg += `- ${i.name}: ${i.price}%0A🖼 Rasm: ${i.img}%0A%0A`);
-            window.location.href = `https://t.me/Jahongir3616?text=${msg}`;
+        function updateCartUI() {
+            const div = document.getElementById('cart-content');
+            div.innerHTML = myCart.length ? myCart.map(i => `<div style="padding:10px; border-bottom:1px solid #333;">✅ ${i.title} - ${i.price} so'm</div>`).join('') : "Savat bo'sh";
+        }
+
+        function sendToJahongir() {
+            if(!myCart.length) return alert("Savat bo'sh!");
+            let text = "🚀 YANGI BUYURTMA:%0A%0A";
+            myCart.forEach((item, index) => {
+                text += `${index+1}. ${item.title}%0A💰 Narxi: ${item.price} so'm%0A🖼 Rasm: ${item.img}%0A%0A`;
+            });
+            window.location.href = `https://t.me/Jahongir3616?text=${text}`;
         }
 
         function showPage(id) {
