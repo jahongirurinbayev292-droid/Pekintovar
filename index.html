@@ -6,26 +6,36 @@
     <title>Pekin Tavor 2026</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        * { box-sizing: border-box; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: #fff; }
-        header { background: #16213e; padding: 15px; text-align: center; border-bottom: 2px solid #f806cc; position: sticky; top:0; z-index:100; }
-        .cats { padding: 12px; display: flex; gap: 10px; overflow-x: auto; background: #0f3460; border-bottom: 1px solid rgba(255,255,255,0.1); }
-        .cats button { background: none; border: 1px solid #f806cc; color: #fff; padding: 8px 18px; border-radius: 20px; cursor: pointer; white-space: nowrap; transition: 0.3s; }
+        header { background: #16213e; padding: 10px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #f806cc; position: sticky; top:0; z-index:100; }
+        .btn-top { background: rgba(255,255,255,0.1); border: 1px solid #f806cc; color: white; padding: 6px 12px; border-radius: 8px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px; }
+        
+        .cats { padding: 12px; display: flex; gap: 10px; overflow-x: auto; background: #0f3460; }
+        .cats button { background: none; border: 1px solid #f806cc; color: #fff; padding: 8px 18px; border-radius: 20px; cursor: pointer; white-space: nowrap; }
         .cats button.active { background: #f806cc; box-shadow: 0 0 10px #f806cc; }
-        
+
         .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; }
-        .card { background: #16213e; border-radius: 12px; border: 1px solid rgba(248,6,204,0.2); text-align: center; overflow: hidden; }
+        .card { background: #16213e; border-radius: 12px; border: 1px solid rgba(248,6,204,0.2); text-align: center; overflow: hidden; position: relative; }
         .card img { width: 100%; height: 110px; object-fit: cover; }
-        
-        #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:200; justify-content:center; align-items:center; }
-        .m-box { background:#1a1a2e; padding:20px; border-radius:20px; width:90%; max-width:400px; border:2px solid #f806cc; position:relative; }
-        .btn-zakaz { width: 100%; background: #00ffab; color: #000; padding: 15px; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 15px; }
+        .heart-btn { position: absolute; top: 5px; right: 5px; color: #f806cc; background: rgba(0,0,0,0.5); border-radius: 50%; padding: 5px; cursor: pointer; }
+
+        #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:200; justify-content:center; align-items:center; }
+        .m-box { background:#1a1a2e; padding:20px; border-radius:20px; width:90%; max-width:400px; border:2px solid #f806cc; }
     </style>
 </head>
 <body>
 
-<header><b style="color:#f806cc; font-size:22px; letter-spacing:1px;">PEKIN TAVOR</b></header>
+<header>
+    <b style="color:#f806cc; font-size:18px;">PEKIN TAVOR</b>
+    <div style="display:flex; gap:8px;">
+        <div class="btn-top" onclick="checkAdmin()"><i class="fas fa-cog"></i> Sozlamalar</div>
+        <div class="btn-top" onclick="showWishlist()"><i class="fas fa-heart"></i> Istaklar (<span id="wish-count">0</span>)</div>
+    </div>
+</header>
+
 <div class="cats" id="menu-bar"></div>
 <div class="grid" id="main-grid"></div>
 
@@ -37,8 +47,19 @@
     const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
+    let wishlist = JSON.parse(localStorage.getItem('wishlist')) || [];
 
-    // Dinamik menyularni yuklash
+    function checkAdmin() {
+        if(prompt("Admin paroli:") === "4321") window.location.href = "admin.html";
+    }
+
+    // Istaklarni yangilash
+    function updateWishCount() {
+        document.getElementById('wish-count').innerText = wishlist.length;
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    }
+
+    // Menyular
     db.ref('categories').on('value', snap => {
         const bar = document.getElementById('menu-bar');
         bar.innerHTML = `<button class="active" onclick="load('Hammasi', this)">Hammasi</button>`;
@@ -48,52 +69,50 @@
         });
     });
 
-    // Mahsulotlarni yuklash va filtrlashtirish
     function load(cat, btn) {
         document.querySelectorAll('.cats button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         db.ref('products').on('value', snap => {
-            const grid = document.getElementById('main_grid');
-            grid.innerHTML = "";
+            const grid = document.getElementById('main_grid'); grid.innerHTML = "";
             const data = snap.val();
             if(data) Object.keys(data).reverse().forEach(id => {
                 const p = data[id];
                 if(cat === 'Hammasi' || p.category === cat) {
-                    grid.innerHTML += `<div class="card" onclick='openModal(${JSON.stringify(p)})'>
-                        <img src="${p.images[0]}">
-                        <p style="font-size:11px; margin:5px; height:28px; overflow:hidden;">${p.name}</p>
-                        <b style="color:#00ffab; font-size:12px; display:block; margin-bottom:5px;">${parseInt(p.price).toLocaleString()} so'm</b>
-                    </div>`;
+                    grid.innerHTML += `
+                        <div class="card">
+                            <i class="fas fa-heart heart-btn" onclick="addToWish('${id}')"></i>
+                            <img src="${p.images[0]}" onclick='openModal(${JSON.stringify(p)})'>
+                            <p style="font-size:10px; margin:5px;">${p.name}</p>
+                            <b style="color:#00ffab;">${p.price} so'm</b>
+                        </div>`;
                 }
             });
         });
     }
 
-    // Modal oynani ochish (Barcha ma'lumotlar bilan)
     function openModal(p) {
-        const content = document.getElementById('modal-content');
-        content.innerHTML = `
-            <img src="${p.images[0]}" style="width:100%; height:250px; object-fit:cover; border-radius:15px; border:1px solid #f806cc;">
-            <h2 style="margin:15px 0 10px 0; color:#f806cc;">${p.name}</h2>
-            <p style="color:#00ffab; font-size:24px; font-weight:bold; margin:0;">${parseInt(p.price).toLocaleString()} so'm</p>
-            <hr style="opacity:0.1; margin:15px 0;">
-            <div style="font-size:15px; line-height:1.8;">
-                <p>📏 <b>O'lchami:</b> ${p.size}</p>
-                <p>👶 <b>Yoshi:</b> ${p.age}</p>
-                <p>📂 <b>Bo'lim:</b> ${p.category}</p>
-            </div>
-            <button class="btn-zakaz" onclick="zakaz('${p.name}', '${p.price}', '${p.images[0]}')">TELEGRAM ORQALI SOTIB OLISH</button>
-            <p onclick="document.getElementById('modal').style.display='none'" style="text-align:center; cursor:pointer; opacity:0.5; margin-top:15px;">Yopish</p>
+        document.getElementById('modal-content').innerHTML = `
+            <img src="${p.images[0]}" style="width:100%; border-radius:10px;">
+            <h2 style="color:#f806cc;">${p.name}</h2>
+            <p>💰 <b>Narxi:</b> ${p.price} so'm</p>
+            <p>📏 <b>O'lchami:</b> ${p.size || "-"}</p>
+            <p>👶 <b>Yoshi:</b> ${p.age || "-"}</p>
+            <button onclick="zakaz('${p.name}')" style="width:100%; padding:15px; background:#00ffab; border:none; border-radius:10px; font-weight:bold;">SOTIB OLISH</button>
+            <p onclick="document.getElementById('modal').style.display='none'" style="text-align:center; margin-top:15px; cursor:pointer;">Yopish</p>
         `;
         document.getElementById('modal').style.display = "flex";
     }
 
-    function zakaz(nom, narx, rasm) {
-        const txt = `[\u200B](${rasm})🛍 *YANGI BUYURTMA*\n\n📦 *Mahsulot:* ${nom}\n💰 *Narxi:* ${parseInt(narx).toLocaleString()} so'm\n\nIltimos, men bilan bog'laning!`;
-        window.location.href = `https://t.me/Jahongir3616?text=${encodeURIComponent(txt)}&parse_mode=Markdown`;
+    function addToWish(id) {
+        if(!wishlist.includes(id)) { wishlist.push(id); updateWishCount(); alert("Istaklarga qo'shildi!"); }
     }
 
-    load('Hammasi', document.querySelector('#menu-bar button'));
+    function zakaz(nom) {
+        window.location.href = `https://t.me/Jahongir3616?text=Assalomu alaykum! Men ${nom} mahsulotini sotib olmoqchiman.`;
+    }
+
+    updateWishCount();
+    load('Hammasi', document.querySelector('.cats button'));
 </script>
 </body>
 </html>
