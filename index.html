@@ -3,130 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tavor - Mini Shop</title>
+    <title>Pekin Tavor - Online Shop</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root { --main-pink: #ff85a2; --light-pink: #fce4ec; }
-        body { font-family: 'Segoe UI', sans-serif; background: var(--light-pink); margin: 0; padding-bottom: 70px; }
+        :root { --pink: #ff4d6d; --bg-pink: #fff0f3; }
+        body { font-family: 'Arial', sans-serif; background: var(--bg-pink); margin: 0; padding-top: 60px; }
         
-        /* Header */
-        header { background: var(--main-pink); color: white; padding: 15px; text-align: center; font-size: 20px; font-weight: bold; }
+        /* Yuqori Menyu */
+        header { 
+            position: fixed; top: 0; width: 100%; background: var(--pink); 
+            color: white; display: flex; justify-content: space-between; 
+            align-items: center; padding: 10px 15px; box-sizing: border-box; z-index: 1000;
+        }
+        .logo { font-weight: bold; font-size: 18px; }
+        .top-icons i { margin-left: 15px; cursor: pointer; font-size: 20px; }
 
-        /* Mahsulotlar Grid (3 qatorli) */
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
-        .product-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; position: relative; }
-        .product-card img { width: 100%; height: 110px; object-fit: cover; }
-        .product-info { padding: 5px; text-align: center; }
-        .price { font-size: 13px; color: var(--main-pink); font-weight: bold; }
+        /* Grid (3 talik) */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 5px; }
+        .card { background: white; border-radius: 5px; overflow: hidden; position: relative; cursor: pointer; }
+        .card img { width: 100%; height: 100px; object-fit: cover; }
+        .price { font-size: 11px; font-weight: bold; color: var(--pink); text-align: center; padding: 5px; }
 
-        /* Pastki menyu */
-        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 2px solid var(--main-pink); }
-        .nav-item { color: #888; text-align: center; font-size: 12px; cursor: pointer; }
-        .nav-item.active { color: var(--main-pink); }
-        .nav-item i { font-size: 20px; display: block; }
+        /* Modal / Oyna */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 2000; justify-content: center; align-items: center; }
+        .m-box { background: white; width: 90%; border-radius: 10px; padding: 20px; position: relative; text-align: center; }
+        .close { position: absolute; top: 10px; right: 15px; font-size: 25px; color: var(--pink); }
 
-        /* Modal (Ma'lumot oynasi) */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; }
-        .modal-content { background: white; width: 85%; border-radius: 15px; padding: 20px; position: relative; text-align: center; }
-        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--main-pink); }
-        .modal-content img { width: 100%; border-radius: 10px; margin-bottom: 15px; }
-
-        /* Bo'limlar */
-        .page { display: none; }
-        .page.active { display: block; }
-        .empty-msg { text-align: center; margin-top: 50px; color: #777; }
+        /* Tugmalar */
+        .btn { background: var(--pink); color: white; border: none; padding: 10px; width: 100%; border-radius: 5px; margin-top: 10px; cursor: pointer; }
+        
+        /* Sahifalar */
+        .page { display: none; padding: 15px; }
+        .active { display: block; }
     </style>
 </head>
 <body>
 
-    <header id="page-title">PEKIN TAVOR</header>
-
-    <div id="home-page" class="page active">
-        <div class="grid" id="product-list">
-            </div>
-    </div>
-
-    <div id="wishlist-page" class="page">
-        <div class="empty-msg"><i class="fa-regular fa-heart fa-3x"></i><br><br>Istaklar ro'yxati bo'sh</div>
-    </div>
-
-    <div id="settings-page" class="page">
-        <div style="padding: 20px;">
-            <h3><i class="fa-solid fa-gear"></i> Sozlamalar</h3>
-            <p>Bildirishnomalar: Yoqilgan</p>
-            <p>Til: O'zbekcha</p>
-            <p>Versiya: 1.0.2</p>
+    <header>
+        <div class="logo">PEKIN TAVOR</div>
+        <div class="top-icons">
+            <i class="fa-solid fa-cart-shopping" onclick="showPage('cart')"></i>
+            <i class="fa-solid fa-list" onclick="showPage('extra')"></i>
+            <i class="fa-solid fa-gear" onclick="checkAdmin()"></i>
         </div>
+    </header>
+
+    <div id="home" class="page active">
+        <div class="grid" id="list"></div>
     </div>
 
-    <div id="product-modal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn" onclick="closeModal()">&times;</span>
-            <img id="modal-img" src="" alt="">
-            <h3 id="modal-name"></h3>
-            <p id="modal-price" class="price" style="font-size: 20px;"></p>
-            <div id="modal-details" style="color: #666; font-size: 14px; line-height: 1.6;"></div>
-            <button onclick="addToWishlist()" style="background: var(--main-pink); color: white; border: none; padding: 10px 20px; border-radius: 20px; margin-top: 15px;">❤️ Saralanganlarga qo'shish</button>
+    <div id="cart" class="page">
+        <h2 style="color: var(--pink);">Savat</h2>
+        <div id="cart-items">Savat bo'sh</div>
+        <button class="btn" onclick="sendOrder()">Buyurtma berish (Telegram)</button>
+        <button class="btn" style="background:gray;" onclick="showPage('home')">Orqaga</button>
+    </div>
+
+    <div id="extra" class="page">
+        <h2 style="color: var(--pink);">Kerakli narsalar</h2>
+        <p>1. Oyoq kiyim tozalagichlar</p>
+        <p>2. Maxsus paypoqlar</p>
+        <button class="btn" onclick="showPage('home')">Orqaga</button>
+    </div>
+
+    <div id="modal" class="modal">
+        <div class="m-box">
+            <span class="close" onclick="closeM()">&times;</span>
+            <img id="m-img" style="width:100%; border-radius:5px;">
+            <h3 id="m-price" style="color:var(--pink);"></h3>
+            <p id="m-desc"></p>
+            <button class="btn" onclick="addToCart()">Savatga qo'shish</button>
         </div>
-    </div>
-
-    <div class="bottom-nav">
-        <div class="nav-item active" onclick="showPage('home', this)"><i class="fa-solid fa-house"></i>Asosiy</div>
-        <div class="nav-item" onclick="showPage('wishlist', this)"><i class="fa-solid fa-heart"></i>Istaklar</div>
-        <div class="nav-item" onclick="showPage('settings', this)"><i class="fa-solid fa-gear"></i>Sozlamalar</div>
     </div>
 
     <script>
-        // 1. Firebase ulanishi (Sening bazang)
+        // 1. Firebase ulanishi
         const config = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
         firebase.initializeApp(config);
         const db = firebase.database();
 
-        // 2. Ma'lumotlarni yuklash
+        let currentItem = {};
+        let cart = [];
+
+        // 2. Mahsulotlarni chiqarish
         db.ref('products').on('value', (snap) => {
-            const list = document.getElementById('product-list');
+            const list = document.getElementById('list');
             list.innerHTML = "";
             const data = snap.val();
             if(data) {
                 Object.keys(data).reverse().forEach(id => {
                     const p = data[id];
-                    const img = (p.images && p.images[0]) ? p.images[0] : 'https://via.placeholder.com/150';
                     list.innerHTML += `
-                        <div class="product-card" onclick="openProduct('${img}', '${p.price}', '${p.size}', '${p.age}')">
-                            <img src="${img}">
-                            <div class="product-info">
-                                <div class="price">${p.price}</div>
-                            </div>
-                        </div>
-                    `;
+                        <div class="card" onclick="openM('${p.images[0]}', '${p.price}', '${p.size}', '${p.age}')">
+                            <img src="${p.images[0]}">
+                            <div class="price">${p.price} so'm</div>
+                        </div>`;
                 });
             }
         });
 
-        // 3. Sahifalar almashinuvi
-        function showPage(pageId, el) {
+        // 3. Funksiyalar
+        function openM(img, price, size, age) {
+            currentItem = { img, price, size, age };
+            document.getElementById('m-img').src = img;
+            document.getElementById('m-price').innerText = price + " so'm";
+            document.getElementById('m-desc').innerText = "O'lcham: " + size + " | Yosh: " + age;
+            document.getElementById('modal').style.display = 'flex';
+        }
+
+        function closeM() { document.getElementById('modal').style.display = 'none'; }
+
+        function showPage(id) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            document.getElementById(pageId + '-page').classList.add('active');
-            el.classList.add('active');
-            document.getElementById('page-title').innerText = pageId === 'home' ? 'PEKIN TAVOR' : pageId.toUpperCase();
+            document.getElementById(id).classList.add('active');
         }
 
-        // 4. Modalni boshqarish
-        function openProduct(img, price, size, age) {
-            document.getElementById('modal-img').src = img;
-            document.getElementById('modal-name').innerText = "Pekin Tavor Poyabzali";
-            document.getElementById('modal-price').innerText = price + " so'm";
-            document.getElementById('modal-details').innerHTML = `📏 O'lcham: ${size} <br> 👶 Yosh: ${age}`;
-            document.getElementById('product-modal').style.display = 'flex';
+        function checkAdmin() {
+            let pass = prompt("Sozlamalar uchun parolni kiriting:");
+            if(pass === "7777") {
+                window.location.href = "admin.html";
+            } else {
+                alert("Parol xato!");
+            }
         }
 
-        function closeModal() { document.getElementById('product-modal').style.display = 'none'; }
-        window.onclick = (e) => { if(e.target.className == 'modal') closeModal(); }
-        function addToWishlist() { alert("Istaklar bo'limiga qo'shildi!"); closeModal(); }
+        function addToCart() {
+            cart.push(currentItem);
+            alert("Savatga qo'shildi!");
+            updateCart();
+            closeM();
+        }
+
+        function updateCart() {
+            const cDiv = document.getElementById('cart-items');
+            if(cart.length == 0) { cDiv.innerText = "Savat bo'sh"; return; }
+            cDiv.innerHTML = cart.map(i => `<p>${i.price} so'm - Pekin Tavor</p>`).join('');
+        }
+
+        function sendOrder() {
+            if(cart.length == 0) return alert("Savat bo'sh!");
+            let text = "Yangi Buyurtma:%0A";
+            cart.forEach(i => text += `- Narxi: ${i.price}%0A`);
+            // Sening nikiga yo'naltirish
+            window.location.href = `https://t.me/Janahra?text=${text}`;
+        }
     </script>
 </body>
 </html>
