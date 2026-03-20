@@ -3,163 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Admin | Professional Control</title>
+    <title>Pekin Admin | Mahsulot Boshqaruvi</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        :root { --primary: #f806cc; --bg: #1a1a2e; --card: #16213e; --text: #ffffff; }
+        :root { --primary: #f806cc; --bg: #0f0c29; --card: #1b1b3a; --text: #ffffff; }
         body { 
-            margin: 0; font-family: 'Segoe UI', sans-serif; 
-            background: var(--bg); color: var(--text); padding-bottom: 50px;
+            margin: 0; font-family: 'Poppins', sans-serif; 
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e); 
+            color: var(--text); min-height: 100vh; padding-bottom: 40px;
         }
         header {
             background: rgba(0,0,0,0.8); padding: 15px 5%;
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 2px solid var(--primary); position: sticky; top: 0; z-index: 1000;
         }
-        .btn-back { background: var(--primary); color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; text-decoration: none; font-size: 14px; }
+        .btn-home { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; text-decoration: none; font-weight: bold; }
         
-        .container { max-width: 800px; margin: 20px auto; padding: 0 15px; }
-        .card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid rgba(248, 6, 204, 0.2); margin-bottom: 20px; }
+        .container { max-width: 800px; margin: 30px auto; padding: 0 20px; }
+        .card { background: var(--card); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid rgba(248, 6, 204, 0.3); }
         
-        h2 { color: var(--primary); margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
+        h2 { color: var(--primary); margin-bottom: 20px; font-size: 22px; text-align: center; text-transform: uppercase; letter-spacing: 1px; }
         
+        label { display: block; margin-top: 15px; font-size: 14px; color: #ccc; }
         input, select, textarea {
-            width: 100%; padding: 12px; margin: 10px 0;
-            background: #0f3460; border: 1px solid #f806cc;
-            color: white; border-radius: 8px; outline: none;
+            width: 100%; padding: 14px; margin-top: 5px;
+            background: #24244e; border: 1px solid rgba(248, 6, 204, 0.5);
+            color: white; border-radius: 10px; outline: none; transition: 0.3s;
         }
+        input:focus { border-color: #00ffab; box-shadow: 0 0 10px rgba(0, 255, 171, 0.3); }
         
-        .btn-add {
+        .btn-save {
             width: 100%; background: #00ffab; color: #000; border: none;
-            padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 16px;
+            padding: 16px; border-radius: 10px; font-weight: bold; cursor: pointer; 
+            font-size: 16px; margin-top: 25px; transition: 0.3s;
         }
+        .btn-save:hover { background: #00cc88; transform: translateY(-2px); }
 
-        .prod-list { margin-top: 30px; }
-        .prod-item {
-            display: flex; align-items: center; background: rgba(255,255,255,0.05);
-            padding: 10px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--primary);
+        .list-section { margin-top: 40px; }
+        .product-item {
+            display: flex; align-items: center; background: rgba(255,255,255,0.07);
+            padding: 12px; border-radius: 12px; margin-bottom: 12px; border-left: 5px solid var(--primary);
         }
-        .prod-item img { width: 50px; height: 50px; object-fit: cover; border-radius: 5px; margin-right: 15px; }
-        .prod-info { flex: 1; }
-        .prod-info b { display: block; font-size: 14px; }
-        .prod-info span { font-size: 12px; color: #aaa; }
-        .btn-del { background: #ff4757; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; }
+        .product-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; margin-right: 15px; }
+        .product-info { flex: 1; }
+        .product-info b { font-size: 15px; display: block; }
+        .product-info i { font-size: 12px; color: #00ffab; font-style: normal; }
+        .btn-delete { background: #ff4757; color: white; border: none; padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.2s; }
+        .btn-delete:hover { background: #ff2e44; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-size: 20px; font-weight: 900; color: var(--primary);">ADMIN PANEL</div>
-    <a href="index.html" class="btn-back"><i class="fas fa-home"></i> Bosh sahifa</a>
+    <div style="font-size: 22px; font-weight: 900; color: var(--primary);">PEKIN ADMIN</div>
+    <a href="index.html" class="btn-home"><i class="fas fa-arrow-left"></i> Chqish</a>
 </header>
 
 <div class="container">
     <div class="card">
-        <h2><i class="fas fa-plus-circle"></i> Yangi mahsulot</h2>
-        <input type="text" id="p-name" placeholder="Mahsulot nomi...">
-        <input type="number" id="p-price" placeholder="Narxi (faqat son)...">
+        <h2><i class="fas fa-plus-circle"></i> Yangi Mahsulot</h2>
         
-        <select id="p-cat">
+        <label>Mahsulot nomi</label>
+        <input type="text" id="name" placeholder="Masalan: Erkaklar krossovkasi">
+        
+        <label>Narxi (so'mda)</label>
+        <input type="number" id="price" placeholder="Faqat son kiriting: 150000">
+        
+        <label>Bo'limni tanlang</label>
+        <select id="category">
             <option value="Erkaklar">Erkaklar bo'limi</option>
             <option value="Ayollar">Ayollar bo'limi</option>
             <option value="Bolalar">Bolalar bo'limi</option>
         </select>
         
-        <input type="text" id="p-size" placeholder="O'lchamlar (masalan: 38-42)">
-        <input type="text" id="p-age" placeholder="Yosh (bolalar uchun)">
-        <input type="text" id="p-img" placeholder="Rasm linki (Telegramdan olingan)">
-        <textarea id="p-desc" rows="3" placeholder="Mahsulot haqida qo'shimcha ma'lumot..."></textarea>
+        <label>O'lchamlar (Razmer)</label>
+        <input type="text" id="size" placeholder="Masalan: 38, 39, 40">
         
-        <button class="btn-add" onclick="saveToFirebase()"><i class="fas fa-save"></i> BAZAGA QO'SHISH</button>
+        <label>Yosh (Bolalar uchun)</label>
+        <input type="text" id="age" placeholder="Masalan: 5-7 yosh">
+        
+        <label>Rasm manzili (URL)</label>
+        <input type="text" id="image" placeholder="Telegramdan olingan rasm linki">
+        
+        <label>Qo'shimcha izoh</label>
+        <textarea id="desc" rows="3" placeholder="Sifatli va qulay..."></textarea>
+        
+        <button class="btn-save" onclick="uploadProduct()">
+            <i class="fas fa-cloud-upload-alt"></i> BAZAGA QO'SHISH
+        </button>
     </div>
 
-    <div class="prod-list">
-        <h2><i class="fas fa-boxes"></i> Mavjud mahsulotlar</h2>
-        <div id="list-container"></div>
+    <div class="list-section">
+        <h2><i class="fas fa-th-list"></i> Mavjud Mahsulotlar</h2>
+        <div id="product-list"></div>
     </div>
 </div>
 
 <script>
-    // Firebase sozlamalari
+    // Firebase ulanishi
     const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const database = firebase.database();
 
-    // 1. MAHSULOTNI SAQLASH
-    function saveToFirebase() {
-        const name = document.getElementById('p-name').value;
-        const price = document.getElementById('p-price').value;
-        const cat = document.getElementById('p-cat').value;
-        const img = document.getElementById('p-img').value;
-        const size = document.getElementById('p-size').value;
-        const age = document.getElementById('p-age').value;
-        const desc = document.getElementById('p-desc').value;
+    // MAHSULOT QO'SHISH FUNKSIYASI
+    function uploadProduct() {
+        const name = document.getElementById('name').value;
+        const price = document.getElementById('price').value;
+        const category = document.getElementById('category').value;
+        const size = document.getElementById('size').value;
+        const age = document.getElementById('age').value;
+        const image = document.getElementById('image').value;
+        const desc = document.getElementById('desc').value;
 
-        if(!name || !price || !img) return alert("Nom, narx va rasm shart!");
+        if(!name || !price || !image) {
+            alert("Iltimos, nom, narx va rasm linkini to'ldiring!");
+            return;
+        }
 
-        const newProd = {
+        const productData = {
             name: name,
             price: price,
-            category: cat,
-            images: [img], // Savatga rasm bo'lib borishi uchun array ko'rinishida
+            category: category,
+            images: [image], 
             size: size || "-",
             age: age || "-",
             desc: desc || "-",
-            time: Date.now()
+            timestamp: Date.now()
         };
 
-        db.ref('products').push(newProd)
+        database.ref('products').push(productData)
         .then(() => {
-            alert("Mahsulot qo'shildi!");
+            alert("Muvaffaqiyatli qo'shildi!");
             // Formani tozalash
-            document.getElementById('p-name').value = "";
-            document.getElementById('p-price').value = "";
-            document.getElementById('p-img').value = "";
+            document.getElementById('name').value = "";
+            document.getElementById('price').value = "";
+            document.getElementById('image').value = "";
         })
-        .catch(err => alert("Xato: " + err));
+        .catch(err => alert("Xatolik: " + err));
     }
 
-    // 2. MAHSULOTLARNI KO'RSATISH VA O'CHIRISH
-    function loadProducts() {
-        db.ref('products').on('value', snap => {
-            const container = document.getElementById('list-container');
-            container.innerHTML = "";
+    // MAHSULOTLARNI RO'YXATDAN KO'RSATISH
+    function fetchProducts() {
+        database.ref('products').on('value', snap => {
+            const listDiv = document.getElementById('product-list');
+            listDiv.innerHTML = "";
             const data = snap.val();
             
             if(!data) {
-                container.innerHTML = "<p>Mahsulotlar yo'q.</p>";
+                listDiv.innerHTML = "<p style='text-align:center; color:#888;'>Mahsulotlar hali yo'q.</p>";
                 return;
             }
 
-            Object.keys(data).reverse().forEach(key => {
-                const p = data[key];
+            Object.keys(data).reverse().forEach(id => {
+                const p = data[id];
                 const item = document.createElement('div');
-                item.className = 'prod-item';
+                item.className = 'product-item';
                 item.innerHTML = `
                     <img src="${p.images[0]}">
-                    <div class="prod-info">
+                    <div class="product-info">
                         <b>${p.name}</b>
-                        <span>${p.category} | ${parseInt(p.price).toLocaleString()} so'm</span>
+                        <i>${p.category} • ${parseInt(p.price).toLocaleString()} so'm</i>
                     </div>
-                    <button class="btn-del" onclick="deleteProd('${key}')"><i class="fas fa-trash"></i></button>
+                    <button class="btn-delete" onclick="removeProduct('${id}')">
+                        <i class="fas fa-trash-alt"></i>
+                    </button>
                 `;
-                container.appendChild(item);
+                listDiv.appendChild(item);
             });
         });
     }
 
-    function deleteProd(key) {
+    // O'CHIRISH FUNKSIYASI
+    function removeProduct(id) {
         if(confirm("Ushbu mahsulotni o'chirmoqchimisiz?")) {
-            db.ref('products/' + key).remove();
+            database.ref('products/' + id).remove();
         }
     }
 
-    // Sahifa yuklanganda ro'yxatni chiqarish
-    loadProducts();
+    // Sahifa ochilganda yuklash
+    fetchProducts();
 </script>
-
 </body>
 </html>
