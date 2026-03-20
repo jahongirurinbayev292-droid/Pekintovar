@@ -3,198 +3,156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tavor System</title>
+    <title>Admin Panel | Pekin Tavor</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --p: #ff00aa; --bg: #0f0c29; --card: #1b1b3a; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding-top: 130px; }
+        :root { --accent: #ff00aa; --bg: #0f0c29; --card: #1b1b3a; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; padding: 20px; }
         
-        /* Header */
-        header { position: fixed; top:0; width:100%; background: var(--p); padding: 12px; display: flex; justify-content: space-between; z-index: 1001; box-sizing: border-box; }
+        h2 { color: var(--accent); font-size: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-top: 30px; }
+        .admin-card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid var(--accent); margin-bottom: 20px; }
         
-        /* 307-rasmdagi Menyular */
-        .cat-bar { position: fixed; top: 48px; width: 100%; background: rgba(0,0,0,0.8); overflow-x: auto; white-space: nowrap; padding: 12px; z-index: 1000; border-bottom: 2px solid var(--p); }
-        .cat-btn { display: inline-flex; align-items: center; background: var(--p); color: white; padding: 8px 17px; border-radius: 20px; margin-right: 8px; font-size: 12px; font-weight: bold; border: none; cursor: pointer; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid var(--accent); background: #24244e; color: #fff; box-sizing: border-box; }
+        .btn { width: 100%; background: var(--accent); color: #000; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn:hover { opacity: 0.8; }
+        
+        /* Menyular (Badges) */
+        .menu-badge { background: var(--accent); padding: 5px 15px; border-radius: 20px; font-size: 13px; display: inline-flex; align-items: center; margin: 5px; color: #000; font-weight: bold; }
+        .menu-badge i { margin-left: 10px; cursor: pointer; color: #444; }
 
-        /* 3 talik Grid */
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
-        .card { background: var(--card); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; overflow: hidden; transition: 0.3s; }
-        .card:active { transform: scale(0.95); }
-        .card img { width: 100%; height: 100px; object-fit: cover; }
-        .price { font-size: 10px; text-align: center; color: var(--p); padding: 6px; font-weight: bold; }
+        /* Mahsulotlar Ro'yxati */
+        .prod-item { display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
+        .prod-item img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; margin-right: 15px; }
+        .prod-info { flex-grow: 1; }
+        .del-btn { color: #ff4444; cursor: pointer; padding: 10px; }
 
-        /* Sahifalar */
-        .page { display: none; padding: 20px; }
-        .active { display: block; }
-        
-        /* Admin Box (307-rasm dizayni) */
-        .admin-box { background: #1a0033; border: 2px solid var(--p); border-radius: 20px; padding: 15px; margin-bottom: 20px; }
-        .admin-title { color: var(--p); font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        
-        input, select, textarea { width: 100%; padding: 12px; margin: 10px 0; border-radius: 10px; border: 1px solid var(--p); background: #0d001a; color: white; box-sizing: border-box; }
-        .btn { background: var(--p); color: #000; border: none; width: 100%; padding: 14px; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        
-        .badge-close { margin-left: 8px; opacity: 0.7; }
+        /* Istaklar */
+        .wish-item { background: #111; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 14px; border: 1px dashed var(--accent); }
     </style>
 </head>
 <body>
 
-    <header>
-        <b onclick="showPage('home')">PEKIN TAVOR</b>
-        <div style="font-size: 20px;">
-            <i class="fa-solid fa-cart-shopping" onclick="showPage('cart')" style="margin-right:20px;"></i>
-            <i class="fa-solid fa-gear" onclick="checkAdmin()"></i>
-        </div>
-    </header>
+    <center><h1><i class="fa-solid fa-lock"></i> Boshqaruv Paneli</h1></center>
 
-    <div class="cat-bar" id="cat-list-top">
-        <button class="cat-btn" onclick="loadProducts('all')">Hammasi</button>
+    <div class="admin-card">
+        <h2><i class="fa-solid fa-folder-plus"></i> 1. Menyularni Boshqarish</h2>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="cat-input" placeholder="Yangi bo'lim nomi (masalan: Erkaklar kiyimi)">
+            <button onclick="saveCat()" style="background:var(--accent); border:none; border-radius:8px; padding:0 20px; font-weight:bold;">Qo'shish</button>
+        </div>
+        <div id="cat-list" style="margin-top:15px;"></div>
     </div>
 
-    <div id="home" class="page active">
-        <div class="grid" id="product-grid"></div>
-        <div class="admin-box" style="margin-top: 20px;">
-            <div class="admin-title">✍️ Istaklar Bo'limi</div>
-            <textarea id="wish-text" placeholder="Sizga qanday tavor kerak? Yozib qoldiring..."></textarea>
-            <button class="btn" onclick="sendWish()">Adminga yuborish</button>
-        </div>
+    <div class="admin-card">
+        <h2><i class="fa-solid fa-upload"></i> 2. Mahsulot Yuklash</h2>
+        <input type="text" id="p-name" placeholder="Mahsulot nomi">
+        <input type="number" id="p-price" placeholder="Narxi (faqat son)">
+        <input type="text" id="p-img" placeholder="Rasm URL manzili">
+        <select id="p-cat-select">
+            <option value="">Bo'limni tanlang</option>
+        </select>
+        <button class="btn" onclick="saveProduct()">SAYTGA CHIQARISH</button>
     </div>
 
-    <div id="cart" class="page">
-        <h2 style="color:var(--p)">Savat</h2>
-        <div id="cart-items">Savat bo'sh</div>
-        <button class="btn" style="margin-top:20px" onclick="orderNow()">@Jahongir3616 ga buyurtma berish</button>
-        <button class="btn" style="background:#444; margin-top:10px" onclick="showPage('home')">Orqaga</button>
+    <div class="admin-card">
+        <h2><i class="fa-solid fa-boxes-stacked"></i> Hamma Mahsulotlar</h2>
+        <div id="all-products-list"></div>
     </div>
 
-    <div id="admin" class="page">
-        <div class="admin-box">
-            <div class="admin-title">📂 1. Menyularni Boshqarish</div>
-            <div style="display:flex; gap:10px;">
-                <input type="text" id="new-cat-name" placeholder="Yangi bo'lim nomi">
-                <button onclick="addCategory()" style="background:var(--p); border:none; padding:10px 20px; border-radius:10px; color:#000; font-weight:bold;">Qo'shish</button>
-            </div>
-            <div id="cat-badges" style="margin-top:15px; display:flex; flex-wrap:wrap; gap:8px;"></div>
-        </div>
-
-        <div class="admin-box">
-            <div class="admin-title">📤 2. Mahsulot Yuklash</div>
-            <input type="text" id="p-title" placeholder="Mahsulot nomi">
-            <input type="number" id="p-price" placeholder="Narxi (son)">
-            <input type="text" id="p-img" placeholder="Rasm URL linki">
-            <select id="p-cat-select"></select>
-            <button class="btn" onclick="addProduct()">Saytga chiqarish</button>
-        </div>
-
-        <div class="admin-box">
-            <div class="admin-title">📩 Kelgan Istaklar</div>
-            <div id="admin-wishes"></div>
-        </div>
-        <button class="btn" style="background:#444" onclick="showPage('home')">Chiqish</button>
+    <div class="admin-card">
+        <h2><i class="fa-solid fa-envelope"></i> Mijozlar Istaklari</h2>
+        <div id="wishes-display"></div>
+        <button class="btn" style="background:#444; color:white; margin-top:10px;" onclick="clearWishes()">Barcha istaklarni tozalash</button>
     </div>
 
     <script>
-        // FIREBASE
+        // Firebase Sozlamalari (O'zingnikini qoy)
         const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let cart = [];
 
-        // ADMIN KIRISH
-        function checkAdmin() {
-            if(prompt("Parolni kiriting:") === "7777") showPage('admin');
-            else alert("Xato!");
+        // --- 1. Kategoriyalar ---
+        function saveCat() {
+            const val = document.getElementById('cat-input').value;
+            if(val) {
+                db.ref('categories').push(val);
+                document.getElementById('cat-input').value = "";
+            }
         }
 
-        // KATEGORIYALAR (307-RASM)
         db.ref('categories').on('value', s => {
-            const topList = document.getElementById('cat-list-top');
-            const badges = document.getElementById('cat-badges');
+            const list = document.getElementById('cat-list');
             const select = document.getElementById('p-cat-select');
-            
-            topList.innerHTML = `<button class="cat-btn" onclick="loadProducts('all')">Hammasi</button>`;
-            badges.innerHTML = "";
+            list.innerHTML = "";
             select.innerHTML = `<option value="">Bo'limni tanlang</option>`;
             
             if(s.val()) {
                 Object.keys(s.val()).forEach(key => {
                     const name = s.val()[key];
-                    topList.innerHTML += `<button class="cat-btn" onclick="loadProducts('${name}')">${name}</button>`;
-                    badges.innerHTML += `<span class="cat-btn">${name} <i class="fa-solid fa-xmark badge-close" onclick="deleteCat('${key}')"></i></span>`;
+                    list.innerHTML += `<span class="menu-badge">${name} <i class="fa-solid fa-circle-xmark" onclick="delCat('${key}')"></i></span>`;
                     select.innerHTML += `<option value="${name}">${name}</option>`;
                 });
             }
         });
 
-        function addCategory() {
-            const v = document.getElementById('new-cat-name').value;
-            if(v) { db.ref('categories').push(v); document.getElementById('new-cat-name').value = ""; }
-        }
-        function deleteCat(key) { if(confirm("O'chirilsinmi?")) db.ref('categories').child(key).remove(); }
+        function delCat(key) { if(confirm("Ushbu menyuni o'chirmoqchimisiz?")) db.ref('categories').child(key).remove(); }
 
-        // MAHSULOTLAR
-        function addProduct() {
+        // --- 2. Mahsulotlar ---
+        function saveProduct() {
             const data = {
-                title: document.getElementById('p-title').value,
+                name: document.getElementById('p-name').value,
                 price: document.getElementById('p-price').value,
                 img: document.getElementById('p-img').value,
                 cat: document.getElementById('p-cat-select').value
             };
-            if(data.img && data.price) {
+            if(data.name && data.price && data.img) {
                 db.ref('products').push(data);
-                alert("Mahsulot qo'shildi!");
+                alert("Mahsulot muvaffaqiyatli qo'shildi!");
+                document.getElementById('p-name').value = "";
+                document.getElementById('p-price').value = "";
+                document.getElementById('p-img').value = "";
+            } else {
+                alert("Hamma maydonni to'ldiring!");
             }
         }
 
-        function loadProducts(filter) {
-            db.ref('products').once('value', s => {
-                const grid = document.getElementById('product-grid');
-                grid.innerHTML = "";
-                if(s.val()) Object.values(s.val()).forEach(p => {
-                    if(filter === 'all' || p.cat === filter) {
-                        grid.innerHTML += `
-                            <div class="card" onclick="addToCart('${p.img}', '${p.price}', '${p.title}')">
-                                <img src="${p.img}">
-                                <div class="price">${p.price} so'm</div>
-                            </div>`;
-                    }
+        db.ref('products').on('value', s => {
+            const list = document.getElementById('all-products-list');
+            list.innerHTML = "";
+            if(s.val()) {
+                Object.keys(s.val()).forEach(key => {
+                    const p = s.val()[key];
+                    list.innerHTML += `
+                        <div class="prod-item">
+                            <img src="${p.img}">
+                            <div class="prod-info">
+                                <b>${p.name}</b><br>
+                                <small>${p.price} so'm | Bo'lim: ${p.cat}</small>
+                            </div>
+                            <i class="fa-solid fa-trash-can del-btn" onclick="delProd('${key}')"></i>
+                        </div>`;
                 });
-            });
-            showPage('home');
-        }
-        loadProducts('all');
-
-        // SAVAT VA TELEGRAM (RASM BILAN)
-        function addToCart(img, pr, tl) {
-            cart.push({img, pr, tl});
-            alert("Savatga qo'shildi!");
-            document.getElementById('cart-items').innerHTML = cart.map(i => `<div style="padding:10px; border-bottom:1px solid #333;">✅ ${i.tl} - ${i.pr}</div>`).join('');
-        }
-
-        function orderNow() {
-            if(!cart.length) return alert("Savat bo'sh!");
-            let msg = "🚀 YANGI BUYURTMA:%0A%0A";
-            cart.forEach(i => msg += `📌 ${i.tl}%0A💰 Narxi: ${i.pr}%0A🖼 Rasm: ${i.img}%0A%0A`);
-            window.location.href = `https://t.me/Jahongir3616?text=${msg}`;
-        }
-
-        // ISTAKLAR
-        function sendWish() {
-            const t = document.getElementById('wish-text').value;
-            if(t) { db.ref('wishes').push({msg: t, date: new Date().toLocaleString()}); alert("Yuborildi!"); document.getElementById('wish-text').value = ""; }
-        }
-        db.ref('wishes').on('value', s => {
-            const div = document.getElementById('admin-wishes');
-            div.innerHTML = s.val() ? Object.values(s.val()).map(w => `<p style="font-size:12px; border-bottom:1px solid #333; padding:5px;">📅 ${w.date}<br>👉 ${w.msg}</p>`).join('') : "Hozircha yo'q";
+            }
         });
 
-        function showPage(id) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-            window.scrollTo(0,0);
-        }
+        function delProd(key) { if(confirm("Mahsulotni o'chirmoqchimisiz?")) db.ref('products').child(key).remove(); }
+
+        // --- 3. Istaklar ---
+        db.ref('wishes').on('value', s => {
+            const div = document.getElementById('wishes-display');
+            div.innerHTML = "";
+            if(s.val()) {
+                Object.values(s.val()).forEach(w => {
+                    div.innerHTML += `<div class="wish-item">💬 ${w.msg} <br> <small style="color:var(--accent)">${w.date || ''}</small></div>`;
+                });
+            } else {
+                div.innerHTML = "Hozircha xabarlar yo'q.";
+            }
+        });
+
+        function clearWishes() { if(confirm("Barcha xabarlarni o'chirmoqchimisiz?")) db.ref('wishes').remove(); }
     </script>
 </body>
 </html>
