@@ -10,124 +10,117 @@
     <style>
         :root { --accent: #ff00aa; --bg: #0f0c29; --card: #1b1b3a; }
         body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; padding: 15px; }
-        
         .admin-card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid var(--accent); margin-bottom: 20px; }
-        h2 { color: var(--accent); font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
-        
+        h2 { color: var(--accent); font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
         input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid var(--accent); background: #24244e; color: #fff; box-sizing: border-box; }
-        .btn { width: 100%; background: var(--accent); color: #fff; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        .btn { width: 100%; background: var(--accent); color: #fff; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
         
-        /* Mahsulotlar ro'yxati dizayni */
-        .product-list-container { margin-top: 20px; }
-        .product-item { 
-            display: flex; align-items: center; background: rgba(255,255,255,0.05); 
-            padding: 10px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--accent);
-        }
+        /* Mahsulotlar ro'yxati */
+        .product-item { display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
         .product-item img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; margin-right: 15px; }
         .product-info { flex-grow: 1; }
-        .product-info b { display: block; font-size: 14px; }
-        .product-info span { font-size: 12px; color: var(--accent); }
-        .del-btn { color: #ff4444; cursor: pointer; padding: 10px; font-size: 18px; }
-
-        .menu-badge { background: var(--accent); padding: 4px 10px; border-radius: 15px; font-size: 11px; margin-left: 5px; color: #000; font-weight: bold; }
+        .del-btn { color: #ff4444; cursor: pointer; padding: 10px; }
+        .menu-badge { background: var(--accent); padding: 4px 10px; border-radius: 15px; font-size: 11px; margin: 5px; color: #000; font-weight: bold; display: inline-flex; align-items: center; }
     </style>
 </head>
 <body>
 
-    <div class="admin-card">
-        <h2><i class="fa-solid fa-folder-tree"></i> Menyularni Boshqarish</h2>
-        <div style="display:flex; gap:10px;">
-            <input type="text" id="new-menu-name" placeholder="Yangi menyu nomi">
-            <button onclick="addMenu()" style="background:var(--accent); border:none; color:white; padding:0 15px; border-radius:10px; font-weight:bold;">+</button>
-        </div>
-        <div id="menu-display" style="margin-top:10px; display:flex; flex-wrap:wrap; gap:5px;"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <h1 style="color:var(--accent); font-size:24px;">BOSHQARUV</h1>
+        <button onclick="window.location.href='index.html'" style="background:none; border:1px solid var(--accent); color:white; padding:5px 15px; border-radius:10px;">Saytga qaytish</button>
     </div>
 
     <div class="admin-card">
-        <h2><i class="fa-solid fa-cloud-arrow-up"></i> Mahsulot Yuklash</h2>
-        <input type="text" id="p-title" placeholder="Mahsulot nomi">
-        <input type="number" id="p-price" placeholder="Narxi (son)">
-        <input type="text" id="p-img" placeholder="Rasm URL linki">
-        <select id="p-category-select">
+        <h2><i class="fa-solid fa-folder-tree"></i> 1. Menyularni Boshqarish</h2>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="cat-name" placeholder="Yangi menyu nomi">
+            <button onclick="addCat()" style="background:var(--accent); border:none; padding:0 20px; border-radius:10px; color:white;">+</button>
+        </div>
+        <div id="cat-list-admin" style="margin-top:10px;"></div>
+    </div>
+
+    <div class="admin-card">
+        <h2><i class="fa-solid fa-plus"></i> 2. Mahsulot Yuklash</h2>
+        <input type="text" id="p-title" placeholder="Nomi">
+        <input type="number" id="p-price" placeholder="Narxi">
+        <input type="text" id="p-img" placeholder="Rasm URL">
+        <select id="p-cat-select">
             <option value="">Bo'limni tanlang</option>
         </select>
-        <button class="btn" onclick="uploadProduct()">SAYTGA CHIQARISH</button>
+        <button class="btn" onclick="saveP()">SAYTGA CHIQARISH</button>
     </div>
 
-    <div class="admin-card product-list-container">
+    <div class="admin-card">
         <h2><i class="fa-solid fa-boxes-stacked"></i> Hamma Mahsulotlar</h2>
-        <div id="product-list">Yuklanmoqda...</div>
+        <div id="admin-product-list">Yuklanmoqda...</div>
+    </div>
+
+    <div class="admin-card">
+        <h2><i class="fa-solid fa-envelope"></i> Kelgan Istaklar</h2>
+        <div id="admin-wishes"></div>
     </div>
 
     <script>
-        // Firebase Config
-        const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(firebaseConfig);
+        const config = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(config);
         const db = firebase.database();
 
-        // 1. Menyularni yuklash va qo'shish
-        function addMenu() {
-            const name = document.getElementById('new-menu-name').value;
-            if(name) { db.ref('categories').push(name); document.getElementById('new-menu-name').value = ""; }
+        // Menyular
+        function addCat() {
+            const v = document.getElementById('cat-name').value;
+            if(v) { db.ref('categories').push(v); document.getElementById('cat-name').value = ""; }
         }
-
-        db.ref('categories').on('value', snap => {
-            const display = document.getElementById('menu-display');
-            const select = document.getElementById('p-category-select');
-            display.innerHTML = "";
+        db.ref('categories').on('value', s => {
+            const list = document.getElementById('cat-list-admin');
+            const select = document.getElementById('p-cat-select');
+            list.innerHTML = "";
             select.innerHTML = `<option value="">Bo'limni tanlang</option>`;
-            
-            if(snap.val()) {
-                Object.entries(snap.val()).forEach(([key, name]) => {
-                    display.innerHTML += `<span class="menu-badge">${name} <i class="fa-solid fa-xmark" onclick="deleteMenu('${key}')" style="cursor:pointer;margin-left:5px"></i></span>`;
-                    select.innerHTML += `<option value="${name}">${name}</option>`;
-                });
-            }
+            if(s.val()) Object.keys(s.val()).forEach(key => {
+                const name = s.val()[key];
+                list.innerHTML += `<span class="menu-badge">${name} <i class="fa-solid fa-xmark" style="margin-left:5px" onclick="db.ref('categories').child('${key}').remove()"></i></span>`;
+                select.innerHTML += `<option value="${name}">${name}</option>`;
+            });
         });
 
-        function deleteMenu(key) { if(confirm("Bo'limni o'chirmoqchimisiz?")) db.ref('categories').child(key).remove(); }
-
-        // 2. Mahsulot yuklash
-        function uploadProduct() {
-            const data = {
+        // Mahsulotlar
+        function saveP() {
+            const d = {
                 title: document.getElementById('p-title').value,
                 price: document.getElementById('p-price').value,
                 img: document.getElementById('p-img').value,
-                category: document.getElementById('p-category-select').value
+                cat: document.getElementById('p-cat-select').value
             };
-            if(data.title && data.price && data.category) {
-                db.ref('products').push(data);
-                alert("Mahsulot qo'shildi!");
+            if(d.title && d.price && d.cat) {
+                db.ref('products').push(d);
+                alert("Qo'shildi!");
                 document.getElementById('p-title').value = "";
                 document.getElementById('p-price').value = "";
                 document.getElementById('p-img').value = "";
-            } else {
-                alert("Ma'lumotlarni to'liq kiriting!");
             }
         }
 
-        // 3. Mahsulotlar ro'yxatini chiqarish (O'zing menyulashing uchun)
-        db.ref('products').on('value', snap => {
-            const list = document.getElementById('product-list');
+        db.ref('products').on('value', s => {
+            const list = document.getElementById('admin-product-list');
             list.innerHTML = "";
-            if(snap.val()) {
-                Object.entries(snap.val()).forEach(([key, p]) => {
-                    list.innerHTML += `
-                        <div class="product-item">
-                            <img src="${p.img || 'https://via.placeholder.com/50'}">
-                            <div class="product-info">
-                                <b>${p.title}</b>
-                                <span>${Number(p.price).toLocaleString()} so'm | <small>${p.category}</small></span>
-                            </div>
-                            <i class="fa-solid fa-trash-can del-btn" onclick="deleteProduct('${key}')"></i>
-                        </div>`;
-                });
-            } else {
-                list.innerHTML = "Mahsulotlar mavjud emas.";
-            }
+            if(s.val()) Object.keys(s.val()).forEach(key => {
+                const p = s.val()[key];
+                list.innerHTML += `
+                    <div class="product-item">
+                        <img src="${p.img}">
+                        <div class="product-info">
+                            <b>${p.title}</b>
+                            <small>${p.price} so'm | Bo'lim: ${p.cat}</small>
+                        </div>
+                        <i class="fa-solid fa-trash del-btn" onclick="db.ref('products').child('${key}').remove()"></i>
+                    </div>`;
+            });
         });
 
-        function deleteProduct(key) { if(confirm("Mahsulotni o'chirmoqchimisiz?")) db.ref('products').child(key).remove(); }
+        // Istaklar
+        db.ref('wishes').on('value', s => {
+            const div = document.getElementById('admin-wishes');
+            div.innerHTML = s.val() ? Object.values(s.val()).map(w => `<p style="border-bottom:1px solid #333; padding:5px;">💬 ${w.msg || w}</p>`).join('') : "Xabarlar yo'q";
+        });
     </script>
 </body>
 </html>
