@@ -16,7 +16,7 @@
         }
 
         header {
-            background: rgba(0,0,0,0.8); padding: 12px 5%; 
+            background: rgba(0,0,0,0.85); padding: 12px 5%; 
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 2px solid #f806cc; position: sticky; top: 0; z-index: 1000;
         }
@@ -63,16 +63,16 @@
 <header>
     <div class="logo">PEKIN TAVOR</div>
     <div class="nav-right">
-        <div class="btn-top" onclick="authAdmin()">⚙️ Sozlamalar</div>
-        <div class="btn-top" onclick="sendToTelegram()">🛒 Savat (<span id="c-count">0</span>)</div>
+        <div class="btn-top" onclick="checkAdmin()">⚙️ Sozlamalar</div>
+        <div class="btn-top" onclick="sendOrder()">🛒 Yuborish (<span id="count">0</span>)</div>
     </div>
 </header>
 
-<div class="cats">
-    <button onclick="loadItems('Hammasi', this)" class="active">Barchasi</button>
-    <button onclick="loadItems('Erkaklar', this)">Erkaklar</button>
-    <button onclick="loadItems('Ayollar', this)">Ayollar</button>
-    <button onclick="loadItems('Bolalar', this)">Bolalar</button>
+<div class="cats" id="cat-nav">
+    <button onclick="updateUI('Hammasi', this)" class="active">Barchasi</button>
+    <button onclick="updateUI('Erkaklar', this)">Erkaklar</button>
+    <button onclick="updateUI('Ayollar', this)">Ayollar</button>
+    <button onclick="updateUI('Bolalar', this)">Bolalar</button>
 </div>
 
 <div class="grid" id="main_box"></div>
@@ -83,12 +83,12 @@
         <img id="m-img" style="width:100%; height:200px; object-fit:cover; border-radius:12px; margin-bottom:15px;">
         <h3 id="m-title" style="color:#f806cc; margin:0 0 10px 0;"></h3>
         <div id="m-price" style="font-size:20px; color:#00ffab; font-weight:bold; margin-bottom:15px;"></div>
-        <div style="text-align: left; font-size: 13px; opacity: 0.9;">
+        <div style="text-align: left; font-size: 13px;">
             <p>📏 O'lcham: <span id="m-size"></span></p>
             <p>👶 Yosh: <span id="m-age"></span></p>
             <p>📝 Izoh: <span id="m-desc"></span></p>
         </div>
-        <button onclick="addBasket()" style="width:100%; margin-top:15px; background:#f806cc; border:none; color:white; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">SAVATGA SOLISH</button>
+        <button onclick="addToBasket()" style="width:100%; margin-top:15px; background:#f806cc; border:none; color:white; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">SAVATGA SOLISH</button>
     </div>
 </div>
 
@@ -97,18 +97,16 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    let cart = [];
-    let current = {};
+    let basket = [];
+    let currentProd = {};
 
-    // 1. ADMIN SAHIFASIGA O'TISH
-    function authAdmin() {
-        let p = prompt("Maxfiy kod:");
+    function checkAdmin() {
+        let p = prompt("Admin kodini kiriting:");
         if(p === "4321") window.location.href = "admin.html";
-        else if(p !== null) alert("Xato!");
+        else if(p !== null) alert("Kod noto'g'ri!");
     }
 
-    // 2. MAHSULOTLARNI CHIQARISH
-    function loadItems(category, btn) {
+    function updateUI(category, btn) {
         const box = document.getElementById('main_box');
         document.querySelectorAll('.cats button').forEach(b => b.classList.remove('active'));
         if(btn) btn.classList.add('active');
@@ -132,7 +130,7 @@
     }
 
     function openM(n, p, i, s, a, d) {
-        current = {name: n, price: p, img: i};
+        currentProd = {name: n, price: p, img: i};
         document.getElementById('m-title').innerText = n;
         document.getElementById('m-price').innerText = parseInt(p).toLocaleString() + " so'm";
         document.getElementById('m-img').src = i;
@@ -143,30 +141,31 @@
     }
     function closeM() { document.getElementById('modal').style.display = "none"; }
 
-    function addBasket() {
-        cart.push(current);
-        document.getElementById('c-count').innerText = cart.length;
+    function addToBasket() {
+        basket.push(currentProd);
+        document.getElementById('count').innerText = basket.length;
         closeM();
     }
 
-    // 3. ADMINGA RASM BILAN BUYURTMA YUBORISH
-    function sendToTelegram() {
-        if(cart.length === 0) return alert("Savat bo'sh!");
+    // RASM CHIQISHI UCHUN ASOSIY FUNKSIYA
+    function sendOrder() {
+        if(basket.length === 0) return alert("Savat bo'sh!");
         
-        // Telegramda rasm ko'rinishi uchun Markdown [ ](link) formatidan foydalanamiz
-        // Muhim: Link matnning eng boshida bo'lishi kerak!
-        let message = "";
-        cart.forEach((v, i) => {
-            message += `[\u00A0](${v.img})` + // Mana shu qator rasmni chiqaradi
-                       `🛍 *${v.name}*\n` +
-                       `💰 Narxi: ${v.price} so'm\n\n`;
+        let msg = "";
+        basket.forEach((v, i) => {
+            // [ ](url) formati matnning eng boshida bo'lishi kerak
+            // Shunda Telegram avtomatik rasm chiqaradi
+            msg += `[⠀](${v.img})` + 
+                   `🛍 *YANGI BUYURTMA*:\n` +
+                   `📦 *Mahsulot:* ${v.name}\n` +
+                   `💰 *Narxi:* ${parseInt(v.price).toLocaleString()} so'm\n\n`;
         });
 
-        const url = `https://t.me/Jahongir3616?text=${encodeURIComponent(message)}&parse_mode=MarkdownV2`;
+        const url = `https://t.me/Jahongir3616?text=${encodeURIComponent(msg)}&parse_mode=Markdown`;
         window.location.href = url;
     }
 
-    loadItems('Hammasi');
+    updateUI('Hammasi');
 </script>
 </body>
 </html>
