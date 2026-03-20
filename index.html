@@ -1,121 +1,131 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tavor</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root { --p: #ff00aa; --bg: #0f0c29; --card: #1b1b3a; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding-top: 155px; }
-        header { position: fixed; top:0; width:100%; background: var(--p); padding: 12px 15px; display:flex; justify-content:space-between; align-items:center; z-index:1001; box-sizing:border-box;}
-        .search-box { position: fixed; top: 48px; width:100%; background:#111; padding:12px; z-index:1000; box-sizing:border-box; }
-        .search-box input { width:100%; padding:10px; border-radius:25px; border:1px solid var(--p); background:#000; color:white; outline:none; }
-        .nav-cats { position: fixed; top: 100px; width:100%; background:#111; overflow-x:auto; white-space:nowrap; padding:10px; z-index:1000; border-bottom:2px solid var(--p);}
-        .cat-btn { background:var(--p); color:white; padding:7px 18px; border-radius:20px; border:none; margin-right:8px; font-size:11px; font-weight:bold; }
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 5px; padding: 5px; }
-        .card { background: var(--card); border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-        .card img { width: 100%; height: 115px; object-fit: cover; }
-        .price { font-size: 11px; text-align: center; color: var(--p); padding: 6px; font-weight:bold; }
-        #cart-count { background:white; color:var(--p); border-radius:50%; padding:2px 7px; font-size:12px; position:absolute; top:5px; right:42px; font-weight:bold;}
-        .page { display:none; padding:15px; } .active { display:block; }
-        .btn { background: var(--p); color:white; width:100%; padding:15px; border:none; border-radius:12px; font-weight:bold; cursor:pointer; }
-    </style>
+<meta charset="UTF-8">
+<title>O'lmas Shop</title>
+<style>
+  body { background:#0a0014; color:white; font-family:'Poppins',sans-serif; }
+  h1 { text-align:center; color:#b366ff; }
+  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; padding:20px; }
+  .card {
+    background:#200045; border:1px solid #8000ff; border-radius:10px;
+    box-shadow:0 0 15px #8000ff; padding:10px; text-align:center; transition:0.3s;
+  }
+  .card:hover { transform:scale(1.05); }
+  .card img { width:100%; border-radius:8px; }
+  .btn { background:#8000ff; color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer; margin:3px; }
+  .modal {
+    display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+    background:rgba(10,0,20,0.94); justify-content:center; align-items:center;
+  }
+  .modal-content { background:#220050; padding:20px; border-radius:10px; text-align:center; }
+</style>
 </head>
 <body>
 
-    <header>
-        <b onclick="location.reload()">PEKIN TAVOR</b>
-        <div style="position:relative">
-            <span id="cart-count">0</span>
-            <i class="fa-solid fa-cart-shopping" onclick="showPage('cart')" style="margin-right:15px; cursor:pointer;"></i>
-            <i class="fa-solid fa-gear" onclick="if(prompt('Parol:')==='4321') window.location.href='admin.html'"></i>
-        </div>
-    </header>
+<h1>🛍 O'lmas Shop</h1>
+<div class="grid" id="productGrid"></div>
 
-    <div class="search-box">
-        <input type="text" id="searchInput" placeholder="Mahsulot qidirish..." onkeyup="search()">
-    </div>
+<div class="modal" id="modal">
+  <div class="modal-content" id="modalContent"></div>
+</div>
 
-    <div class="nav-cats" id="cat-nav">
-        <button class="cat-btn" onclick="loadP('all')">Hammasi</button>
-    </div>
+<script type="module">
+import { initializeApp } from "[gstatic.com](https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js)";
+import { getDatabase, ref, get } from "[gstatic.com](https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js)";
+import { firebaseConfig } from "./config.js";
 
-    <div id="home" class="page active">
-        <div class="grid" id="main-grid"></div>
-        <div style="margin-top:30px; background:var(--card); padding:15px; border-radius:15px; border:1px solid var(--p)">
-            <h4>✍️ Maxsus istaklar bo'limi</h4>
-            <textarea id="wishMsg" style="width:100%; background:#000; color:white; border:1px solid #444; border-radius:10px; padding:12px; box-sizing:border-box;" rows="3" placeholder="Sizga nima kerak?"></textarea>
-            <button class="btn" style="margin-top:10px;" onclick="sendWish()">Yuborish</button>
-        </div>
-    </div>
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-    <div id="cart" class="page">
-        <h2 style="color:var(--p)">Savat</h2>
-        <div id="cart-list"></div>
-        <button class="btn" onclick="order()">@Jahongir3616 ga yuborish</button>
-        <button class="btn" style="background:#444; margin-top:10px;" onclick="showPage('home')">Orqaga</button>
-    </div>
+let cart = JSON.parse(localStorage.getItem("cart") || "[]");
+let wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
 
-    <script>
-        const config = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(config);
-        const db = firebase.database();
-        let cart = [], allItems = [];
+async function loadProducts() {
+  const snapshot = await get(ref(db, "products"));
+  if (!snapshot.exists()) return;
+  const grid = document.getElementById("productGrid");
+  const data = snapshot.val();
+  for (let id in data) {
+    const p = data[id];
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <img src="${p.image_url}">
+      <h3>${p.price} so'm</h3>
+      <p>Razmer: ${p.size || '-'} | Yosh: ${p.age || '-'}</p>
+      <button class="btn" onclick='view("${id}")'>Ko'rish</button>
+      <button class="btn" onclick='addToCart("${id}")'>+ Savatcha</button>
+      <button class="btn" onclick='addToWish("${id}")'>❤️</button>
+    `;
+    grid.appendChild(card);
+  }
+}
 
-        db.ref('categories').on('value', s => {
-            const n = document.getElementById('cat-nav'); n.innerHTML = `<button class="cat-btn" onclick="loadP('all')">Hammasi</button>`;
-            if(s.val()) Object.values(s.val()).forEach(v => n.innerHTML += `<button class="cat-btn" onclick="loadP('${v}')">${v}</button>`);
-        });
+window.view = function(id) {
+  get(ref(db, "products/" + id)).then(snap => {
+    const p = snap.val();
+    const modal = document.getElementById("modal");
+    const content = document.getElementById("modalContent");
+    content.innerHTML = `
+      <img src="${p.image_url}" width="250"><br><br>
+      <b>${p.price} so'm</b><br>
+      Razmer: ${p.size || '-'}<br>
+      Yosh: ${p.age || '-'}<br><br>
+      <button class="btn" onclick="closeModal()">Yopish</button>
+    `;
+    modal.style.display = "flex";
+  });
+};
 
-        function loadP(f) {
-            db.ref('products').on('value', s => {
-                allItems = s.val() ? Object.values(s.val()) : [];
-                render(allItems.filter(p => f === 'all' || p.cat === f));
-            });
-        }
+window.closeModal = () => document.getElementById("modal").style.display = "none";
 
-        function render(data) {
-            const g = document.getElementById('main-grid');
-            g.innerHTML = data.map(p => `
-                <div class="card" onclick="add('${p.img}','${p.price}','${p.name}')">
-                    <img src="${p.img}" onerror="this.src='https://via.placeholder.com/150'">
-                    <div class="price">${p.price} so'm</div>
-                </div>`).join('');
-        }
+window.addToCart = function(id) {
+  cart.push(id);
+  localStorage.setItem("cart", JSON.stringify(cart));
+  alert("Savatchaga qo'shildi!");
+};
 
-        function search() {
-            let v = document.getElementById('searchInput').value.toLowerCase();
-            render(allItems.filter(p => p.name.toLowerCase().includes(v)));
-        }
+window.addToWish = function(id) {
+  wishlist.push(id);
+  localStorage.setItem("wishlist", JSON.stringify(wishlist));
+  alert("Yoqtirganlarga qo'shildi!");
+};
 
-        function add(img, price, name) {
-            cart.push({img, price, name});
-            document.getElementById('cart-count').innerText = cart.length;
-            const l = document.getElementById('cart-list');
-            l.innerHTML = cart.map(i => `<div style="padding:15px; border-bottom:1px solid #333; display:flex; justify-content:space-between;"><span>${i.name}</span> <b>${i.price}</b></div>`).join('');
-            alert("Savatga qo'shildi!");
-        }
+window.checkout = async function() {
+  let snapshot = await get(ref(db, "products"));
+  if (!snapshot.exists()) return;
+  let data = snapshot.val();
+  let orderItems = cart.map(id => data[id]);
+  let text = "🛍 *Yangi buyurtma*\n\n";
+  orderItems.forEach(p => {
+    text += `💎 Narx: ${p.price} so'm\n👕 Razmer: ${p.size}\n🧒 Yosh: ${p.age}\n🔗 ${p.image_url}\n\n`;
+  });
 
-        function order() {
-            if(!cart.length) return alert("Savat bo'sh!");
-            let t = "🚀 YANGI BUYURTMA:%0A";
-            cart.forEach((i, n) => t += `%0A${n+1}. ${i.name}%0A💰 ${i.price}%0A🖼 ${i.img}%0A`);
-            window.location.href = `https://t.me/Jahongir3616?text=${t}`;
-        }
+  // Telegram mesaj yuborish
+  fetch(`[api.telegram.org](https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/sendMessage)`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      chat_id: "@Jahongir3616",
+      text: text,
+      parse_mode: "Markdown"
+    })
+  });
 
-        function sendWish() {
-            let m = document.getElementById('wishMsg').value;
-            if(m) { db.ref('wishes').push({msg: m, time: new Date().toLocaleString()}); alert("Yuborildi!"); document.getElementById('wishMsg').value=""; }
-        }
+  alert("Buyurtmangiz yuborildi!");
+  cart = [];
+  localStorage.removeItem("cart");
+};
 
-        function showPage(id) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(id).classList.add('active');
-        }
-        loadP('all');
-    </script>
+loadProducts();
+</script>
+
+<hr>
+<div style="text-align:center;">
+  <button class="btn" onclick="checkout()">🛒 Sotib olish</button>
+  <button class="btn" onclick="window.location='admin.html'">⚙️ Admin panel</button>
+</div>
+
 </body>
 </html>
