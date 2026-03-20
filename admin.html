@@ -9,150 +9,125 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --accent: #ff00aa; --bg: #0f0c29; --card: #1b1b3a; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; padding: 20px; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; padding: 15px; }
         
-        h2 { color: var(--accent); font-size: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-top: 30px; }
         .admin-card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid var(--accent); margin-bottom: 20px; }
+        h2 { color: var(--accent); font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; }
         
-        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid var(--accent); background: #24244e; color: #fff; box-sizing: border-box; }
-        .btn { width: 100%; background: var(--accent); color: #000; padding: 15px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: 0.3s; }
-        .btn:hover { opacity: 0.8; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid var(--accent); background: #24244e; color: #fff; box-sizing: border-box; }
+        .btn { width: 100%; background: var(--accent); color: #fff; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
         
-        /* Menyular (Badges) */
-        .menu-badge { background: var(--accent); padding: 5px 15px; border-radius: 20px; font-size: 13px; display: inline-flex; align-items: center; margin: 5px; color: #000; font-weight: bold; }
-        .menu-badge i { margin-left: 10px; cursor: pointer; color: #444; }
+        /* Mahsulotlar ro'yxati dizayni */
+        .product-list-container { margin-top: 20px; }
+        .product-item { 
+            display: flex; align-items: center; background: rgba(255,255,255,0.05); 
+            padding: 10px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--accent);
+        }
+        .product-item img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; margin-right: 15px; }
+        .product-info { flex-grow: 1; }
+        .product-info b { display: block; font-size: 14px; }
+        .product-info span { font-size: 12px; color: var(--accent); }
+        .del-btn { color: #ff4444; cursor: pointer; padding: 10px; font-size: 18px; }
 
-        /* Mahsulotlar Ro'yxati */
-        .prod-item { display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
-        .prod-item img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; margin-right: 15px; }
-        .prod-info { flex-grow: 1; }
-        .del-btn { color: #ff4444; cursor: pointer; padding: 10px; }
-
-        /* Istaklar */
-        .wish-item { background: #111; padding: 10px; border-radius: 8px; margin-bottom: 10px; font-size: 14px; border: 1px dashed var(--accent); }
+        .menu-badge { background: var(--accent); padding: 4px 10px; border-radius: 15px; font-size: 11px; margin-left: 5px; color: #000; font-weight: bold; }
     </style>
 </head>
 <body>
 
-    <center><h1><i class="fa-solid fa-lock"></i> Boshqaruv Paneli</h1></center>
-
     <div class="admin-card">
-        <h2><i class="fa-solid fa-folder-plus"></i> 1. Menyularni Boshqarish</h2>
+        <h2><i class="fa-solid fa-folder-tree"></i> Menyularni Boshqarish</h2>
         <div style="display:flex; gap:10px;">
-            <input type="text" id="cat-input" placeholder="Yangi bo'lim nomi (masalan: Erkaklar kiyimi)">
-            <button onclick="saveCat()" style="background:var(--accent); border:none; border-radius:8px; padding:0 20px; font-weight:bold;">Qo'shish</button>
+            <input type="text" id="new-menu-name" placeholder="Yangi menyu nomi">
+            <button onclick="addMenu()" style="background:var(--accent); border:none; color:white; padding:0 15px; border-radius:10px; font-weight:bold;">+</button>
         </div>
-        <div id="cat-list" style="margin-top:15px;"></div>
+        <div id="menu-display" style="margin-top:10px; display:flex; flex-wrap:wrap; gap:5px;"></div>
     </div>
 
     <div class="admin-card">
-        <h2><i class="fa-solid fa-upload"></i> 2. Mahsulot Yuklash</h2>
-        <input type="text" id="p-name" placeholder="Mahsulot nomi">
-        <input type="number" id="p-price" placeholder="Narxi (faqat son)">
-        <input type="text" id="p-img" placeholder="Rasm URL manzili">
-        <select id="p-cat-select">
+        <h2><i class="fa-solid fa-cloud-arrow-up"></i> Mahsulot Yuklash</h2>
+        <input type="text" id="p-title" placeholder="Mahsulot nomi">
+        <input type="number" id="p-price" placeholder="Narxi (son)">
+        <input type="text" id="p-img" placeholder="Rasm URL linki">
+        <select id="p-category-select">
             <option value="">Bo'limni tanlang</option>
         </select>
-        <button class="btn" onclick="saveProduct()">SAYTGA CHIQARISH</button>
+        <button class="btn" onclick="uploadProduct()">SAYTGA CHIQARISH</button>
     </div>
 
-    <div class="admin-card">
+    <div class="admin-card product-list-container">
         <h2><i class="fa-solid fa-boxes-stacked"></i> Hamma Mahsulotlar</h2>
-        <div id="all-products-list"></div>
-    </div>
-
-    <div class="admin-card">
-        <h2><i class="fa-solid fa-envelope"></i> Mijozlar Istaklari</h2>
-        <div id="wishes-display"></div>
-        <button class="btn" style="background:#444; color:white; margin-top:10px;" onclick="clearWishes()">Barcha istaklarni tozalash</button>
+        <div id="product-list">Yuklanmoqda...</div>
     </div>
 
     <script>
-        // Firebase Sozlamalari (O'zingnikini qoy)
+        // Firebase Config
         const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        // --- 1. Kategoriyalar ---
-        function saveCat() {
-            const val = document.getElementById('cat-input').value;
-            if(val) {
-                db.ref('categories').push(val);
-                document.getElementById('cat-input').value = "";
-            }
+        // 1. Menyularni yuklash va qo'shish
+        function addMenu() {
+            const name = document.getElementById('new-menu-name').value;
+            if(name) { db.ref('categories').push(name); document.getElementById('new-menu-name').value = ""; }
         }
 
-        db.ref('categories').on('value', s => {
-            const list = document.getElementById('cat-list');
-            const select = document.getElementById('p-cat-select');
-            list.innerHTML = "";
+        db.ref('categories').on('value', snap => {
+            const display = document.getElementById('menu-display');
+            const select = document.getElementById('p-category-select');
+            display.innerHTML = "";
             select.innerHTML = `<option value="">Bo'limni tanlang</option>`;
             
-            if(s.val()) {
-                Object.keys(s.val()).forEach(key => {
-                    const name = s.val()[key];
-                    list.innerHTML += `<span class="menu-badge">${name} <i class="fa-solid fa-circle-xmark" onclick="delCat('${key}')"></i></span>`;
+            if(snap.val()) {
+                Object.entries(snap.val()).forEach(([key, name]) => {
+                    display.innerHTML += `<span class="menu-badge">${name} <i class="fa-solid fa-xmark" onclick="deleteMenu('${key}')" style="cursor:pointer;margin-left:5px"></i></span>`;
                     select.innerHTML += `<option value="${name}">${name}</option>`;
                 });
             }
         });
 
-        function delCat(key) { if(confirm("Ushbu menyuni o'chirmoqchimisiz?")) db.ref('categories').child(key).remove(); }
+        function deleteMenu(key) { if(confirm("Bo'limni o'chirmoqchimisiz?")) db.ref('categories').child(key).remove(); }
 
-        // --- 2. Mahsulotlar ---
-        function saveProduct() {
+        // 2. Mahsulot yuklash
+        function uploadProduct() {
             const data = {
-                name: document.getElementById('p-name').value,
+                title: document.getElementById('p-title').value,
                 price: document.getElementById('p-price').value,
                 img: document.getElementById('p-img').value,
-                cat: document.getElementById('p-cat-select').value
+                category: document.getElementById('p-category-select').value
             };
-            if(data.name && data.price && data.img) {
+            if(data.title && data.price && data.category) {
                 db.ref('products').push(data);
-                alert("Mahsulot muvaffaqiyatli qo'shildi!");
-                document.getElementById('p-name').value = "";
+                alert("Mahsulot qo'shildi!");
+                document.getElementById('p-title').value = "";
                 document.getElementById('p-price').value = "";
                 document.getElementById('p-img').value = "";
             } else {
-                alert("Hamma maydonni to'ldiring!");
+                alert("Ma'lumotlarni to'liq kiriting!");
             }
         }
 
-        db.ref('products').on('value', s => {
-            const list = document.getElementById('all-products-list');
+        // 3. Mahsulotlar ro'yxatini chiqarish (O'zing menyulashing uchun)
+        db.ref('products').on('value', snap => {
+            const list = document.getElementById('product-list');
             list.innerHTML = "";
-            if(s.val()) {
-                Object.keys(s.val()).forEach(key => {
-                    const p = s.val()[key];
+            if(snap.val()) {
+                Object.entries(snap.val()).forEach(([key, p]) => {
                     list.innerHTML += `
-                        <div class="prod-item">
-                            <img src="${p.img}">
-                            <div class="prod-info">
-                                <b>${p.name}</b><br>
-                                <small>${p.price} so'm | Bo'lim: ${p.cat}</small>
+                        <div class="product-item">
+                            <img src="${p.img || 'https://via.placeholder.com/50'}">
+                            <div class="product-info">
+                                <b>${p.title}</b>
+                                <span>${Number(p.price).toLocaleString()} so'm | <small>${p.category}</small></span>
                             </div>
-                            <i class="fa-solid fa-trash-can del-btn" onclick="delProd('${key}')"></i>
+                            <i class="fa-solid fa-trash-can del-btn" onclick="deleteProduct('${key}')"></i>
                         </div>`;
                 });
-            }
-        });
-
-        function delProd(key) { if(confirm("Mahsulotni o'chirmoqchimisiz?")) db.ref('products').child(key).remove(); }
-
-        // --- 3. Istaklar ---
-        db.ref('wishes').on('value', s => {
-            const div = document.getElementById('wishes-display');
-            div.innerHTML = "";
-            if(s.val()) {
-                Object.values(s.val()).forEach(w => {
-                    div.innerHTML += `<div class="wish-item">💬 ${w.msg} <br> <small style="color:var(--accent)">${w.date || ''}</small></div>`;
-                });
             } else {
-                div.innerHTML = "Hozircha xabarlar yo'q.";
+                list.innerHTML = "Mahsulotlar mavjud emas.";
             }
         });
 
-        function clearWishes() { if(confirm("Barcha xabarlarni o'chirmoqchimisiz?")) db.ref('wishes').remove(); }
+        function deleteProduct(key) { if(confirm("Mahsulotni o'chirmoqchimisiz?")) db.ref('products').child(key).remove(); }
     </script>
 </body>
 </html>
