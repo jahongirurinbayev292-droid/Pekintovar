@@ -3,164 +3,130 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Tavor - Katalog</title>
-    
+    <title>Pekin Tavor - Mini Shop</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
-        /* Asosiy ko'rinish */
-        * { box-sizing: border-box; }
-        body { 
-            font-family: 'Segoe UI', Arial, sans-serif; 
-            background-color: #f0f2f5; 
-            margin: 0; 
-            padding: 20px; 
-        }
+        :root { --main-pink: #ff85a2; --light-pink: #fce4ec; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--light-pink); margin: 0; padding-bottom: 70px; }
         
-        header {
-            text-align: center;
-            padding: 30px;
-            background: #1a1a1a;
-            color: white;
-            border-radius: 15px;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-        }
+        /* Header */
+        header { background: var(--main-pink); color: white; padding: 15px; text-align: center; font-size: 20px; font-weight: bold; }
 
-        /* Mahsulotlar setkasi */
-        .product-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 25px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
+        /* Mahsulotlar Grid (3 qatorli) */
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
+        .product-card { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; position: relative; }
+        .product-card img { width: 100%; height: 110px; object-fit: cover; }
+        .product-info { padding: 5px; text-align: center; }
+        .price { font-size: 13px; color: var(--main-pink); font-weight: bold; }
 
-        /* Mahsulot kartochkasi */
-        .card {
-            background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-            transition: transform 0.3s ease;
-        }
+        /* Pastki menyu */
+        .bottom-nav { position: fixed; bottom: 0; width: 100%; background: white; display: flex; justify-content: space-around; padding: 10px 0; border-top: 2px solid var(--main-pink); }
+        .nav-item { color: #888; text-align: center; font-size: 12px; cursor: pointer; }
+        .nav-item.active { color: var(--main-pink); }
+        .nav-item i { font-size: 20px; display: block; }
 
-        .card:hover {
-            transform: translateY(-10px);
-        }
+        /* Modal (Ma'lumot oynasi) */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; justify-content: center; align-items: center; }
+        .modal-content { background: white; width: 85%; border-radius: 15px; padding: 20px; position: relative; text-align: center; }
+        .close-btn { position: absolute; top: 10px; right: 15px; font-size: 24px; cursor: pointer; color: var(--main-pink); }
+        .modal-content img { width: 100%; border-radius: 10px; margin-bottom: 15px; }
 
-        .card img {
-            width: 100%;
-            height: 280px;
-            object-fit: cover;
-        }
-
-        .card-body {
-            padding: 20px;
-        }
-
-        .product-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
-            margin-bottom: 10px;
-        }
-
-        .price-tag {
-            font-size: 22px;
-            color: #e74c3c;
-            font-weight: 800;
-            margin-bottom: 15px;
-        }
-
-        .details {
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            font-size: 14px;
-            color: #666;
-            border-top: 1px solid #eee;
-            padding-top: 10px;
-        }
-
-        .detail-item b {
-            color: #333;
-        }
-
-        /* Yuklanish holati */
-        #loader {
-            text-align: center;
-            font-size: 18px;
-            color: #666;
-        }
+        /* Bo'limlar */
+        .page { display: none; }
+        .page.active { display: block; }
+        .empty-msg { text-align: center; margin-top: 50px; color: #777; }
     </style>
 </head>
 <body>
 
-    <header>
-        <h1>👟 PEKIN TAVOR</h1>
-        <p>Barcha turdagi poyabzallar katalogi</p>
-    </header>
+    <header id="page-title">PEKIN TAVOR</header>
 
-    <div id="loader">Mahsulotlar yuklanmoqda...</div>
-    <div class="product-grid" id="product-list"></div>
+    <div id="home-page" class="page active">
+        <div class="grid" id="product-list">
+            </div>
+    </div>
+
+    <div id="wishlist-page" class="page">
+        <div class="empty-msg"><i class="fa-regular fa-heart fa-3x"></i><br><br>Istaklar ro'yxati bo'sh</div>
+    </div>
+
+    <div id="settings-page" class="page">
+        <div style="padding: 20px;">
+            <h3><i class="fa-solid fa-gear"></i> Sozlamalar</h3>
+            <p>Bildirishnomalar: Yoqilgan</p>
+            <p>Til: O'zbekcha</p>
+            <p>Versiya: 1.0.2</p>
+        </div>
+    </div>
+
+    <div id="product-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <img id="modal-img" src="" alt="">
+            <h3 id="modal-name"></h3>
+            <p id="modal-price" class="price" style="font-size: 20px;"></p>
+            <div id="modal-details" style="color: #666; font-size: 14px; line-height: 1.6;"></div>
+            <button onclick="addToWishlist()" style="background: var(--main-pink); color: white; border: none; padding: 10px 20px; border-radius: 20px; margin-top: 15px;">❤️ Saralanganlarga qo'shish</button>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="showPage('home', this)"><i class="fa-solid fa-house"></i>Asosiy</div>
+        <div class="nav-item" onclick="showPage('wishlist', this)"><i class="fa-solid fa-heart"></i>Istaklar</div>
+        <div class="nav-item" onclick="showPage('settings', this)"><i class="fa-solid fa-gear"></i>Sozlamalar</div>
+    </div>
 
     <script>
-        // 1. Firebase Sozlamalari (Sening bazang manzili)
-        const firebaseConfig = {
-            databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com"
-        };
-        
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
+        // 1. Firebase ulanishi (Sening bazang)
+        const config = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(config);
+        const db = firebase.database();
 
-        // 2. Elementlarni tanlash
-        const productList = document.getElementById('product-list');
-        const loader = document.getElementById('loader');
-
-        // 3. Ma'lumotlarni bazadan olish (Real-time)
-        database.ref('products').on('value', (snapshot) => {
-            loader.style.display = 'none'; // Yuklanish matnini yashirish
-            productList.innerHTML = ""; // Oldingi ma'lumotlarni tozalash
-            
-            const data = snapshot.val();
-            
-            if (data) {
-                // Yangi qo'shilgan mahsulotlar tepada chiqishi uchun teskari tartibda chiqaramiz
-                const keys = Object.keys(data).reverse();
-                
-                keys.forEach(key => {
-                    const item = data[key];
-                    
-                    // Rasm borligini tekshirish
-                    const imageUrl = (item.images && item.images.length > 0) ? item.images[0] : 'https://via.placeholder.com/300x300?text=Rasm+Yoq';
-
-                    // HTML kartochkani yaratish
-                    const productCard = `
-                        <div class="card">
-                            <img src="${imageUrl}" alt="Pekin Tavor">
-                            <div class="card-body">
-                                <div class="product-name">${item.name || 'Pekin Tavor'}</div>
-                                <div class="price-tag">${Number(item.price).toLocaleString()} so'm</div>
-                                <div class="details">
-                                    <div class="detail-item"><b>📏 O'lcham:</b> ${item.size || '-'}</div>
-                                    <div class="detail-item"><b>👶 Yosh:</b> ${item.age || '-'}</div>
-                                    <div class="detail-item"><b>📁 Kategoriya:</b> ${item.category || 'Hammasi'}</div>
-                                </div>
+        // 2. Ma'lumotlarni yuklash
+        db.ref('products').on('value', (snap) => {
+            const list = document.getElementById('product-list');
+            list.innerHTML = "";
+            const data = snap.val();
+            if(data) {
+                Object.keys(data).reverse().forEach(id => {
+                    const p = data[id];
+                    const img = (p.images && p.images[0]) ? p.images[0] : 'https://via.placeholder.com/150';
+                    list.innerHTML += `
+                        <div class="product-card" onclick="openProduct('${img}', '${p.price}', '${p.size}', '${p.age}')">
+                            <img src="${img}">
+                            <div class="product-info">
+                                <div class="price">${p.price}</div>
                             </div>
                         </div>
                     `;
-                    
-                    productList.innerHTML += productCard;
                 });
-            } else {
-                productList.innerHTML = "<p style='text-align:center; grid-column: 1/-1;'>Hozircha mahsulotlar qo'shilmagan.</p>";
             }
-        }, (error) => {
-            console.error("Firebase xatosi:", error);
-            loader.innerHTML = "Ma'lumotlarni yuklashda xato yuz berdi.";
         });
+
+        // 3. Sahifalar almashinuvi
+        function showPage(pageId, el) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById(pageId + '-page').classList.add('active');
+            el.classList.add('active');
+            document.getElementById('page-title').innerText = pageId === 'home' ? 'PEKIN TAVOR' : pageId.toUpperCase();
+        }
+
+        // 4. Modalni boshqarish
+        function openProduct(img, price, size, age) {
+            document.getElementById('modal-img').src = img;
+            document.getElementById('modal-name').innerText = "Pekin Tavor Poyabzali";
+            document.getElementById('modal-price').innerText = price + " so'm";
+            document.getElementById('modal-details').innerHTML = `📏 O'lcham: ${size} <br> 👶 Yosh: ${age}`;
+            document.getElementById('product-modal').style.display = 'flex';
+        }
+
+        function closeModal() { document.getElementById('product-modal').style.display = 'none'; }
+        window.onclick = (e) => { if(e.target.className == 'modal') closeModal(); }
+        function addToWishlist() { alert("Istaklar bo'limiga qo'shildi!"); closeModal(); }
     </script>
 </body>
 </html>
