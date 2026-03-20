@@ -21,6 +21,7 @@
             border-bottom: 2px solid #f806cc; position: sticky; top: 0; z-index: 1000;
         }
         .logo { font-size: 18px; font-weight: 900; color: #f806cc; }
+        .nav-right { display: flex; gap: 8px; }
         .btn-top { cursor: pointer; background: rgba(255,255,255,0.1); padding: 8px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; border: 1px solid #f806cc; }
 
         .cats { text-align: center; padding: 15px; overflow-x: auto; white-space: nowrap; }
@@ -38,9 +39,9 @@
             background: rgba(255,255,255,0.08); border-radius: 12px; border: 1px solid rgba(248, 6, 204, 0.2);
             overflow: hidden; text-align: center; padding-bottom: 10px; cursor: pointer;
         }
-        .card img { width: 100%; height: 110px; object-fit: cover; pointer-events: none; }
+        .card img { width: 100%; height: 100px; object-fit: cover; pointer-events: none; }
         .card h4 { margin: 6px 0 3px; font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 5px; }
-        .price { color: #00ffab; font-weight: bold; font-size: 13px; }
+        .price { color: #00ffab; font-weight: bold; font-size: 12px; }
 
         #modal {
             display: none; position: fixed; top:0; left:0; width:100%; height:100%;
@@ -54,7 +55,6 @@
 
         @media (max-width: 600px) {
             .grid { grid-template-columns: repeat(3, 1fr); gap: 5px; }
-            .card img { height: 95px; }
         }
     </style>
 </head>
@@ -63,12 +63,12 @@
 <header>
     <div class="logo">PEKIN TAVOR</div>
     <div class="nav-right">
-        <div class="btn-top" onclick="toAdmin()">⚙️ Sozlamalar</div>
-        <div class="btn-top" onclick="submitCart()">🛒 Yuborish (<span id="cart-ui">0</span>)</div>
+        <div class="btn-top" onclick="loginAdmin()">⚙️ Sozlamalar</div>
+        <div class="btn-top" onclick="sendOrder()">🛒 Savat (<span id="cart-num">0</span>)</div>
     </div>
 </header>
 
-<div class="cats" id="cats-box">
+<div class="cats">
     <button onclick="load('Hammasi', this)" class="active">Barchasi</button>
     <button onclick="load('Erkaklar', this)">Erkaklar</button>
     <button onclick="load('Ayollar', this)">Ayollar</button>
@@ -81,14 +81,14 @@
     <div class="m-box">
         <span class="close" onclick="closeM()">&times;</span>
         <img id="m-img" style="width:100%; height:200px; object-fit:cover; border-radius:12px; margin-bottom:15px;">
-        <h2 id="m-title" style="color:#f806cc; margin:0 0 10px 0; font-size: 20px;"></h2>
+        <h2 id="m-title" style="color:#f806cc; margin:0 0 10px 0;"></h2>
         <div id="m-price" style="font-size:22px; color:#00ffab; font-weight:bold; margin-bottom:15px;"></div>
-        <div style="text-align: left; font-size: 14px; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px;">
-            <p><b>📏 O'lcham:</b> <span id="m-size"></span></p>
-            <p><b>👶 Yosh:</b> <span id="m-age"></span></p>
-            <p><b>📝 Izoh:</b> <span id="m-desc"></span></p>
+        <div style="text-align: left; font-size: 14px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 10px;">
+            <p>📏 O'lcham: <span id="m-size"></span></p>
+            <p>👶 Yosh: <span id="m-age"></span></p>
+            <p>📝 Izoh: <span id="m-desc"></span></p>
         </div>
-        <button onclick="pushCart()" style="width:100%; margin-top:15px; background:#f806cc; border:none; color:white; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">SAVATGA SOLISH</button>
+        <button onclick="addCart()" style="width:100%; margin-top:15px; background:#f806cc; border:none; color:white; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">SAVATGA QO'SHISH</button>
     </div>
 </div>
 
@@ -97,15 +97,21 @@
     firebase.initializeApp(firebaseConfig);
     const database = firebase.database();
 
-    let myCart = [];
-    let temp = {};
+    let basket = [];
+    let currentItem = {};
 
-    function toAdmin() {
-        let p = prompt("Kod:");
-        if(p === "4321") window.location.href = "admin.html";
-        else if(p !== null) alert("Xato!");
+    // 1. ADMIN PANELGA O'TISH (Xatosiz variant)
+    function loginAdmin() {
+        let p = prompt("Kod kirit:");
+        if(p === "4321") {
+            // Agar admin.html faylingiz index.html bilan bitta papkada bo'lsa:
+            window.location.href = "admin.html";
+        } else if(p !== null) {
+            alert("Xato!");
+        }
     }
 
+    // 2. MAHSULOTLARNI YUKLASH
     function load(cat, btn) {
         const box = document.getElementById('main_box');
         document.querySelectorAll('.cats button').forEach(b => b.classList.remove('active'));
@@ -130,7 +136,7 @@
     }
 
     function openM(p) {
-        temp = {name: p.name, price: p.price, img: p.images[0], size: p.size, age: p.age};
+        currentItem = {name: p.name, price: p.price, img: p.images[0], size: p.size, age: p.age, desc: p.desc};
         document.getElementById('m-title').innerText = p.name;
         document.getElementById('m-price').innerText = parseInt(p.price).toLocaleString() + " so'm";
         document.getElementById('m-img').src = p.images[0];
@@ -139,31 +145,35 @@
         document.getElementById('m-desc').innerText = p.desc || "-";
         document.getElementById('modal').style.display = "flex";
     }
+
     function closeM() { document.getElementById('modal').style.display = "none"; }
 
-    function pushCart() {
-        myCart.push(temp);
-        document.getElementById('cart-ui').innerText = myCart.length;
+    function addCart() {
+        basket.push(currentItem);
+        document.getElementById('cart-num').innerText = basket.length;
         closeM();
     }
 
-    // ADMINGA TO'LIQ BUYURTMA YUBORISH (RASM BILAN)
-    function submitCart() {
-        if(myCart.length === 0) return alert("Savat bo'sh!");
+    // 3. ADMINGA RASM SIFATIDA YUBORISH (ENG ASOSIY QISMI)
+    function sendOrder() {
+        if(basket.length === 0) return alert("Savat bo'sh!");
         
-        let text = "";
-        myCart.forEach((v, i) => {
-            // [ ](link) formati matnning eng boshida bo'lsa, Telegram rasmni ochib beradi
-            text += `[\u200B](${v.img})` + 
-                    `🛍 *BUYURTMA #${i+1}*\n` +
-                    `📦 *Nomi:* ${v.name}\n` +
-                    `💰 *Narxi:* ${parseInt(v.price).toLocaleString()} so'm\n` +
-                    `📏 *O'lcham:* ${v.size || "-"}\n` +
-                    `👶 *Yosh:* ${v.age || "-"}\n\n`;
+        let msg = "";
+        basket.forEach((v, i) => {
+            // Telegram rasm ko'rsatishi uchun link xabarning eng boshida bo'lishi kerak!
+            // [\u200B] - bu ko'rinmas belgi, linkni linkdek ko'rsatmaydi, lekin rasmni ochadi
+            msg += `[\u200B](${v.img})` + 
+                   `🛍 *YANGI BUYURTMA #${i+1}*\n` +
+                   `📦 *Mahsulot:* ${v.name}\n` +
+                   `💰 *Narxi:* ${parseInt(v.price).toLocaleString()} so'm\n` +
+                   `📏 *O'lcham:* ${v.size || "-"}\n` +
+                   `👶 *Yosh:* ${v.age || "-"}\n` +
+                   `📝 *Izoh:* ${v.desc || "-"}\n\n`;
         });
 
-        const telegramUrl = `https://t.me/Jahongir3616?text=${encodeURIComponent(text)}&parse_mode=Markdown`;
-        window.location.href = telegramUrl;
+        // Diqqat: Jahongir3616 niki to'g'ri bo'lishi shart!
+        const url = `https://t.me/Jahongir3616?text=${encodeURIComponent(msg)}&parse_mode=Markdown`;
+        window.location.href = url;
     }
 
     load('Hammasi');
