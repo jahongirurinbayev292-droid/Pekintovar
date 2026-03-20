@@ -58,16 +58,16 @@
 <header>
     <div class="logo">PEKIN TAVOR</div>
     <div class="nav-right">
-        <div class="btn-top" onclick="authAdmin()">⚙️ Sozlamalar</div>
-        <div class="btn-top" onclick="sendOrder()">🛒 Yuborish (<span id="cart-ui">0</span>)</div>
+        <div class="btn-top" onclick="kirishAdmin()">⚙️ Sozlamalar</div>
+        <div class="btn-top" onclick="yuborish()">🛒 Savat (<span id="cart-ui">0</span>)</div>
     </div>
 </header>
 
-<div class="cats" id="cats-nav">
-    <button onclick="renderAll('Hammasi', this)" class="active">Barchasi</button>
-    <button onclick="renderAll('Erkaklar', this)">Erkaklar</button>
-    <button onclick="renderAll('Ayollar', this)">Ayollar</button>
-    <button onclick="renderAll('Bolalar', this)">Bolalar</button>
+<div class="cats" id="cats-box">
+    <button onclick="yuklash('Hammasi', this)" class="active">Barchasi</button>
+    <button onclick="yuklash('Erkaklar', this)">Erkaklar</button>
+    <button onclick="yuklash('Ayollar', this)">Ayollar</button>
+    <button onclick="yuklash('Bolalar', this)">Bolalar</button>
 </div>
 
 <div class="grid" id="main_box"></div>
@@ -78,40 +78,39 @@
         <img id="m-img" style="width:100%; height:200px; object-fit:cover; border-radius:12px; margin-bottom:15px;">
         <h2 id="m-title" style="color:#f806cc; margin:0 0 10px 0;"></h2>
         <div id="m-price" style="font-size:22px; color:#00ffab; font-weight:bold; margin-bottom:15px;"></div>
-        <div style="text-align: left; font-size: 14px;">
+        <div style="text-align: left; font-size: 14px; background: rgba(0,0,0,0.2); padding: 10px; border-radius: 10px;">
             <p>📏 O'lcham: <span id="m-size"></span></p>
             <p>👶 Yosh: <span id="m-age"></span></p>
             <p>📝 Izoh: <span id="m-desc"></span></p>
         </div>
-        <button onclick="addBasket()" style="width:100%; margin-top:15px; background:#f806cc; border:none; color:white; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">SAVATGA SOLISH</button>
+        <button onclick="savatga()" style="width:100%; margin-top:15px; background:#f806cc; border:none; color:white; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">SAVATGA QO'SHISH</button>
     </div>
 </div>
 
 <script>
     const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
-    const db = firebase.database();
+    const database = firebase.database();
 
-    let basket = [];
-    let selectedItem = {};
+    let savatcha = [];
+    let tanlangan = {};
 
-    // 1. ADMIN PANELGA O'TISH - TO'LIQ YO'L BILAN
-    function authAdmin() {
-        let p = prompt("Kod kirit:");
+    // 1. ADMIN PANELGA KIRISH (GitHub Pages yo'li tuzatildi)
+    function kirishAdmin() {
+        let p = prompt("Kod:");
         if(p === "4321") {
-            // GitHub Pages'da papka ichida bo'lsa, to'liq nomini yozish xavfsizroq
-            window.location.href = "admin.html";
-        } else if(p !== null) {
-            alert("Xato!");
-        }
+            let path = window.location.pathname;
+            let target = path.substring(0, path.lastIndexOf('/')) + "/admin.html";
+            window.location.href = target;
+        } else if(p !== null) alert("Xato!");
     }
 
-    function renderAll(cat, btn) {
+    function yuklash(cat, btn) {
         const box = document.getElementById('main_box');
         document.querySelectorAll('.cats button').forEach(b => b.classList.remove('active'));
         if(btn) btn.classList.add('active');
 
-        db.ref('products').on('value', snap => {
+        database.ref('products').on('value', snap => {
             box.innerHTML = "";
             const data = snap.val();
             if(!data) return;
@@ -122,7 +121,7 @@
                     let card = document.createElement('div');
                     card.className = 'card';
                     card.onclick = () => {
-                        selectedItem = {name: p.name, price: p.price, img: p.images[0], size: p.size, age: p.age, desc: p.desc};
+                        tanlangan = {name: p.name, price: p.price, img: p.images[0], size: p.size, age: p.age, desc: p.desc};
                         document.getElementById('m-title').innerText = p.name;
                         document.getElementById('m-price').innerText = parseInt(p.price).toLocaleString() + " so'm";
                         document.getElementById('m-img').src = p.images[0];
@@ -140,35 +139,34 @@
 
     function closeM() { document.getElementById('modal').style.display = "none"; }
 
-    function addBasket() {
-        basket.push(selectedItem);
-        document.getElementById('cart-ui').innerText = basket.length;
+    function savatga() {
+        savatcha.push(tanlangan);
+        document.getElementById('cart-ui').innerText = savatcha.length;
         closeM();
     }
 
-    // 2. TELEGRAMGA MATN VA RASMNI TO'G'RI YUBORISH
-    function sendOrder() {
-        if(basket.length === 0) return alert("Savat bo'sh!");
+    // 2. TELEGRAMGA RASMLI BUYURTMA YUBORISH
+    function yuborish() {
+        if(savatcha.length === 0) return alert("Savat bo'sh!");
         
-        let message = "";
-        basket.forEach((v, i) => {
-            // Rasm havolasini matn boshiga Markdown formatida qo'yamiz.
-            // Bu usulda Telegram linkni "Preview" qiladi.
-            message += `[\u200B](${v.img})` + 
-                       `🛍 *YANGI BUYURTMA #${i+1}*\n` +
-                       `📦 *Nomi:* ${v.name}\n` +
-                       `💰 *Narxi:* ${parseInt(v.price).toLocaleString()} so'm\n` +
-                       `📏 *O'lcham:* ${v.size || "-"}\n` +
-                       `👶 *Yosh:* ${v.age || "-"}\n` +
-                       `📝 *Izoh:* ${v.desc || "-"}\n\n`;
+        let msg = "";
+        savatcha.forEach((v, i) => {
+            // Rasm chiqishi uchun link eng boshida bo'lishi shart!
+            msg += `[\u200B](${v.img})` + 
+                   `🛍 *YANGI BUYURTMA #${i+1}*\n` +
+                   `📦 *Nomi:* ${v.name}\n` +
+                   `💰 *Narxi:* ${parseInt(v.price).toLocaleString()} so'm\n` +
+                   `📏 *O'lcham:* ${v.size || "-"}\n` +
+                   `👶 *Yosh:* ${v.age || "-"}\n` +
+                   `📝 *Izoh:* ${v.desc || "-"}\n\n`;
         });
 
-        // Markdown formatida yuborish
-        const finalUrl = `https://t.me/Jahongir3616?text=${encodeURIComponent(message)}&parse_mode=Markdown`;
-        window.location.href = finalUrl;
+        // Markdown formatida yuboramiz
+        const url = `https://t.me/Jahongir3616?text=${encodeURIComponent(msg)}&parse_mode=Markdown`;
+        window.location.href = url;
     }
 
-    renderAll('Hammasi');
+    yuklash('Hammasi');
 </script>
 </body>
 </html>
