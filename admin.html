@@ -16,7 +16,7 @@
         }
 
         header {
-            background: rgba(0,0,0,0.8); padding: 12px 5%; 
+            background: rgba(0,0,0,0.85); padding: 12px 5%; 
             display: flex; justify-content: space-between; align-items: center;
             border-bottom: 2px solid #f806cc; position: sticky; top: 0; z-index: 1000;
         }
@@ -58,16 +58,16 @@
 <header>
     <div class="logo">PEKIN TAVOR</div>
     <div class="nav-right">
-        <div class="btn-top" onclick="goToAdmin()">⚙️ Sozlamalar</div>
-        <div class="btn-top" onclick="sendToAdmin()">🛒 Yuborish (<span id="cart-count">0</span>)</div>
+        <div class="btn-top" onclick="authAdmin()">⚙️ Sozlamalar</div>
+        <div class="btn-top" onclick="sendOrder()">🛒 Yuborish (<span id="cart-ui">0</span>)</div>
     </div>
 </header>
 
-<div class="cats">
-    <button onclick="render('Hammasi', this)" class="active">Barchasi</button>
-    <button onclick="render('Erkaklar', this)">Erkaklar</button>
-    <button onclick="render('Ayollar', this)">Ayollar</button>
-    <button onclick="render('Bolalar', this)">Bolalar</button>
+<div class="cats" id="cats-nav">
+    <button onclick="renderAll('Hammasi', this)" class="active">Barchasi</button>
+    <button onclick="renderAll('Erkaklar', this)">Erkaklar</button>
+    <button onclick="renderAll('Ayollar', this)">Ayollar</button>
+    <button onclick="renderAll('Bolalar', this)">Bolalar</button>
 </div>
 
 <div class="grid" id="main_box"></div>
@@ -83,35 +83,35 @@
             <p>👶 Yosh: <span id="m-age"></span></p>
             <p>📝 Izoh: <span id="m-desc"></span></p>
         </div>
-        <button onclick="addToBasket()" style="width:100%; margin-top:15px; background:#f806cc; border:none; color:white; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">SAVATGA QO'SHISH</button>
+        <button onclick="addBasket()" style="width:100%; margin-top:15px; background:#f806cc; border:none; color:white; padding:12px; border-radius:8px; font-weight:bold; cursor:pointer;">SAVATGA SOLISH</button>
     </div>
 </div>
 
 <script>
     const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const db = firebase.database();
 
     let basket = [];
-    let currentItem = {};
+    let selectedItem = {};
 
-    // 1. ADMIN PANELGA O'TISH - GitHub manzilingizni to'liq yozamiz
-    function goToAdmin() {
-        let p = prompt("Kod:");
+    // 1. ADMIN PANELGA O'TISH - TO'LIQ YO'L BILAN
+    function authAdmin() {
+        let p = prompt("Kod kirit:");
         if(p === "4321") {
-            // Fayl yo'li xato bo'lmasligi uchun nisbiy yo'ldan foydalanamiz
-            window.location.href = "./admin.html"; 
+            // GitHub Pages'da papka ichida bo'lsa, to'liq nomini yozish xavfsizroq
+            window.location.href = "admin.html";
         } else if(p !== null) {
             alert("Xato!");
         }
     }
 
-    function render(cat, btn) {
+    function renderAll(cat, btn) {
         const box = document.getElementById('main_box');
         document.querySelectorAll('.cats button').forEach(b => b.classList.remove('active'));
         if(btn) btn.classList.add('active');
 
-        database.ref('products').on('value', snap => {
+        db.ref('products').on('value', snap => {
             box.innerHTML = "";
             const data = snap.val();
             if(!data) return;
@@ -121,7 +121,16 @@
                 if(cat === 'Hammasi' || p.category === cat) {
                     let card = document.createElement('div');
                     card.className = 'card';
-                    card.onclick = () => openM(p);
+                    card.onclick = () => {
+                        selectedItem = {name: p.name, price: p.price, img: p.images[0], size: p.size, age: p.age, desc: p.desc};
+                        document.getElementById('m-title').innerText = p.name;
+                        document.getElementById('m-price').innerText = parseInt(p.price).toLocaleString() + " so'm";
+                        document.getElementById('m-img').src = p.images[0];
+                        document.getElementById('m-size').innerText = p.size || "-";
+                        document.getElementById('m-age').innerText = p.age || "-";
+                        document.getElementById('m-desc').innerText = p.desc || "-";
+                        document.getElementById('modal').style.display = "flex";
+                    };
                     card.innerHTML = `<img src="${p.images[0]}"><h4>${p.name}</h4><div class="price">${parseInt(p.price).toLocaleString()} so'm</div>`;
                     box.appendChild(card);
                 }
@@ -129,48 +138,37 @@
         });
     }
 
-    function openM(p) {
-        currentItem = {name: p.name, price: p.price, img: p.images[0], size: p.size, age: p.age, desc: p.desc};
-        document.getElementById('m-title').innerText = p.name;
-        document.getElementById('m-price').innerText = parseInt(p.price).toLocaleString() + " so'm";
-        document.getElementById('m-img').src = p.images[0];
-        document.getElementById('m-size').innerText = p.size || "-";
-        document.getElementById('m-age').innerText = p.age || "-";
-        document.getElementById('m-desc').innerText = p.desc || "-";
-        document.getElementById('modal').style.display = "flex";
-    }
-
     function closeM() { document.getElementById('modal').style.display = "none"; }
 
-    function addToBasket() {
-        basket.push(currentItem);
-        document.getElementById('cart-count').innerText = basket.length;
+    function addBasket() {
+        basket.push(selectedItem);
+        document.getElementById('cart-ui').innerText = basket.length;
         closeM();
     }
 
-    // 2. ADMINGA RASM VA MA'LUMOTLARNI YUBORISH
-    function sendToAdmin() {
+    // 2. TELEGRAMGA MATN VA RASMNI TO'G'RI YUBORISH
+    function sendOrder() {
         if(basket.length === 0) return alert("Savat bo'sh!");
         
         let message = "";
         basket.forEach((v, i) => {
-            // Telegram rasmni link ko'rsatmasdan chiqarishi uchun [⠀] (ko'rinmas belgi) ishlatamiz.
-            // Bu belgini rasm linkiga boylaymiz va u matnning ENG BOSHIDA turishi shart.
-            message += `[⠀](${v.img})` + 
+            // Rasm havolasini matn boshiga Markdown formatida qo'yamiz.
+            // Bu usulda Telegram linkni "Preview" qiladi.
+            message += `[\u200B](${v.img})` + 
                        `🛍 *YANGI BUYURTMA #${i+1}*\n` +
-                       `📦 *Mahsulot:* ${v.name}\n` +
+                       `📦 *Nomi:* ${v.name}\n` +
                        `💰 *Narxi:* ${parseInt(v.price).toLocaleString()} so'm\n` +
                        `📏 *O'lcham:* ${v.size || "-"}\n` +
                        `👶 *Yosh:* ${v.age || "-"}\n` +
                        `📝 *Izoh:* ${v.desc || "-"}\n\n`;
         });
 
-        // Markdown formatida yuboramiz. %0A - yangi qator uchun.
+        // Markdown formatida yuborish
         const finalUrl = `https://t.me/Jahongir3616?text=${encodeURIComponent(message)}&parse_mode=Markdown`;
         window.location.href = finalUrl;
     }
 
-    render('Hammasi');
+    renderAll('Hammasi');
 </script>
 </body>
 </html>
