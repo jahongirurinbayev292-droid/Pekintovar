@@ -6,65 +6,31 @@
     <title>Pekin Tavor 2026</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #2e0249; color: #fff; }
-        header {
-            background: rgba(0,0,0,0.9); padding: 10px 5%; 
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid #f806cc; position: sticky; top: 0; z-index: 1000;
-        }
-        .nav-btns { display: flex; gap: 8px; }
-        .btn-top { background: rgba(255,255,255,0.1); border: 1px solid #f806cc; color: white; padding: 7px 10px; border-radius: 8px; cursor: pointer; font-size: 11px; font-weight: bold; }
+        * { box-sizing: border-box; }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: #1a1a2e; color: #fff; }
+        header { background: #16213e; padding: 15px; text-align: center; border-bottom: 2px solid #f806cc; position: sticky; top:0; z-index:100; }
+        .cats { padding: 12px; display: flex; gap: 10px; overflow-x: auto; background: #0f3460; border-bottom: 1px solid rgba(255,255,255,0.1); }
+        .cats button { background: none; border: 1px solid #f806cc; color: #fff; padding: 8px 18px; border-radius: 20px; cursor: pointer; white-space: nowrap; transition: 0.3s; }
+        .cats button.active { background: #f806cc; box-shadow: 0 0 10px #f806cc; }
         
-        .cats { padding: 15px; text-align: center; overflow-x: auto; white-space: nowrap; }
-        .cats button { background: none; border: 1px solid #f806cc; color: white; padding: 8px 15px; margin: 5px; border-radius: 20px; cursor: pointer; font-size: 13px; }
-        .cats button.active { background: #f806cc; }
-
-        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; }
-        .card { background: rgba(255,255,255,0.05); border-radius: 12px; border: 1px solid rgba(248,6,204,0.3); text-align: center; padding-bottom: 10px; position: relative; overflow: hidden; }
-        .card img { width: 100%; height: 100px; object-fit: cover; }
-        .card h4 { font-size: 10px; margin: 5px; height: 25px; overflow: hidden; }
-        .wish-icon { position: absolute; top: 5px; right: 5px; color: rgba(255,255,255,0.5); font-size: 16px; cursor: pointer; z-index: 10; }
-        .wish-icon.active { color: #f806cc; }
-
-        #modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; justify-content: center; align-items: center; }
-        .m-box { background: #2e0249; padding: 20px; border-radius: 20px; width: 90%; max-width: 340px; border: 2px solid #f806cc; position: relative; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; padding: 10px; }
+        .card { background: #16213e; border-radius: 12px; border: 1px solid rgba(248,6,204,0.2); text-align: center; overflow: hidden; }
+        .card img { width: 100%; height: 110px; object-fit: cover; }
+        
+        #modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); z-index:200; justify-content:center; align-items:center; }
+        .m-box { background:#1a1a2e; padding:20px; border-radius:20px; width:90%; max-width:400px; border:2px solid #f806cc; position:relative; }
+        .btn-zakaz { width: 100%; background: #00ffab; color: #000; padding: 15px; border: none; font-weight: bold; border-radius: 10px; cursor: pointer; margin-top: 15px; }
     </style>
 </head>
 <body>
 
-<header>
-    <div style="font-weight:900; color:#f806cc;">PEKIN TAVOR</div>
-    <div class="nav-btns">
-        <div class="btn-top" onclick="adminGo()">⚙️ Sozlamalar</div>
-        <div class="btn-top" onclick="yuborish()">🛒 Savat (<span id="cart-num">0</span>)</div>
-    </div>
-</header>
-
-<div class="cats">
-    <button class="active" onclick="yukla('Hammasi', this)">Hammasi</button>
-    <button onclick="yukla('Erkaklar', this)">Erkaklar</button>
-    <button onclick="yukla('Ayollar', this)">Ayollar</button>
-    <button onclick="yukla('Bolalar', this)">Bolalar</button>
-    <button onclick="yukla('Istaklar', this)" style="border-color: #ff4757;">❤️ Istaklar</button>
-</div>
-
-<div class="grid" id="main_grid"></div>
+<header><b style="color:#f806cc; font-size:22px; letter-spacing:1px;">PEKIN TAVOR</b></header>
+<div class="cats" id="menu-bar"></div>
+<div class="grid" id="main-grid"></div>
 
 <div id="modal">
-    <div class="m-box">
-        <img id="m-img" style="width:100%; height:180px; object-fit:cover; border-radius:12px;">
-        <h3 id="m-title" style="margin:10px 0; color:#f806cc;"></h3>
-        <p id="m-price" style="color:#00ffab; font-weight:bold; font-size:18px;"></p>
-        <div style="text-align:left; font-size:13px; margin-bottom:15px;">
-            <p>📏 O'lcham: <span id="m-size"></span></p>
-            <p>👶 Yosh: <span id="m-age"></span></p>
-        </div>
-        <button onclick="savatga()" style="width:100%; background:#f806cc; border:none; color:white; padding:12px; border-radius:8px; font-weight:bold;">SAVATGA QO'SHISH</button>
-        <p onclick="document.getElementById('modal').style.display='none'" style="margin-top:15px; cursor:pointer; opacity:0.6;">Yopish</p>
-    </div>
+    <div class="m-box" id="modal-content"></div>
 </div>
 
 <script>
@@ -72,85 +38,62 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.database();
 
-    let myCart = [];
-    let current = {};
-    let wishes = JSON.parse(localStorage.getItem('myWishes')) || [];
+    // Dinamik menyularni yuklash
+    db.ref('categories').on('value', snap => {
+        const bar = document.getElementById('menu-bar');
+        bar.innerHTML = `<button class="active" onclick="load('Hammasi', this)">Hammasi</button>`;
+        const data = snap.val();
+        if(data) Object.keys(data).forEach(id => {
+            bar.innerHTML += `<button onclick="load('${data[id].name}', this)">${data[id].name}</button>`;
+        });
+    });
 
-    function adminGo() {
-        if(prompt("Kod:") === "4321") window.location.href = "admin.html";
-    }
-
-    function yukla(cat, btn) {
+    // Mahsulotlarni yuklash va filtrlashtirish
+    function load(cat, btn) {
         document.querySelectorAll('.cats button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-
         db.ref('products').on('value', snap => {
-            const box = document.getElementById('main_grid');
-            box.innerHTML = "";
+            const grid = document.getElementById('main_grid');
+            grid.innerHTML = "";
             const data = snap.val();
-            if(!data) return;
-
-            Object.keys(data).reverse().forEach(id => {
-                let p = data[id];
-                let isWish = wishes.includes(id);
-                
-                if(cat === 'Hammasi' || p.category === cat || (cat === 'Istaklar' && isWish)) {
-                    let card = document.createElement('div');
-                    card.className = 'card';
-                    card.innerHTML = `
-                        <i class="fas fa-heart wish-icon ${isWish ? 'active' : ''}" onclick="toggleWish(event, '${id}')"></i>
-                        <img src="${p.images[0]}" onclick="openItem('${id}')">
-                        <h4>${p.name}</h4>
-                        <div style="color:#00ffab; font-weight:bold; font-size:11px;">${parseInt(p.price).toLocaleString()} so'm</div>
-                    `;
-                    box.appendChild(card);
+            if(data) Object.keys(data).reverse().forEach(id => {
+                const p = data[id];
+                if(cat === 'Hammasi' || p.category === cat) {
+                    grid.innerHTML += `<div class="card" onclick='openModal(${JSON.stringify(p)})'>
+                        <img src="${p.images[0]}">
+                        <p style="font-size:11px; margin:5px; height:28px; overflow:hidden;">${p.name}</p>
+                        <b style="color:#00ffab; font-size:12px; display:block; margin-bottom:5px;">${parseInt(p.price).toLocaleString()} so'm</b>
+                    </div>`;
                 }
             });
         });
     }
 
-    function toggleWish(e, id) {
-        e.stopPropagation();
-        if(wishes.includes(id)) wishes = wishes.filter(i => i !== id);
-        else wishes.push(id);
-        localStorage.setItem('myWishes', JSON.stringify(wishes));
-        yukla(document.querySelector('.cats button.active').innerText, document.querySelector('.cats button.active'));
+    // Modal oynani ochish (Barcha ma'lumotlar bilan)
+    function openModal(p) {
+        const content = document.getElementById('modal-content');
+        content.innerHTML = `
+            <img src="${p.images[0]}" style="width:100%; height:250px; object-fit:cover; border-radius:15px; border:1px solid #f806cc;">
+            <h2 style="margin:15px 0 10px 0; color:#f806cc;">${p.name}</h2>
+            <p style="color:#00ffab; font-size:24px; font-weight:bold; margin:0;">${parseInt(p.price).toLocaleString()} so'm</p>
+            <hr style="opacity:0.1; margin:15px 0;">
+            <div style="font-size:15px; line-height:1.8;">
+                <p>📏 <b>O'lchami:</b> ${p.size}</p>
+                <p>👶 <b>Yoshi:</b> ${p.age}</p>
+                <p>📂 <b>Bo'lim:</b> ${p.category}</p>
+            </div>
+            <button class="btn-zakaz" onclick="zakaz('${p.name}', '${p.price}', '${p.images[0]}')">TELEGRAM ORQALI SOTIB OLISH</button>
+            <p onclick="document.getElementById('modal').style.display='none'" style="text-align:center; cursor:pointer; opacity:0.5; margin-top:15px;">Yopish</p>
+        `;
+        document.getElementById('modal').style.display = "flex";
     }
 
-    function openItem(id) {
-        db.ref('products/' + id).once('value', s => {
-            let p = s.val();
-            current = {name: p.name, price: p.price, img: p.images[0], size: p.size, age: p.age};
-            document.getElementById('m-title').innerText = p.name;
-            document.getElementById('m-price').innerText = parseInt(p.price).toLocaleString() + " so'm";
-            document.getElementById('m-img').src = p.images[0];
-            document.getElementById('m-size').innerText = p.size || "-";
-            document.getElementById('m-age').innerText = p.age || "-";
-            document.getElementById('modal').style.display = "flex";
-        });
+    function zakaz(nom, narx, rasm) {
+        const txt = `[\u200B](${rasm})🛍 *YANGI BUYURTMA*\n\n📦 *Mahsulot:* ${nom}\n💰 *Narxi:* ${parseInt(narx).toLocaleString()} so'm\n\nIltimos, men bilan bog'laning!`;
+        window.location.href = `https://t.me/Jahongir3616?text=${encodeURIComponent(txt)}&parse_mode=Markdown`;
     }
 
-    function savatga() {
-        myCart.push(current);
-        document.getElementById('cart-num').innerText = myCart.length;
-        document.getElementById('modal').style.display = "none";
-    }
-
-    function yuborish() {
-        if(myCart.length === 0) return alert("Savat bo'sh!");
-        let text = "";
-        myCart.forEach((v, i) => {
-            text += `[\u200B](${v.img})` + 
-                    `🛍 *BUYURTMA #${i+1}*\n` +
-                    `📦 *Nomi:* ${v.name}\n` +
-                    `💰 *Narxi:* ${parseInt(v.price).toLocaleString()} so'm\n` +
-                    `📏 *O'lcham:* ${v.size || "-"}\n` +
-                    `👶 *Yosh:* ${v.age || "-"}\n\n`;
-        });
-        window.location.href = `https://t.me/Jahongir3616?text=${encodeURIComponent(text)}&parse_mode=Markdown`;
-    }
-
-    yukla('Hammasi', document.querySelector('.cats button'));
+    load('Hammasi', document.querySelector('#menu-bar button'));
 </script>
 </body>
 </html>
