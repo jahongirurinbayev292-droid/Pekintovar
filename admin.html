@@ -3,61 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel | Pekin Tavor</title>
+    <title>Admin Panel</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
         :root { --accent: #ff00aa; --bg: #0f0c29; --card: #1b1b3a; }
-        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; padding: 15px; }
-        .admin-card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid var(--accent); margin-bottom: 20px; }
-        h2 { color: var(--accent); font-size: 18px; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: 1px solid var(--accent); background: #24244e; color: #fff; box-sizing: border-box; }
-        .btn { width: 100%; background: var(--accent); color: #fff; padding: 14px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; }
-        
-        /* Mahsulotlar ro'yxati */
-        .product-item { display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 10px; border-left: 4px solid var(--accent); }
-        .product-item img { width: 50px; height: 50px; border-radius: 8px; object-fit: cover; margin-right: 15px; }
-        .product-info { flex-grow: 1; }
-        .del-btn { color: #ff4444; cursor: pointer; padding: 10px; }
-        .menu-badge { background: var(--accent); padding: 4px 10px; border-radius: 15px; font-size: 11px; margin: 5px; color: #000; font-weight: bold; display: inline-flex; align-items: center; }
+        body { background: var(--bg); color: #fff; font-family: sans-serif; padding: 20px; }
+        .card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--accent); margin-bottom: 20px; }
+        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid var(--accent); background: #24244e; color: #fff; box-sizing: border-box; }
+        .btn { width: 100%; background: var(--accent); color: #fff; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .prod-item { display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 10px; }
+        .prod-item img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; margin-right: 15px; }
     </style>
 </head>
 <body>
 
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
-        <h1 style="color:var(--accent); font-size:24px;">BOSHQARUV</h1>
-        <button onclick="window.location.href='index.html'" style="background:none; border:1px solid var(--accent); color:white; padding:5px 15px; border-radius:10px;">Saytga qaytish</button>
+    <h2>Admin Panel</h2>
+
+    <div class="card">
+        <h3>1. Menyularni Boshqarish</h3>
+        <input type="text" id="c-name" placeholder="Yangi menyu nomi">
+        <button class="btn" onclick="addC()">Qo'shish</button>
+        <div id="c-list" style="margin-top:10px; display:flex; flex-wrap:wrap; gap:5px;"></div>
     </div>
 
-    <div class="admin-card">
-        <h2><i class="fa-solid fa-folder-tree"></i> 1. Menyularni Boshqarish</h2>
-        <div style="display:flex; gap:10px;">
-            <input type="text" id="cat-name" placeholder="Yangi menyu nomi">
-            <button onclick="addCat()" style="background:var(--accent); border:none; padding:0 20px; border-radius:10px; color:white;">+</button>
-        </div>
-        <div id="cat-list-admin" style="margin-top:10px;"></div>
-    </div>
-
-    <div class="admin-card">
-        <h2><i class="fa-solid fa-plus"></i> 2. Mahsulot Yuklash</h2>
-        <input type="text" id="p-title" placeholder="Nomi">
+    <div class="card">
+        <h3>2. Mahsulot Qo'shish</h3>
+        <input type="text" id="p-name" placeholder="Mahsulot nomi">
         <input type="number" id="p-price" placeholder="Narxi">
-        <input type="text" id="p-img" placeholder="Rasm URL">
-        <select id="p-cat-select">
-            <option value="">Bo'limni tanlang</option>
-        </select>
-        <button class="btn" onclick="saveP()">SAYTGA CHIQARISH</button>
+        <input type="text" id="p-img" placeholder="Rasm URL linki">
+        <select id="p-cat"></select>
+        <button class="btn" onclick="addP()">SAYTGA CHIQARISH</button>
     </div>
 
-    <div class="admin-card">
-        <h2><i class="fa-solid fa-boxes-stacked"></i> Hamma Mahsulotlar</h2>
-        <div id="admin-product-list">Yuklanmoqda...</div>
-    </div>
-
-    <div class="admin-card">
-        <h2><i class="fa-solid fa-envelope"></i> Kelgan Istaklar</h2>
-        <div id="admin-wishes"></div>
+    <div class="card">
+        <h3>3. Mahsulotlarni Menyulash (Hamma mahsulotlar)</h3>
+        <div id="p-list"></div>
     </div>
 
     <script>
@@ -65,61 +47,45 @@
         firebase.initializeApp(config);
         const db = firebase.database();
 
-        // Menyular
-        function addCat() {
-            const v = document.getElementById('cat-name').value;
-            if(v) { db.ref('categories').push(v); document.getElementById('cat-name').value = ""; }
+        function addC() {
+            const v = document.getElementById('c-name').value;
+            if(v) db.ref('categories').push(v);
         }
+
         db.ref('categories').on('value', s => {
-            const list = document.getElementById('cat-list-admin');
-            const select = document.getElementById('p-cat-select');
-            list.innerHTML = "";
-            select.innerHTML = `<option value="">Bo'limni tanlang</option>`;
-            if(s.val()) Object.keys(s.val()).forEach(key => {
-                const name = s.val()[key];
-                list.innerHTML += `<span class="menu-badge">${name} <i class="fa-solid fa-xmark" style="margin-left:5px" onclick="db.ref('categories').child('${key}').remove()"></i></span>`;
-                select.innerHTML += `<option value="${name}">${name}</option>`;
+            const list = document.getElementById('c-list');
+            const sel = document.getElementById('p-cat');
+            list.innerHTML = ""; sel.innerHTML = "<option>Bo'limni tanlang</option>";
+            if(s.val()) Object.entries(s.val()).forEach(([key, name]) => {
+                list.innerHTML += `<span style="background:var(--accent); padding:5px; border-radius:5px; font-size:12px;">${name} <i class="fa fa-times" onclick="db.ref('categories').child('${key}').remove()"></i></span>`;
+                sel.innerHTML += `<option value="${name}">${name}</option>`;
             });
         });
 
-        // Mahsulotlar
-        function saveP() {
+        function addP() {
             const d = {
-                title: document.getElementById('p-title').value,
+                name: document.getElementById('p-name').value,
                 price: document.getElementById('p-price').value,
                 img: document.getElementById('p-img').value,
-                cat: document.getElementById('p-cat-select').value
+                cat: document.getElementById('p-cat').value
             };
-            if(d.title && d.price && d.cat) {
+            if(d.name && d.img) {
                 db.ref('products').push(d);
                 alert("Qo'shildi!");
-                document.getElementById('p-title').value = "";
-                document.getElementById('p-price').value = "";
-                document.getElementById('p-img').value = "";
             }
         }
 
         db.ref('products').on('value', s => {
-            const list = document.getElementById('admin-product-list');
+            const list = document.getElementById('p-list');
             list.innerHTML = "";
-            if(s.val()) Object.keys(s.val()).forEach(key => {
-                const p = s.val()[key];
+            if(s.val()) Object.entries(s.val()).forEach(([key, p]) => {
                 list.innerHTML += `
-                    <div class="product-item">
+                    <div class="prod-item">
                         <img src="${p.img}">
-                        <div class="product-info">
-                            <b>${p.title}</b>
-                            <small>${p.price} so'm | Bo'lim: ${p.cat}</small>
-                        </div>
-                        <i class="fa-solid fa-trash del-btn" onclick="db.ref('products').child('${key}').remove()"></i>
+                        <div style="flex-grow:1"><b>${p.name}</b><br><small>${p.cat}</small></div>
+                        <i class="fa fa-trash" style="color:red" onclick="db.ref('products').child('${key}').remove()"></i>
                     </div>`;
             });
-        });
-
-        // Istaklar
-        db.ref('wishes').on('value', s => {
-            const div = document.getElementById('admin-wishes');
-            div.innerHTML = s.val() ? Object.values(s.val()).map(w => `<p style="border-bottom:1px solid #333; padding:5px;">💬 ${w.msg || w}</p>`).join('') : "Xabarlar yo'q";
         });
     </script>
 </body>
