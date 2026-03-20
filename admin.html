@@ -2,90 +2,128 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel</title>
+    <title>Admin Panel | Pekin Tavor</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        :root { --accent: #ff00aa; --bg: #0f0c29; --card: #1b1b3a; }
-        body { background: var(--bg); color: #fff; font-family: sans-serif; padding: 20px; }
-        .card { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid var(--accent); margin-bottom: 20px; }
-        input, select { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: 1px solid var(--accent); background: #24244e; color: #fff; box-sizing: border-box; }
-        .btn { width: 100%; background: var(--accent); color: #fff; padding: 14px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
-        .prod-item { display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 10px; border-radius: 10px; margin-bottom: 10px; }
-        .prod-item img { width: 50px; height: 50px; border-radius: 5px; object-fit: cover; margin-right: 15px; }
+        body { background:#0a0a1a; color:white; font-family:sans-serif; padding:20px; }
+        .box { background:#16162d; padding:20px; border-radius:15px; border-left: 5px solid #ff00aa; margin-bottom:20px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
+        h2, h3 { color:#ff00aa; margin-top:0; }
+        .stats-container { display:flex; gap:15px; margin-bottom:20px; }
+        .stat-card { background:#1f1f3d; padding:20px; border-radius:12px; flex:1; text-align:center; border:1px solid #333; }
+        .stat-card h1 { margin:0; font-size:2em; color:#ff00aa; }
+        input { width:100%; padding:12px; margin:10px 0; border-radius:8px; border:none; background:#000; color:white; box-sizing:border-box; }
+        .btn { background:#ff00aa; color:white; border:none; padding:12px 25px; border-radius:8px; cursor:pointer; font-weight:bold; width:100%; }
+        .list-item { display:flex; align-items:center; background:#1f1f3d; padding:12px; margin-top:10px; border-radius:10px; gap:15px; border:1px solid #333; }
+        .list-item img { width:60px; height:60px; border-radius:8px; object-fit:cover; border:1px solid #ff00aa; }
+        .item-text { flex-grow:1; }
+        .del-btn { background:#ff4444; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; }
+        .edit-btn { background:#44aaff; color:white; border:none; padding:8px 12px; border-radius:6px; cursor:pointer; margin-right:5px; }
     </style>
 </head>
 <body>
 
-    <h2>Admin Panel</h2>
+    <h2>🚀 Pekin Tavor Boshqaruv Markazi</h2>
 
-    <div class="card">
-        <h3>1. Menyularni Boshqarish</h3>
-        <input type="text" id="c-name" placeholder="Yangi menyu nomi">
-        <button class="btn" onclick="addC()">Qo'shish</button>
-        <div id="c-list" style="margin-top:10px; display:flex; flex-wrap:wrap; gap:5px;"></div>
+    <div class="stats-container">
+        <div class="stat-card"><h1 id="p-count">0</h1><p>Mahsulotlar</p></div>
+        <div class="stat-card"><h1 id="c-count">0</h1><p>Bo'limlar</p></div>
+        <div class="stat-card"><h1 id="w-count">0</h1><p>Istaklar</p></div>
     </div>
 
-    <div class="card">
-        <h3>2. Mahsulot Qo'shish</h3>
-        <input type="text" id="p-name" placeholder="Mahsulot nomi">
-        <input type="number" id="p-price" placeholder="Narxi">
-        <input type="text" id="p-img" placeholder="Rasm URL linki">
-        <select id="p-cat"></select>
-        <button class="btn" onclick="addP()">SAYTGA CHIQARISH</button>
+    <div class="box">
+        <h3>📂 1. Menyular (Kategoriyalar)</h3>
+        <input type="text" id="cat-in" placeholder="Yangi bo'lim nomi...">
+        <button class="btn" onclick="addCategory()">Bo'lim Qo'shish</button>
+        <div id="cat-list" style="margin-top:15px; display:flex; flex-wrap:wrap; gap:10px;"></div>
     </div>
 
-    <div class="card">
-        <h3>3. Mahsulotlarni Menyulash (Hamma mahsulotlar)</h3>
-        <div id="p-list"></div>
+    <div class="box">
+        <h3>📦 2. Mahsulotlar Ro'yxati</h3>
+        <div id="product-list"></div>
+    </div>
+
+    <div class="box">
+        <h3>💬 3. Kelgan Istaklar</h3>
+        <div id="wish-list"></div>
     </div>
 
     <script>
-        const config = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
-        firebase.initializeApp(config);
+        // Sening konfiging
+        const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        function addC() {
-            const v = document.getElementById('c-name').value;
-            if(v) db.ref('categories').push(v);
+        // Bo'lim qo'shish
+        function addCategory() {
+            const name = document.getElementById('cat-in').value;
+            if(name) { db.ref('categories').push(name); document.getElementById('cat-in').value=""; }
         }
 
+        // Bo'limlarni chiqarish
         db.ref('categories').on('value', s => {
-            const list = document.getElementById('c-list');
-            const sel = document.getElementById('p-cat');
-            list.innerHTML = ""; sel.innerHTML = "<option>Bo'limni tanlang</option>";
-            if(s.val()) Object.entries(s.val()).forEach(([key, name]) => {
-                list.innerHTML += `<span style="background:var(--accent); padding:5px; border-radius:5px; font-size:12px;">${name} <i class="fa fa-times" onclick="db.ref('categories').child('${key}').remove()"></i></span>`;
-                sel.innerHTML += `<option value="${name}">${name}</option>`;
-            });
+            const list = document.getElementById('cat-list');
+            list.innerHTML = "";
+            let count = 0;
+            if(s.val()) {
+                Object.entries(s.val()).forEach(([key, val]) => {
+                    count++;
+                    list.innerHTML += `<div style="background:#ff00aa; padding:8px 15px; border-radius:20px; font-size:13px;">${val} <b onclick="db.ref('categories').child('${key}').remove()" style="cursor:pointer; margin-left:8px;">×</b></div>`;
+                });
+            }
+            document.getElementById('c-count').innerText = count;
         });
 
-        function addP() {
-            const d = {
-                name: document.getElementById('p-name').value,
-                price: document.getElementById('p-price').value,
-                img: document.getElementById('p-img').value,
-                cat: document.getElementById('p-cat').value
-            };
-            if(d.name && d.img) {
-                db.ref('products').push(d);
-                alert("Qo'shildi!");
+        // Mahsulotlarni chiqarish va tahrirlash
+        db.ref('products').on('value', s => {
+            const list = document.getElementById('product-list');
+            list.innerHTML = "";
+            let count = 0;
+            if(s.val()) {
+                Object.entries(s.val()).forEach(([key, p]) => {
+                    count++;
+                    list.innerHTML += `
+                    <div class="list-item">
+                        <img src="${p.img}">
+                        <div class="item-text">
+                            <b>${p.name}</b><br>
+                            <small style="color:#aaa;">Narx: ${p.price} | Bo'lim: ${p.cat}</small>
+                        </div>
+                        <div>
+                            <button class="edit-btn" onclick="editProduct('${key}', '${p.name}', '${p.price}')">✏️</button>
+                            <button class="del-btn" onclick="db.ref('products').child('${key}').remove()">🗑</button>
+                        </div>
+                    </div>`;
+                });
             }
+            document.getElementById('p-count').innerText = count;
+        });
+
+        function editProduct(key, oldName, oldPrice) {
+            const n = prompt("Yangi nom:", oldName);
+            const p = prompt("Yangi narx:", oldPrice);
+            if(n && p) db.ref('products').child(key).update({ name: n, price: p });
         }
 
-        db.ref('products').on('value', s => {
-            const list = document.getElementById('p-list');
+        // Istaklarni chiqarish
+        db.ref('wishes').on('value', s => {
+            const list = document.getElementById('wish-list');
             list.innerHTML = "";
-            if(s.val()) Object.entries(s.val()).forEach(([key, p]) => {
-                list.innerHTML += `
-                    <div class="prod-item">
-                        <img src="${p.img}">
-                        <div style="flex-grow:1"><b>${p.name}</b><br><small>${p.cat}</small></div>
-                        <i class="fa fa-trash" style="color:red" onclick="db.ref('products').child('${key}').remove()"></i>
+            let count = 0;
+            if(s.val()) {
+                Object.entries(s.val()).forEach(([key, w]) => {
+                    count++;
+                    list.innerHTML += `
+                    <div class="list-item" style="display:block">
+                        <div style="display:flex; justify-content:space-between">
+                            <small style="color:#ff00aa">${w.time}</small>
+                            <b onclick="db.ref('wishes').child('${key}').remove()" style="color:red; cursor:pointer">X</b>
+                        </div>
+                        <p style="margin:5px 0">${w.msg}</p>
                     </div>`;
-            });
+                });
+            }
+            document.getElementById('w-count').innerText = count;
         });
     </script>
 </body>
