@@ -3,165 +3,173 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pekin Admin | Mahsulotlar Boshqaruvi</title>
+    <title>Pekin Admin | Professional</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     
     <style>
         :root { --accent: #f806cc; --bg: #0f0c29; --card: #1b1b3a; }
-        body { 
-            margin: 0; font-family: 'Segoe UI', sans-serif; 
-            background: var(--bg); color: #fff; padding-bottom: 50px;
-        }
-        header {
-            background: rgba(0,0,0,0.8); padding: 15px 5%;
-            display: flex; justify-content: space-between; align-items: center;
-            border-bottom: 2px solid var(--accent); position: sticky; top: 0; z-index: 1000;
-        }
+        body { margin: 0; font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff; padding-bottom: 50px; }
+        header { background: rgba(0,0,0,0.8); padding: 15px 5%; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--accent); position: sticky; top: 0; z-index: 1000; }
         .container { max-width: 900px; margin: 20px auto; padding: 0 15px; }
-        .card { 
-            background: var(--card); padding: 20px; border-radius: 15px; 
-            border: 1px solid rgba(248, 6, 204, 0.2); margin-bottom: 20px; 
-        }
-        input, select, textarea {
-            width: 100%; padding: 12px; margin: 10px 0;
-            background: #24244e; border: 1px solid var(--accent);
-            color: white; border-radius: 8px; outline: none;
-        }
-        .btn-add {
-            width: 100%; background: #00ffab; color: #000; border: none;
-            padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer;
-        }
+        .card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid rgba(248, 6, 204, 0.2); margin-bottom: 20px; }
+        h2 { color: var(--accent); font-size: 18px; margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; }
         
-        /* Mahsulotlar ro'yxati dizayni */
-        .prod-item {
-            display: flex; align-items: center; background: rgba(255,255,255,0.05);
-            padding: 15px; border-radius: 12px; margin-bottom: 10px; gap: 15px;
-            border-left: 5px solid var(--accent);
-        }
-        .prod-item img { width: 70px; height: 70px; object-fit: cover; border-radius: 8px; }
+        input, select, textarea { width: 100%; padding: 12px; margin: 8px 0; background: #24244e; border: 1px solid var(--accent); color: white; border-radius: 8px; outline: none; }
+        .btn-add { width: 100%; background: #00ffab; color: #000; border: none; padding: 15px; border-radius: 8px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        
+        .prod-item { display: flex; align-items: center; background: rgba(255,255,255,0.05); padding: 12px; border-radius: 12px; margin-bottom: 10px; gap: 15px; border-left: 5px solid var(--accent); }
+        .prod-item img { width: 60px; height: 60px; object-fit: cover; border-radius: 8px; }
         .prod-info { flex: 1; }
-        .prod-actions { display: flex; flex-direction: column; gap: 8px; }
+        .prod-actions { display: flex; flex-direction: column; gap: 5px; }
         
-        .cat-select-mini {
-            padding: 5px; font-size: 12px; background: #0f3460; color: white; border: 1px solid #00ffab;
-        }
         .btn-update { background: #00ffab; color: black; border: none; padding: 5px; border-radius: 4px; font-size: 11px; cursor: pointer; }
         .btn-del { background: #ff4757; color: white; border: none; padding: 8px; border-radius: 5px; cursor: pointer; }
         
-        h2 { color: var(--accent); font-size: 20px; margin-top: 0; }
+        .menu-manager { display: flex; gap: 10px; margin-bottom: 10px; }
+        .menu-item { background: var(--accent); padding: 5px 10px; border-radius: 5px; font-size: 12px; display: flex; align-items: center; gap: 8px; }
     </style>
 </head>
 <body>
 
 <header>
-    <div style="font-size: 20px; font-weight: 900; color: var(--accent);">PEKIN ADMIN PANEL</div>
-    <a href="index.html" style="color: white; text-decoration: none; font-weight: bold;">🏠 Saytga qaytish</a>
+    <div style="font-size: 20px; font-weight: 900; color: var(--accent);">PEKIN ADMIN</div>
+    <a href="index.html" style="color: white; text-decoration: none;">🏠 Saytga qaytish</a>
 </header>
 
 <div class="container">
     <div class="card">
-        <h2><i class="fas fa-plus"></i> Yangi mahsulot qo'shish</h2>
-        <input type="text" id="p-name" placeholder="Mahsulot nomi">
-        <input type="number" id="p-price" placeholder="Narxi">
-        <select id="p-cat">
-            <option value="Erkaklar">Erkaklar</option>
-            <option value="Ayollar">Ayollar</option>
-            <option value="Bolalar">Bolalar</option>
-        </select>
-        <input type="text" id="p-img" placeholder="Rasm linki">
-        <button class="btn-add" onclick="addProduct()">BAZAGA QO'SHISH</button>
+        <h2><i class="fas fa-list"></i> Menyularni boshqarish</h2>
+        <div class="menu-manager" id="menu-list"></div>
+        <div style="display:flex; gap:10px;">
+            <input type="text" id="new-cat-name" placeholder="Yangi bo'lim nomi (Masalan: Sport kiyimlar)">
+            <button onclick="addMenu()" style="background:var(--accent); border:none; color:white; padding:0 20px; border-radius:8px; cursor:pointer;">Qo'shish</button>
+        </div>
     </div>
 
     <div class="card">
-        <h2><i class="fas fa-boxes"></i> Barcha mahsulotlar va Menyularga ajratish</h2>
-        <div id="product-list">
-            </div>
+        <h2><i class="fas fa-plus"></i> Mahsulot qo'shish</h2>
+        <input type="text" id="p-name" placeholder="Nomi">
+        <input type="number" id="p-price" placeholder="Narxi">
+        <select id="p-cat-select"></select> <label style="font-size: 12px; color: #00ffab;">Rasm tanlang:</label>
+        <input type="file" id="p-file" accept="image/*">
+        <button class="btn-add" onclick="saveProduct()">BAZAGA QO'SHISH</button>
+    </div>
+
+    <div class="card">
+        <h2><i class="fas fa-boxes"></i> Hamma mahsulotlar</h2>
+        <div id="product-list"></div>
     </div>
 </div>
 
 <script>
     const firebaseConfig = { databaseURL: "https://pekin-tavor-default-rtdb.firebaseio.com" };
     firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
+    const db = firebase.database();
 
-    // MAHSULOT QO'SHISH
-    function addProduct() {
-        const name = document.getElementById('p-name').value;
-        const price = document.getElementById('p-price').value;
-        const cat = document.getElementById('p-cat').value;
-        const img = document.getElementById('p-img').value;
-
-        if(!name || !price || !img) return alert("Ma'lumotlar to'liq emas!");
-
-        database.ref('products').push({
-            name: name,
-            price: price,
-            category: cat,
-            images: [img],
-            time: Date.now()
-        }).then(() => {
-            alert("Qo'shildi!");
-            document.getElementById('p-name').value = "";
-            document.getElementById('p-price').value = "";
-            document.getElementById('p-img').value = "";
-        });
-    }
-
-    // MAHSULOTLARNI YUKLASH VA ADMINGA KO'RSATISH
-    function loadProducts() {
-        database.ref('products').on('value', snap => {
-            const listDiv = document.getElementById('product-list');
-            listDiv.innerHTML = "";
-            const data = snap.val();
-            if(!data) return listDiv.innerHTML = "Mahsulotlar topilmadi.";
-
-            Object.keys(data).reverse().forEach(id => {
-                const p = data[id];
-                const item = document.createElement('div');
-                item.className = 'prod-item';
-                item.innerHTML = `
-                    <img src="${p.images[0]}">
-                    <div class="prod-info">
-                        <b>${p.name}</b><br>
-                        <span style="color: #00ffab;">${parseInt(p.price).toLocaleString()} so'm</span><br>
-                        <small>Hozirgi bo'lim: <b>${p.category}</b></small>
-                    </div>
-                    <div class="prod-actions">
-                        <select class="cat-select-mini" id="sel-${id}">
-                            <option value="Erkaklar" ${p.category === 'Erkaklar' ? 'selected' : ''}>Erkaklar</option>
-                            <option value="Ayollar" ${p.category === 'Ayollar' ? 'selected' : ''}>Ayollar</option>
-                            <option value="Bolalar" ${p.category === 'Bolalar' ? 'selected' : ''}>Bolalar</option>
-                        </select>
-                        <button class="btn-update" onclick="updateCategory('${id}')">Bo'limni saqlash</button>
-                        <button class="btn-del" onclick="deleteProduct('${id}')"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
-                listDiv.appendChild(item);
+    // 1. MENYULAR (KATEGORIYALAR) BILAN ISHLASH
+    function loadMenus() {
+        db.ref('categories').on('value', snap => {
+            const list = document.getElementById('menu-list');
+            const select = document.getElementById('p-cat-select');
+            list.innerHTML = "";
+            select.innerHTML = "";
+            const data = snap.val() || { "cat1": {name: "Erkaklar"}, "cat2": {name: "Ayollar"}, "cat3": {name: "Bolalar"} };
+            
+            Object.keys(data).forEach(id => {
+                const name = data[id].name;
+                list.innerHTML += `<div class="menu-item">${name} <i class="fas fa-times" onclick="delMenu('${id}')" style="cursor:pointer"></i></div>`;
+                select.innerHTML += `<option value="${name}">${name}</option>`;
             });
         });
     }
 
-    // BO'LIMNI O'ZGARTIRISH (Menyularga ajratish)
-    function updateCategory(id) {
-        const newCat = document.getElementById('sel-' + id).value;
-        database.ref('products/' + id).update({
-            category: newCat
-        }).then(() => {
-            alert("Mahsulot '" + newCat + "' bo'limiga o'tkazildi!");
+    function addMenu() {
+        const name = document.getElementById('new-cat-name').value;
+        if(!name) return;
+        db.ref('categories').push({ name: name }).then(() => {
+            document.getElementById('new-cat-name').value = "";
         });
     }
 
-    // O'CHIRISH
-    function deleteProduct(id) {
-        if(confirm("Mahsulotni o'chirasizmi?")) {
-            database.ref('products/' + id).remove();
-        }
+    function delMenu(id) {
+        if(confirm("Bu bo'limni o'chirmoqchimisiz?")) db.ref('categories/' + id).remove();
     }
 
+    // 2. MAHSULOTNI RASM BILAN SAQLASH
+    async function saveProduct() {
+        const name = document.getElementById('p-name').value;
+        const price = document.getElementById('p-price').value;
+        const cat = document.getElementById('p-cat-select').value;
+        const file = document.getElementById('p-file').files[0];
+
+        if(!name || !price || !file) return alert("Hamma joyni to'ldiring!");
+
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = function () {
+            const base64Image = reader.result;
+            db.ref('products').push({
+                name, price, category: cat, images: [base64Image], time: Date.now()
+            }).then(() => {
+                alert("Mahsulot qo'shildi!");
+                document.getElementById('p-name').value = "";
+                document.getElementById('p-price').value = "";
+                document.getElementById('p-file').value = "";
+            });
+        };
+    }
+
+    // 3. MAHSULOTLARNI KO'RSATISH VA O'ZGARTIRISH
+    function loadProducts() {
+        db.ref('products').on('value', snap => {
+            const box = document.getElementById('product-list');
+            box.innerHTML = "";
+            const data = snap.val();
+            if(!data) return;
+
+            // Kategoriyalarni olish (update qilish uchun)
+            db.ref('categories').once('value', catSnap => {
+                const cats = catSnap.val() || {};
+                
+                Object.keys(data).reverse().forEach(id => {
+                    const p = data[id];
+                    let options = "";
+                    Object.keys(cats).forEach(cid => {
+                        let cname = cats[cid].name;
+                        options += `<option value="${cname}" ${p.category === cname ? 'selected' : ''}>${cname}</option>`;
+                    });
+
+                    box.innerHTML += `
+                        <div class="prod-item">
+                            <img src="${p.images[0]}">
+                            <div class="prod-info">
+                                <b>${p.name}</b><br>
+                                <small>${p.category}</small>
+                            </div>
+                            <div class="prod-actions">
+                                <select class="cat-select-mini" id="sel-${id}">${options}</select>
+                                <button class="btn-update" onclick="updateCat('${id}')">Saqlash</button>
+                                <button class="btn-del" onclick="delProd('${id}')"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>`;
+                });
+            });
+        });
+    }
+
+    function updateCat(id) {
+        const newCat = document.getElementById('sel-' + id).value;
+        db.ref('products/' + id).update({ category: newCat }).then(() => alert("O'zgartirildi!"));
+    }
+
+    function delProd(id) {
+        if(confirm("O'chirilsinmi?")) db.ref('products/' + id).remove();
+    }
+
+    loadMenus();
     loadProducts();
 </script>
-
 </body>
 </html>
