@@ -1,131 +1,467 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-<meta charset="UTF-8">
-<title>O'lmas Shop</title>
-<style>
-  body { background:#0a0014; color:white; font-family:'Poppins',sans-serif; }
-  h1 { text-align:center; color:#b366ff; }
-  .grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; padding:20px; }
-  .card {
-    background:#200045; border:1px solid #8000ff; border-radius:10px;
-    box-shadow:0 0 15px #8000ff; padding:10px; text-align:center; transition:0.3s;
-  }
-  .card:hover { transform:scale(1.05); }
-  .card img { width:100%; border-radius:8px; }
-  .btn { background:#8000ff; color:white; border:none; border-radius:5px; padding:5px 10px; cursor:pointer; margin:3px; }
-  .modal {
-    display:none; position:fixed; top:0; left:0; width:100%; height:100%;
-    background:rgba(10,0,20,0.94); justify-content:center; align-items:center;
-  }
-  .modal-content { background:#220050; padding:20px; border-radius:10px; text-align:center; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Neon Market - Mahsulotlar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a2a 0%, #1a0033 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* Neon uslub */
+        .neon-text {
+            text-shadow: 0 0 10px #bf40ff, 0 0 20px #bf40ff, 0 0 30px #bf40ff;
+        }
+
+        .navbar {
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0 0 20px rgba(191, 64, 255, 0.3);
+        }
+
+        .nav-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #bf40ff;
+            text-decoration: none;
+        }
+
+        .nav-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-btn {
+            background: rgba(191, 64, 255, 0.2);
+            border: 1px solid #bf40ff;
+            color: #bf40ff;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #bf40ff;
+            color: #fff;
+            box-shadow: 0 0 20px #bf40ff;
+        }
+
+        /* Grid layout */
+        .products-grid {
+            max-width: 1200px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        /* Mahsulot kartasi */
+        .product-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            overflow: hidden;
+            transition: transform 0.3s, box-shadow 0.3s;
+            cursor: pointer;
+            border: 1px solid rgba(191, 64, 255, 0.3);
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(191, 64, 255, 0.3);
+            border-color: #bf40ff;
+        }
+
+        .product-image {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+        }
+
+        .product-info {
+            padding: 1rem;
+        }
+
+        .product-name {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .product-price {
+            color: #bf40ff;
+            font-size: 1.3rem;
+            font-weight: bold;
+        }
+
+        .card-buttons {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.5rem;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-wishlist {
+            background: rgba(255, 64, 64, 0.2);
+            color: #ff4040;
+            border: 1px solid #ff4040;
+        }
+
+        .btn-cart {
+            background: rgba(191, 64, 255, 0.2);
+            color: #bf40ff;
+            border: 1px solid #bf40ff;
+        }
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a0033 0%, #0a0a2a 100%);
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            padding: 2rem;
+            position: relative;
+            border: 2px solid #bf40ff;
+        }
+
+        .close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #bf40ff;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            right: -400px;
+            top: 0;
+            width: 400px;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            z-index: 1500;
+            transition: right 0.3s;
+            padding: 2rem;
+            overflow-y: auto;
+            border-left: 2px solid #bf40ff;
+        }
+
+        .sidebar.active {
+            right: 0;
+        }
+
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .cart-item, .wishlist-item {
+            background: rgba(191, 64, 255, 0.1);
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 10px;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                right: -100%;
+            }
+        }
+    </style>
 </head>
 <body>
+    <nav class="navbar">
+        <div class="nav-content">
+            <a href="#" class="logo">NEON MARKET</a>
+            <div class="nav-buttons">
+                <button class="nav-btn" onclick="openWishlist()">⭐ Istaklar</button>
+                <button class="nav-btn" onclick="openCart()">🛒 Savatcha</button>
+                <button class="nav-btn" onclick="openSettings()">⚙️ Sozlamalar</button>
+            </div>
+        </div>
+    </nav>
 
-<h1>🛍 O'lmas Shop</h1>
-<div class="grid" id="productGrid"></div>
+    <div class="products-grid" id="productsGrid"></div>
 
-<div class="modal" id="modal">
-  <div class="modal-content" id="modalContent"></div>
-</div>
+    <!-- Modal -->
+    <div id="productModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal()">&times;</span>
+            <img id="modalImage" style="width: 100%; border-radius: 10px;">
+            <h2 id="modalName"></h2>
+            <p id="modalPrice" class="product-price"></p>
+            <p id="modalSize">Razmer: </p>
+            <p id="modalAge">Yosh: </p>
+            <div class="card-buttons" style="margin-top: 1rem;">
+                <button class="btn btn-wishlist" onclick="addToWishlistFromModal()">⭐ Istaklar</button>
+                <button class="btn btn-cart" onclick="addToCartFromModal()">🛒 Savatcha</button>
+            </div>
+        </div>
+    </div>
 
-<script type="module">
-import { initializeApp } from "[gstatic.com](https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js)";
-import { getDatabase, ref, get } from "[gstatic.com](https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js)";
-import { firebaseConfig } from "./config.js";
+    <!-- Sidebars -->
+    <div id="wishlistSidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h2>⭐ Istaklar</h2>
+            <button class="close" onclick="closeWishlist()">&times;</button>
+        </div>
+        <div id="wishlistItems"></div>
+    </div>
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+    <div id="cartSidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h2>🛒 Savatcha</h2>
+            <button class="close" onclick="closeCart()">&times;</button>
+        </div>
+        <div id="cartItems"></div>
+        <button class="btn" onclick="checkout()" style="background: #bf40ff; color: white; margin-top: 1rem;">Sotib olish</button>
+    </div>
 
-let cart = JSON.parse(localStorage.getItem("cart") || "[]");
-let wishlist = JSON.parse(localStorage.getItem("wishlist") || "[]");
+    <div id="settingsSidebar" class="sidebar">
+        <div class="sidebar-header">
+            <h2>⚙️ Sozlamalar</h2>
+            <button class="close" onclick="closeSettings()">&times;</button>
+        </div>
+        <button class="btn" onclick="goToAdmin()" style="background: #bf40ff; color: white;">Admin panel</button>
+    </div>
 
-async function loadProducts() {
-  const snapshot = await get(ref(db, "products"));
-  if (!snapshot.exists()) return;
-  const grid = document.getElementById("productGrid");
-  const data = snapshot.val();
-  for (let id in data) {
-    const p = data[id];
-    const card = document.createElement("div");
-    card.className = "card";
-    card.innerHTML = `
-      <img src="${p.image_url}">
-      <h3>${p.price} so'm</h3>
-      <p>Razmer: ${p.size || '-'} | Yosh: ${p.age || '-'}</p>
-      <button class="btn" onclick='view("${id}")'>Ko'rish</button>
-      <button class="btn" onclick='addToCart("${id}")'>+ Savatcha</button>
-      <button class="btn" onclick='addToWish("${id}")'>❤️</button>
-    `;
-    grid.appendChild(card);
-  }
-}
+    <script src="config.js"></script>
+    <script>
+        // Firebase inicializatsiya
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        
+        let products = [];
+        let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+        let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        let currentProduct = null;
 
-window.view = function(id) {
-  get(ref(db, "products/" + id)).then(snap => {
-    const p = snap.val();
-    const modal = document.getElementById("modal");
-    const content = document.getElementById("modalContent");
-    content.innerHTML = `
-      <img src="${p.image_url}" width="250"><br><br>
-      <b>${p.price} so'm</b><br>
-      Razmer: ${p.size || '-'}<br>
-      Yosh: ${p.age || '-'}<br><br>
-      <button class="btn" onclick="closeModal()">Yopish</button>
-    `;
-    modal.style.display = "flex";
-  });
-};
+        // Mahsulotlarni yuklash
+        async function loadProducts() {
+            try {
+                const snapshot = await database.ref('products').once('value');
+                const data = snapshot.val();
+                products = data ? Object.values(data) : [];
+                displayProducts(products);
+            } catch (error) {
+                console.error('Error loading products:', error);
+            }
+        }
 
-window.closeModal = () => document.getElementById("modal").style.display = "none";
+        // Mahsulotlarni ko'rsatish
+        function displayProducts(productsToShow) {
+            const grid = document.getElementById('productsGrid');
+            grid.innerHTML = productsToShow.map(product => `
+                <div class="product-card" onclick="openModal('${product.id}')">
+                    <img class="product-image" src="${product.image_url}" alt="${product.name}">
+                    <div class="product-info">
+                        <div class="product-name">${product.name}</div>
+                        <div class="product-price">${product.price.toLocaleString()} so'm</div>
+                        <div class="card-buttons">
+                            <button class="btn btn-wishlist" onclick="event.stopPropagation(); addToWishlist('${product.id}')">⭐</button>
+                            <button class="btn btn-cart" onclick="event.stopPropagation(); addToCart('${product.id}')">🛒</button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
 
-window.addToCart = function(id) {
-  cart.push(id);
-  localStorage.setItem("cart", JSON.stringify(cart));
-  alert("Savatchaga qo'shildi!");
-};
+        // Modal oynani ochish
+        async function openModal(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+            
+            currentProduct = product;
+            document.getElementById('modalImage').src = product.image_url;
+            document.getElementById('modalName').textContent = product.name;
+            document.getElementById('modalPrice').textContent = `${product.price.toLocaleString()} so'm`;
+            document.getElementById('modalSize').textContent = `Razmer: ${product.size || 'Mavjud emas'}`;
+            document.getElementById('modalAge').textContent = `Yosh: ${product.age || 'Mavjud emas'}`;
+            
+            document.getElementById('productModal').style.display = 'flex';
+        }
 
-window.addToWish = function(id) {
-  wishlist.push(id);
-  localStorage.setItem("wishlist", JSON.stringify(wishlist));
-  alert("Yoqtirganlarga qo'shildi!");
-};
+        function closeModal() {
+            document.getElementById('productModal').style.display = 'none';
+        }
 
-window.checkout = async function() {
-  let snapshot = await get(ref(db, "products"));
-  if (!snapshot.exists()) return;
-  let data = snapshot.val();
-  let orderItems = cart.map(id => data[id]);
-  let text = "🛍 *Yangi buyurtma*\n\n";
-  orderItems.forEach(p => {
-    text += `💎 Narx: ${p.price} so'm\n👕 Razmer: ${p.size}\n🧒 Yosh: ${p.age}\n🔗 ${p.image_url}\n\n`;
-  });
+        // Wishlist funksiyalari
+        function addToWishlist(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!wishlist.find(w => w.id === productId)) {
+                wishlist.push(product);
+                localStorage.setItem('wishlist', JSON.stringify(wishlist));
+                alert('Mahsulot istaklarga qo\'shildi!');
+            } else {
+                alert('Mahsulot allaqachon istaklarda!');
+            }
+        }
 
-  // Telegram mesaj yuborish
-  fetch(`[api.telegram.org](https://api.telegram.org/botYOUR_TELEGRAM_BOT_TOKEN/sendMessage)`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: "@Jahongir3616",
-      text: text,
-      parse_mode: "Markdown"
-    })
-  });
+        function addToWishlistFromModal() {
+            addToWishlist(currentProduct.id);
+        }
 
-  alert("Buyurtmangiz yuborildi!");
-  cart = [];
-  localStorage.removeItem("cart");
-};
+        function openWishlist() {
+            const wishlistItems = document.getElementById('wishlistItems');
+            wishlistItems.innerHTML = wishlist.map(item => `
+                <div class="cart-item">
+                    <img src="${item.image_url}" style="width: 100px; height: 100px; object-fit: cover;">
+                    <h4>${item.name}</h4>
+                    <p>${item.price.toLocaleString()} so'm</p>
+                    <button onclick="removeFromWishlist('${item.id}')">O'chirish</button>
+                </div>
+            `).join('');
+            document.getElementById('wishlistSidebar').classList.add('active');
+        }
 
-loadProducts();
-</script>
+        function removeFromWishlist(productId) {
+            wishlist = wishlist.filter(w => w.id !== productId);
+            localStorage.setItem('wishlist', JSON.stringify(wishlist));
+            openWishlist();
+        }
 
-<hr>
-<div style="text-align:center;">
-  <button class="btn" onclick="checkout()">🛒 Sotib olish</button>
-  <button class="btn" onclick="window.location='admin.html'">⚙️ Admin panel</button>
-</div>
+        function closeWishlist() {
+            document.getElementById('wishlistSidebar').classList.remove('active');
+        }
 
+        // Cart funksiyalari
+        function addToCart(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!cart.find(c => c.id === productId)) {
+                cart.push(product);
+                localStorage.setItem('cart', JSON.stringify(cart));
+                alert('Mahsulot savatchaga qo\'shildi!');
+            } else {
+                alert('Mahsulot allaqachon savatchada!');
+            }
+        }
+
+        function addToCartFromModal() {
+            addToCart(currentProduct.id);
+        }
+
+        function openCart() {
+            const cartItems = document.getElementById('cartItems');
+            const total = cart.reduce((sum, item) => sum + item.price, 0);
+            cartItems.innerHTML = cart.map(item => `
+                <div class="cart-item">
+                    <img src="${item.image_url}" style="width: 100px; height: 100px; object-fit: cover;">
+                    <h4>${item.name}</h4>
+                    <p>${item.price.toLocaleString()} so'm</p>
+                    <button onclick="removeFromCart('${item.id}')">O'chirish</button>
+                </div>
+            `).join('') + `<h3>Jami: ${total.toLocaleString()} so'm</h3>`;
+            document.getElementById('cartSidebar').classList.add('active');
+        }
+
+        function removeFromCart(productId) {
+            cart = cart.filter(c => c.id !== productId);
+            localStorage.setItem('cart', JSON.stringify(cart));
+            openCart();
+        }
+
+        function closeCart() {
+            document.getElementById('cartSidebar').classList.remove('active');
+        }
+
+        // Buyurtma berish
+        async function checkout() {
+            if (cart.length === 0) {
+                alert('Savatcha bo\'sh!');
+                return;
+            }
+
+            const orderData = {
+                items: cart,
+                total: cart.reduce((sum, item) => sum + item.price, 0),
+                date: new Date().toISOString()
+            };
+
+            // Telegram-ga yuborish
+            const message = `🛍 YANGI BUYURTMA!\n\n` +
+                `Mahsulotlar:\n${cart.map(item => `- ${item.name}: ${item.price.toLocaleString()} so'm`).join('\n')}\n\n` +
+                `Jami: ${orderData.total.toLocaleString()} so'm\n` +
+                `Sana: ${new Date().toLocaleString()}`;
+
+            // Bu yerda Telegram API orqali yuborish kerak
+            // Sizning Telegram botingiz orqali yuborishingiz mumkin
+            
+            alert('Buyurtma qabul qilindi! Tez orada operator aloqaga chiqadi.');
+            cart = [];
+            localStorage.setItem('cart', JSON.stringify(cart));
+            closeCart();
+        }
+
+        // Sozlamalar
+        function openSettings() {
+            document.getElementById('settingsSidebar').classList.add('active');
+        }
+
+        function closeSettings() {
+            document.getElementById('settingsSidebar').classList.remove('active');
+        }
+
+        function goToAdmin() {
+            const password = prompt('Admin panelga kirish uchun parolni kiriting:');
+            if (password === '4321') {
+                window.location.href = 'admin.html';
+            } else {
+                alert('Parol xato!');
+            }
+        }
+
+        // Sahifa yuklanganda
+        loadProducts();
+    </script>
 </body>
 </html>
