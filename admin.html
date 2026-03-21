@@ -6,6 +6,7 @@
     <title>Admin | PEKIN TOVAR</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -15,60 +16,59 @@
         
         body {
             font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #ff69b4, #ff1493);
-            color: #333;
-            padding: 20px;
+            background: linear-gradient(135deg, #ffb6c1, #ff69b4);
+            padding: 15px;
         }
         
         .container {
-            max-width: 1200px;
-            margin: 0 auto;
+            max-width: 100%;
         }
         
         .header {
             background: white;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            padding: 12px;
+            border-radius: 12px;
+            margin-bottom: 15px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
         }
         
         .header h1 {
             color: #ff1493;
+            font-size: 18px;
         }
         
         .logout-btn {
             background: #ff1493;
             color: white;
             border: none;
-            padding: 8px 20px;
+            padding: 6px 15px;
             border-radius: 20px;
             cursor: pointer;
         }
         
         .section {
             background: white;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            border-radius: 12px;
+            padding: 15px;
+            margin-bottom: 15px;
         }
         
         .section h2 {
             color: #ff1493;
-            margin-bottom: 15px;
+            font-size: 16px;
+            margin-bottom: 10px;
             border-bottom: 2px solid #ff69b4;
-            padding-bottom: 10px;
+            padding-bottom: 5px;
         }
         
-        input, select, button {
-            padding: 8px 12px;
-            margin: 5px;
+        input, button {
+            padding: 8px;
+            margin: 4px;
             border-radius: 8px;
             border: 1px solid #ff69b4;
+            width: calc(100% - 8px);
         }
         
         button {
@@ -78,19 +78,16 @@
             border: none;
         }
         
-        button:hover {
-            background: #ff69b4;
-        }
-        
         table {
             width: 100%;
             border-collapse: collapse;
+            font-size: 12px;
         }
         
         th, td {
-            padding: 10px;
+            padding: 8px;
             text-align: left;
-            border-bottom: 1px solid #ff69b4;
+            border-bottom: 1px solid #ffe4ec;
         }
         
         th {
@@ -99,110 +96,79 @@
         }
         
         .product-img {
-            width: 50px;
-            height: 50px;
+            width: 40px;
+            height: 40px;
             object-fit: cover;
             border-radius: 5px;
         }
         
         .form-group {
-            margin-bottom: 10px;
+            margin-bottom: 8px;
         }
         
         .form-group label {
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
             color: #ff1493;
+            font-size: 12px;
             font-weight: bold;
-        }
-        
-        .form-group input, .form-group select {
-            width: 100%;
-            padding: 8px;
-        }
-        
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-        }
-        
-        .category-card {
-            background: #ff69b4;
-            color: white;
-            display: inline-block;
-            padding: 5px 15px;
-            margin: 5px;
-            border-radius: 20px;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #ff1493;
         }
         
         .edit-btn {
             background: #ffa500;
+            padding: 4px 8px;
+            margin: 2px;
         }
         
         .delete-btn {
             background: #ff4040;
+            padding: 4px 8px;
+            margin: 2px;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 20px;
+            color: #ff1493;
         }
     </style>
 </head>
 <body>
 <div class="container">
     <div class="header">
-        <h1>🌸 PEKIN TOVAR - Admin Panel</h1>
+        <h1>🌸 Admin Panel</h1>
         <button class="logout-btn" onclick="logout()">🚪 Chiqish</button>
-    </div>
-    
-    <!-- Kategoriyalar -->
-    <div class="section">
-        <h2>📁 Kategoriyalar</h2>
-        <div id="categoriesList"></div>
-        <div style="margin-top: 15px;">
-            <input type="text" id="newCategory" placeholder="Yangi kategoriya nomi">
-            <button onclick="addCategory()">➕ Qo'shish</button>
-        </div>
     </div>
     
     <!-- Mahsulot qo'shish -->
     <div class="section">
         <h2>➕ Mahsulot qo'shish</h2>
-        <div class="form-row">
-            <div class="form-group">
-                <label>Rasm URL</label>
-                <input type="text" id="imgUrl" placeholder="https://...">
-            </div>
-            <div class="form-group">
-                <label>Mahsulot nomi</label>
-                <input type="text" id="name" placeholder="Masalan: Ko'ylak">
-            </div>
-            <div class="form-group">
-                <label>Narx (so'm)</label>
-                <input type="number" id="price" placeholder="380000">
-            </div>
-            <div class="form-group">
-                <label>Razmer</label>
-                <input type="text" id="size" placeholder="L, XL, 42">
-            </div>
-            <div class="form-group">
-                <label>Yosh</label>
-                <input type="text" id="age" placeholder="7-10 yosh">
-            </div>
-            <div class="form-group">
-                <label>Kategoriya</label>
-                <select id="category"></select>
-            </div>
+        <div class="form-group">
+            <label>Rasm URL</label>
+            <input type="text" id="imgUrl" placeholder="https://...">
         </div>
-        <button onclick="addProduct()" style="width: 100%; margin-top: 10px;">✅ Mahsulot qo'shish</button>
+        <div class="form-group">
+            <label>Mahsulot nomi</label>
+            <input type="text" id="name" placeholder="Ko'ylak">
+        </div>
+        <div class="form-group">
+            <label>Narx (so'm)</label>
+            <input type="number" id="price" placeholder="380000">
+        </div>
+        <div class="form-group">
+            <label>Razmer</label>
+            <input type="text" id="size" placeholder="L">
+        </div>
+        <div class="form-group">
+            <label>Yosh</label>
+            <input type="text" id="age" placeholder="7">
+        </div>
+        <button onclick="addProduct()">✅ Qo'shish</button>
     </div>
     
     <!-- Mahsulotlar -->
     <div class="section">
-        <h2>📦 Barcha mahsulotlar</h2>
+        <h2>📦 Mahsulotlar</h2>
         <div id="productsTable">
             <div class="loading">⏳ Yuklanmoqda...</div>
         </div>
@@ -211,49 +177,9 @@
 
 <script src="config.js"></script>
 <script>
-// Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
-
-let categories = ["Kiyimlar", "Oyoq kiyimlar", "Aksessuarlar"];
-
-// Kategoriyalarni yuklash
-function loadCategories() {
-    db.ref('categories').on('value', (snap) => {
-        const data = snap.val();
-        if (data && Array.isArray(data)) categories = data;
-        else if (data && typeof data === 'object') categories = Object.values(data);
-        
-        // Kategoriyalarni ko'rsatish
-        const container = document.getElementById('categoriesList');
-        container.innerHTML = categories.map(c => `
-            <div class="category-card">
-                ${c}
-                <button onclick="deleteCategory('${c}')" style="background:#ff4040; margin-left:10px;">✖</button>
-            </div>
-        `).join('');
-        
-        // Select ni yangilash
-        const select = document.getElementById('category');
-        select.innerHTML = categories.map(c => `<option value="${c}">${c}</option>`).join('');
-    });
-}
-
-// Kategoriya qo'shish
-function addCategory() {
-    const newCat = document.getElementById('newCategory').value;
-    if (!newCat) return;
-    categories.push(newCat);
-    db.ref('categories').set(categories);
-    document.getElementById('newCategory').value = '';
-}
-
-// Kategoriya o'chirish
-function deleteCategory(cat) {
-    if (!confirm(`"${cat}" o'chirilsinmi?`)) return;
-    categories = categories.filter(c => c !== cat);
-    db.ref('categories').set(categories);
-}
+const storage = firebase.storage();
 
 // Mahsulotlarni yuklash
 function loadProducts() {
@@ -268,20 +194,15 @@ function loadProducts() {
         
         document.getElementById('productsTable').innerHTML = `
             <table>
-                <thead>
-                    <tr>
-                        <th>Rasm</th><th>Nomi</th><th>Narx</th><th>Razmer</th><th>Yosh</th><th>Kategoriya</th><th>Amallar</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>Rasm</th><th>Nomi</th><th>Narx</th><th>Razmer</th><th>Yosh</th><th>Amallar</th></tr></thead>
                 <tbody>
                     ${products.map(p => `
                         <tr>
-                            <td><img class="product-img" src="${p.image_url}" onerror="this.src='https://placehold.co/50/ff69b4/white?text=?'"></td>
-                            <td><strong>${p.name}</strong></td>
+                            <td><img class="product-img" src="${p.image_url}" onerror="this.src='https://placehold.co/40/ff69b4/white?text=?'"></td>
+                            <td><b>${p.name}</b></td>
                             <td style="color:#ff1493;">${(p.price || 0).toLocaleString()} so'm</td>
                             <td>${p.size || '-'}</td>
                             <td>${p.age || '-'}</td>
-                            <td>${p.category || '-'}</td>
                             <td>
                                 <button class="edit-btn" onclick="editProduct('${p.id}')">✏️</button>
                                 <button class="delete-btn" onclick="deleteProduct('${p.id}')">🗑️</button>
@@ -301,7 +222,6 @@ function addProduct() {
     const price = parseInt(document.getElementById('price').value);
     const size = document.getElementById('size').value;
     const age = document.getElementById('age').value;
-    const category = document.getElementById('category').value;
     const image_url = document.getElementById('imgUrl').value || 'https://placehold.co/400x400/ff69b4/white?text=NO+IMAGE';
     
     if (!name || !price) {
@@ -315,7 +235,6 @@ function addProduct() {
         price: price,
         size: size,
         age: age,
-        category: category,
         image_url: image_url,
         created_at: new Date().toISOString()
     };
@@ -323,7 +242,6 @@ function addProduct() {
     db.ref(`products/${id}`).set(product);
     alert('✅ Mahsulot qo\'shildi!');
     
-    // Formani tozalash
     document.getElementById('name').value = '';
     document.getElementById('price').value = '';
     document.getElementById('size').value = '';
@@ -361,8 +279,6 @@ function logout() {
     window.location.href = '/';
 }
 
-// Boshlash
-loadCategories();
 loadProducts();
 </script>
 </body>
