@@ -2,283 +2,843 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <title>Admin Panel</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>PEKIN TOVAR | Admin Panel</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: Arial;
-            background: linear-gradient(135deg, #0a0a2a, #1a0033);
-            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #0a0a2a 0%, #1a0033 100%);
+            color: #fff;
+            min-height: 100vh;
             padding: 20px;
         }
+
+        /* Container */
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
+
+        /* Header */
         .header {
-            background: rgba(191,64,255,0.2);
+            background: rgba(191, 64, 255, 0.2);
+            backdrop-filter: blur(10px);
             padding: 20px;
-            border-radius: 10px;
+            border-radius: 15px;
             margin-bottom: 20px;
             display: flex;
             justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            border: 1px solid rgba(191, 64, 255, 0.3);
         }
-        .section {
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            padding: 20px;
+
+        .header h1 {
+            color: #bf40ff;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logout-btn {
+            background: rgba(255, 64, 64, 0.2);
+            border: 1px solid #ff4040;
+            color: #ff4040;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .logout-btn:hover {
+            background: #ff4040;
+            color: white;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
             margin-bottom: 20px;
         }
-        h2 {
+
+        .stat-card {
+            background: rgba(191, 64, 255, 0.15);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 1px solid rgba(191, 64, 255, 0.3);
+        }
+
+        .stat-number {
+            font-size: 32px;
+            font-weight: bold;
             color: #bf40ff;
-            margin-bottom: 15px;
         }
-        input, select, button {
-            padding: 8px;
-            margin: 5px;
-            border-radius: 5px;
-            border: none;
+
+        .stat-label {
+            font-size: 14px;
+            color: rgba(255,255,255,0.7);
+            margin-top: 5px;
         }
-        button {
-            background: #bf40ff;
+
+        /* Sections */
+        .section {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(191, 64, 255, 0.3);
+        }
+
+        .section-title {
+            color: #bf40ff;
+            font-size: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(191, 64, 255, 0.3);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* Categories */
+        .categories-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .category-card {
+            background: rgba(191, 64, 255, 0.2);
+            border: 1px solid #bf40ff;
+            border-radius: 30px;
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+
+        .category-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(191, 64, 255, 0.3);
+        }
+
+        .category-name {
+            font-size: 14px;
+        }
+
+        .delete-cat {
+            background: #ff4040;
             color: white;
+            border: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
             cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
         }
+
+        .delete-cat:hover {
+            transform: scale(1.1);
+        }
+
+        .add-category-form {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+        }
+
+        .add-category-form input {
+            flex: 1;
+            padding: 10px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #bf40ff;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .add-category-form input:focus {
+            outline: none;
+            border-color: #ff40bf;
+        }
+
+        /* Product Form */
+        .product-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            color: #bf40ff;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .form-group input, .form-group select {
+            padding: 10px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #bf40ff;
+            border-radius: 8px;
+            color: white;
+            font-size: 14px;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #ff40bf;
+        }
+
+        .form-group input[type="file"] {
+            padding: 8px;
+            background: rgba(191, 64, 255, 0.1);
+        }
+
+        .submit-btn {
+            background: linear-gradient(45deg, #bf40ff, #ff40bf);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.3s;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(191, 64, 255, 0.5);
+        }
+
+        /* Products Table */
+        .products-table {
+            overflow-x: auto;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
         }
+
         th, td {
-            padding: 10px;
+            padding: 12px;
             text-align: left;
-            border-bottom: 1px solid rgba(255,255,255,0.2);
+            border-bottom: 1px solid rgba(191, 64, 255, 0.2);
         }
+
+        th {
+            color: #bf40ff;
+            font-weight: bold;
+            background: rgba(191, 64, 255, 0.1);
+        }
+
         .product-img {
             width: 50px;
             height: 50px;
             object-fit: cover;
+            border-radius: 8px;
         }
-        .category-card {
-            background: rgba(191,64,255,0.2);
-            display: inline-block;
-            padding: 5px 15px;
-            margin: 5px;
-            border-radius: 20px;
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
         }
-        .form-group {
-            margin-bottom: 10px;
+
+        .edit-btn, .delete-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
         }
-        .form-group label {
-            display: block;
-            margin-bottom: 5px;
+
+        .edit-btn {
+            background: #ffa500;
+            color: white;
+        }
+
+        .delete-btn {
+            background: #ff4040;
+            color: white;
+        }
+
+        .edit-btn:hover, .delete-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
             color: #bf40ff;
         }
-        .form-group input, .form-group select {
+
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
             width: 100%;
-            background: rgba(0,0,0,0.5);
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a0033, #0a0a2a);
+            border-radius: 15px;
+            max-width: 500px;
+            width: 90%;
+            padding: 20px;
+            border: 2px solid #bf40ff;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #bf40ff;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: #bf40ff;
             color: white;
-            border: 1px solid #bf40ff;
+            padding: 12px 20px;
+            border-radius: 8px;
+            z-index: 2000;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        @media (max-width: 768px) {
+            body { padding: 10px; }
+            .product-form { grid-template-columns: 1fr; }
+            th, td { padding: 8px; font-size: 12px; }
+            .action-buttons { flex-direction: column; }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="header">
-        <h1>👑 Admin Panel</h1>
-        <button onclick="logout()">Chiqish</button>
-    </div>
-    
-    <!-- Kategoriyalar -->
-    <div class="section">
-        <h2>📁 Kategoriyalar</h2>
-        <div id="categoriesList"></div>
-        <div style="margin-top: 15px;">
-            <input type="text" id="newCategory" placeholder="Yangi kategoriya">
-            <button onclick="addCategory()">➕ Qo'shish</button>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>
+                <span>👑</span>
+                PEKIN TOVAR | Admin Panel
+            </h1>
+            <button class="logout-btn" onclick="logout()">🚪 Chiqish</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalProducts">0</div>
+                <div class="stat-label">📦 Mahsulotlar</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalCategories">0</div>
+                <div class="stat-label">📁 Kategoriyalar</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalPrice">0</div>
+                <div class="stat-label">💰 Umumiy qiymat</div>
+            </div>
+        </div>
+
+        <!-- Kategoriyalar Bo'limi -->
+        <div class="section">
+            <div class="section-title">
+                <span>📁 Kategoriyalar</span>
+            </div>
+            <div id="categoriesList" class="categories-grid"></div>
+            <div class="add-category-form">
+                <input type="text" id="newCategoryName" placeholder="Yangi kategoriya nomi...">
+                <button onclick="addCategory()" style="background:#bf40ff; padding:10px 20px; border:none; border-radius:8px; cursor:pointer;">➕ Qo'shish</button>
+            </div>
+        </div>
+
+        <!-- Mahsulot Qo'shish Bo'limi -->
+        <div class="section">
+            <div class="section-title">
+                <span>➕ Mahsulot qo'shish</span>
+            </div>
+            <div class="product-form">
+                <div class="form-group">
+                    <label>🖼 Rasm</label>
+                    <input type="file" id="productImage" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>📦 Mahsulot nomi</label>
+                    <input type="text" id="productName" placeholder="Masalan: Sport ko'ylak">
+                </div>
+                <div class="form-group">
+                    <label>💰 Narx (so'm)</label>
+                    <input type="number" id="productPrice" placeholder="Masalan: 380000">
+                </div>
+                <div class="form-group">
+                    <label>📏 Razmer</label>
+                    <input type="text" id="productSize" placeholder="Masalan: L, XL, 42">
+                </div>
+                <div class="form-group">
+                    <label>🎂 Yosh</label>
+                    <input type="text" id="productAge" placeholder="Masalan: 7-10 yosh">
+                </div>
+                <div class="form-group">
+                    <label>📁 Kategoriya</label>
+                    <select id="productCategory"></select>
+                </div>
+            </div>
+            <button class="submit-btn" onclick="addProduct()">✅ Mahsulot qo'shish</button>
+        </div>
+
+        <!-- Mahsulotlar Ro'yxati -->
+        <div class="section">
+            <div class="section-title">
+                <span>📦 Barcha mahsulotlar</span>
+                <button onclick="refreshProducts()" style="background:#bf40ff; padding:5px 15px; border:none; border-radius:5px; cursor:pointer;">🔄 Yangilash</button>
+            </div>
+            <div class="products-table" id="productsTable">
+                <div class="loading">⏳ Yuklanmoqda...</div>
+            </div>
         </div>
     </div>
-    
-    <!-- Mahsulot qo'shish -->
-    <div class="section">
-        <h2>➕ Mahsulot qo'shish</h2>
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px,1fr)); gap: 15px;">
-            <div class="form-group">
-                <label>Rasm</label>
-                <input type="file" id="productImage">
+
+    <!-- Edit Modal -->
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 style="color:#bf40ff;">✏️ Mahsulotni tahrirlash</h2>
+                <span class="modal-close" onclick="closeEditModal()">&times;</span>
             </div>
             <div class="form-group">
                 <label>Nomi</label>
-                <input type="text" id="productName" placeholder="Mahsulot nomi">
+                <input type="text" id="editName" style="width:100%">
             </div>
             <div class="form-group">
                 <label>Narx (so'm)</label>
-                <input type="number" id="productPrice" placeholder="380000">
+                <input type="number" id="editPrice" style="width:100%">
             </div>
             <div class="form-group">
                 <label>Razmer</label>
-                <input type="text" id="productSize" placeholder="L, XL, 42">
+                <input type="text" id="editSize" style="width:100%">
             </div>
             <div class="form-group">
                 <label>Yosh</label>
-                <input type="text" id="productAge" placeholder="7-10 yosh">
+                <input type="text" id="editAge" style="width:100%">
             </div>
             <div class="form-group">
                 <label>Kategoriya</label>
-                <select id="productCategory"></select>
+                <select id="editCategory" style="width:100%"></select>
             </div>
+            <button onclick="saveEdit()" style="background:#bf40ff; width:100%; padding:10px; margin-top:15px; border:none; border-radius:8px; cursor:pointer;">💾 Saqlash</button>
         </div>
-        <button onclick="addProduct()" style="margin-top: 15px; width: 100%;">✅ Mahsulot qo'shish</button>
     </div>
-    
-    <!-- Mahsulotlar -->
-    <div class="section">
-        <h2>📦 Mahsulotlar</h2>
-        <div id="productsTable"></div>
-    </div>
-</div>
 
-<script src="config.js"></script>
-<script>
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
-const storage = firebase.storage();
+    <script>
+        // ============ GLOBAL ============
+        let currentEditId = null;
+        let categories = [];
 
-let categories = [];
-let products = [];
+        // ============ YORDAMCHI FUNKSIYALAR ============
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            toast.style.background = type === 'success' ? '#bf40ff' : '#ff4040';
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
 
-// Kategoriyalar
-async function loadCategories() {
-    const snapshot = await database.ref('categories').once('value');
-    const data = snapshot.val();
-    categories = data && Array.isArray(data) ? data : ["Kiyimlar", "Oyoq kiyimlar", "Aksessuarlar"];
-    
-    document.getElementById('categoriesList').innerHTML = categories.map(cat => `
-        <div class="category-card">
-            ${cat}
-            <button onclick="deleteCategory('${cat}')" style="background:#ff4040; margin-left:10px;">✖</button>
-        </div>
-    `).join('');
-    
-    const select = document.getElementById('productCategory');
-    select.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-}
+        // ============ STATISTIKA ============
+        async function loadStats() {
+            try {
+                const response = await fetch('/api/stats');
+                const stats = await response.json();
+                document.getElementById('totalProducts').innerText = stats.total_products;
+                document.getElementById('totalCategories').innerText = stats.total_categories;
+                document.getElementById('totalPrice').innerText = (stats.total_price || 0).toLocaleString() + ' so\'m';
+            } catch (error) {
+                console.error('Stats error:', error);
+            }
+        }
 
-async function addCategory() {
-    const newCat = document.getElementById('newCategory').value;
-    if (!newCat) return;
-    categories.push(newCat);
-    await database.ref('categories').set(categories);
-    loadCategories();
-    document.getElementById('newCategory').value = '';
-}
+        // ============ KATEGORIYALAR ============
+        async function loadCategories() {
+            try {
+                const response = await fetch('/api/categories');
+                categories = await response.json();
+                displayCategories();
+                
+                // Kategoriya selectlarini yangilash
+                const selects = ['productCategory', 'editCategory'];
+                selects.forEach(id => {
+                    const select = document.getElementById(id);
+                    if (select) {
+                        select.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+                    }
+                });
+            } catch (error) {
+                console.error('Categories error:', error);
+            }
+        }
 
-async function deleteCategory(cat) {
-    categories = categories.filter(c => c !== cat);
-    await database.ref('categories').set(categories);
-    loadCategories();
-}
+        function displayCategories() {
+            const container = document.getElementById('categoriesList');
+            container.innerHTML = categories.map(cat => `
+                <div class="category-card">
+                    <span class="category-name">${cat}</span>
+                    <button class="delete-cat" onclick="deleteCategory('${cat}')">✖</button>
+                </div>
+            `).join('');
+        }
 
-// Mahsulotlar
-async function loadProducts() {
-    const snapshot = await database.ref('products').once('value');
-    const data = snapshot.val();
-    products = data ? Object.values(data) : [];
-    
-    if (products.length === 0) {
-        document.getElementById('productsTable').innerHTML = '<div>Mahsulot yo\'q</div>';
-        return;
-    }
-    
-    document.getElementById('productsTable').innerHTML = `
-        <table>
-            <tr><th>Rasm</th><th>Nomi</th><th>Narx</th><th>Razmer</th><th>Yosh</th><th>Kategoriya</th><th>Amallar</th></tr>
-            ${products.map(p => `
-                <tr>
-                    <td><img class="product-img" src="${p.image_url}" onerror="this.src='https://placehold.co/50'"></td>
-                    <td>${p.name}</td>
-                    <td>${(p.price || 0).toLocaleString()} so'm</td>
-                    <td>${p.size || '-'}</td>
-                    <td>${p.age || '-'}</td>
-                    <td>${p.category || 'Kiyimlar'}</td>
-                    <td>
-                        <button onclick="editProduct('${p.id}')">✏️</button>
-                        <button onclick="deleteProduct('${p.id}')" style="background:#ff4040;">🗑️</button>
-                    </td>
-                </tr>
-            `).join('')}
-        </table>
-    `;
-}
+        async function addCategory() {
+            const name = document.getElementById('newCategoryName').value.trim();
+            if (!name) {
+                showToast('Kategoriya nomini kiriting!', 'error');
+                return;
+            }
+            
+            try {
+                const response = await fetch('/api/categories', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name: name })
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast('✅ Kategoriya qo\'shildi!');
+                    document.getElementById('newCategoryName').value = '';
+                    await loadCategories();
+                    await loadStats();
+                } else {
+                    showToast(result.error || 'Xatolik', 'error');
+                }
+            } catch (error) {
+                showToast('Xatolik yuz berdi', 'error');
+            }
+        }
 
-async function addProduct() {
-    const file = document.getElementById('productImage').files[0];
-    if (!file) {
-        alert('Rasm tanlang!');
-        return;
-    }
-    
-    const id = `prod_${Date.now()}`;
-    
-    // Rasm yuklash
-    const storageRef = storage.ref(`products/${id}.jpg`);
-    await storageRef.put(file);
-    const url = await storageRef.getDownloadURL();
-    
-    // Ma'lumot
-    const product = {
-        id: id,
-        name: document.getElementById('productName').value,
-        price: parseInt(document.getElementById('productPrice').value),
-        size: document.getElementById('productSize').value,
-        age: document.getElementById('productAge').value,
-        category: document.getElementById('productCategory').value,
-        image_url: url,
-        created_at: new Date().toISOString()
-    };
-    
-    await database.ref(`products/${id}`).set(product);
-    alert('✅ Qo\'shildi!');
-    loadProducts();
-    
-    // Formani tozalash
-    document.getElementById('productName').value = '';
-    document.getElementById('productPrice').value = '';
-    document.getElementById('productSize').value = '';
-    document.getElementById('productAge').value = '';
-    document.getElementById('productImage').value = '';
-}
+        async function deleteCategory(category) {
+            if (!confirm(`"${category}" kategoriyasini o'chirmoqchimisiz?`)) return;
+            
+            try {
+                const response = await fetch(`/api/categories/${encodeURIComponent(category)}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast('✅ Kategoriya o\'chirildi!');
+                    await loadCategories();
+                    await loadProducts();
+                    await loadStats();
+                } else {
+                    showToast(result.error || 'Xatolik', 'error');
+                }
+            } catch (error) {
+                showToast('Xatolik yuz berdi', 'error');
+            }
+        }
 
-async function editProduct(id) {
-    const product = products.find(p => p.id === id);
-    if (!product) return;
-    
-    const newName = prompt('Yangi nom:', product.name);
-    const newPrice = prompt('Yangi narx:', product.price);
-    if (newName && newPrice) {
-        await database.ref(`products/${id}`).update({
-            name: newName,
-            price: parseInt(newPrice)
-        });
-        loadProducts();
-    }
-}
+        // ============ MAHSULOTLAR ============
+        async function loadProducts() {
+            try {
+                const response = await fetch('/api/products');
+                const products = await response.json();
+                displayProducts(products);
+            } catch (error) {
+                console.error('Products error:', error);
+                document.getElementById('productsTable').innerHTML = '<div class="loading">❌ Yuklashda xatolik</div>';
+            }
+        }
 
-async function deleteProduct(id) {
-    if (confirm('O\'chirilsinmi?')) {
-        await database.ref(`products/${id}`).remove();
-        loadProducts();
-    }
-}
+        function displayProducts(products) {
+            const container = document.getElementById('productsTable');
+            if (products.length === 0) {
+                container.innerHTML = '<div class="loading">📭 Hozircha mahsulot yo\'q</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Rasm</th>
+                            <th>Nomi</th>
+                            <th>Narx</th>
+                            <th>Razmer</th>
+                            <th>Yosh</th>
+                            <th>Kategoriya</th>
+                            <th>Amallar</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${products.map(product => `
+                            <tr>
+                                <td><img class="product-img" src="${product.image_url}" onerror="this.src='https://placehold.co/50x50/bf40ff/white?text=?'"></td>
+                                <td><strong>${escapeHtml(product.name)}</strong></td>
+                                <td style="color:#bf40ff;">${(product.price || 0).toLocaleString()} so'm</td>
+                                <td>${product.size || '-'}</td>
+                                <td>${product.age || '-'}</td>
+                                <td>${product.category || '-'}</td>
+                                <td class="action-buttons">
+                                    <button class="edit-btn" onclick="openEditModal('${product.id}')">✏️</button>
+                                    <button class="delete-btn" onclick="deleteProduct('${product.id}')">🗑️</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
 
-function logout() {
-    window.location.href = 'index.html';
-}
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
 
-loadCategories();
-loadProducts();
-</script>
+        async function addProduct() {
+            const imageFile = document.getElementById('productImage').files[0];
+            const name = document.getElementById('productName').value;
+            const price = parseInt(document.getElementById('productPrice').value);
+            const size = document.getElementById('productSize').value;
+            const age = document.getElementById('productAge').value;
+            const category = document.getElementById('productCategory').value;
+            
+            if (!name || !price) {
+                showToast('Nomi va narxni kiriting!', 'error');
+                return;
+            }
+            
+            const productId = `prod_${Date.now()}`;
+            let imageUrl = '/products/default.jpg';
+            
+            // Rasm yuklash
+            if (imageFile) {
+                try {
+                    const formData = new FormData();
+                    formData.append('image', imageFile);
+                    formData.append('product_id', productId);
+                    
+                    const uploadResponse = await fetch('/api/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+                    
+                    const uploadResult = await uploadResponse.json();
+                    if (uploadResult.success) {
+                        imageUrl = uploadResult.url;
+                    }
+                } catch (error) {
+                    console.error('Upload error:', error);
+                }
+            }
+            
+            // Mahsulot ma'lumotlari
+            const product = {
+                id: productId,
+                name: name,
+                price: price,
+                size: size,
+                age: age,
+                category: category,
+                image_url: imageUrl
+            };
+            
+            try {
+                const response = await fetch('/api/products', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(product)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast('✅ Mahsulot qo\'shildi!');
+                    
+                    // Formani tozalash
+                    document.getElementById('productImage').value = '';
+                    document.getElementById('productName').value = '';
+                    document.getElementById('productPrice').value = '';
+                    document.getElementById('productSize').value = '';
+                    document.getElementById('productAge').value = '';
+                    
+                    await loadProducts();
+                    await loadStats();
+                } else {
+                    showToast(result.error || 'Xatolik', 'error');
+                }
+            } catch (error) {
+                showToast('Xatolik yuz berdi', 'error');
+            }
+        }
+
+        async function deleteProduct(productId) {
+            if (!confirm('Mahsulotni o\'chirmoqchimisiz?')) return;
+            
+            try {
+                const response = await fetch(`/api/products/${productId}`, {
+                    method: 'DELETE'
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast('✅ Mahsulot o\'chirildi!');
+                    await loadProducts();
+                    await loadStats();
+                } else {
+                    showToast(result.error || 'Xatolik', 'error');
+                }
+            } catch (error) {
+                showToast('Xatolik yuz berdi', 'error');
+            }
+        }
+
+        // ============ TAHRIRLASH ============
+        async function openEditModal(productId) {
+            try {
+                const response = await fetch(`/api/products/${productId}`);
+                const product = await response.json();
+                
+                if (product.error) {
+                    showToast('Mahsulot topilmadi', 'error');
+                    return;
+                }
+                
+                currentEditId = productId;
+                document.getElementById('editName').value = product.name;
+                document.getElementById('editPrice').value = product.price;
+                document.getElementById('editSize').value = product.size || '';
+                document.getElementById('editAge').value = product.age || '';
+                
+                // Kategoriya selectini yangilash
+                const editCategory = document.getElementById('editCategory');
+                editCategory.innerHTML = categories.map(cat => 
+                    `<option value="${cat}" ${product.category === cat ? 'selected' : ''}>${cat}</option>`
+                ).join('');
+                
+                document.getElementById('editModal').style.display = 'flex';
+            } catch (error) {
+                showToast('Xatolik yuz berdi', 'error');
+            }
+        }
+
+        async function saveEdit() {
+            const updatedProduct = {
+                id: currentEditId,
+                name: document.getElementById('editName').value,
+                price: parseInt(document.getElementById('editPrice').value),
+                size: document.getElementById('editSize').value,
+                age: document.getElementById('editAge').value,
+                category: document.getElementById('editCategory').value
+            };
+            
+            try {
+                const response = await fetch(`/api/products/${currentEditId}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(updatedProduct)
+                });
+                
+                const result = await response.json();
+                if (result.success) {
+                    showToast('✅ Mahsulot yangilandi!');
+                    closeEditModal();
+                    await loadProducts();
+                    await loadStats();
+                } else {
+                    showToast(result.error || 'Xatolik', 'error');
+                }
+            } catch (error) {
+                showToast('Xatolik yuz berdi', 'error');
+            }
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+            currentEditId = null;
+        }
+
+        function refreshProducts() {
+            loadProducts();
+            showToast('🔄 Yangilandi');
+        }
+
+        function logout() {
+            window.location.href = '/';
+        }
+
+        // ============ AUTO REFRESH ============
+        setInterval(() => {
+            loadProducts();
+            loadStats();
+        }, 30000);
+
+        // ============ INIT ============
+        async function init() {
+            await loadCategories();
+            await loadProducts();
+            await loadStats();
+        }
+        
+        init();
+        
+        // Modalni tashqariga bosganda yopish
+        window.onclick = function(event) {
+            if (event.target === document.getElementById('editModal')) {
+                closeEditModal();
+            }
+        }
+    </script>
 </body>
 </html>
