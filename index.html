@@ -2,221 +2,100 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>NEON MARKET | Mahsulotlar</title>
-    
-    <!-- Firebase SDK -->
+    <title>NEON MARKET</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
-    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Segoe UI', 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #0a0a2a 0%, #1a0033 100%);
-            color: #fff;
-            min-height: 100vh;
-            overflow-x: hidden;
+            font-family: Arial;
+            background: linear-gradient(135deg, #0a0a2a, #1a0033);
+            color: white;
         }
-
-        /* Neon Animatsiya */
-        @keyframes neonPulse {
-            0%, 100% { text-shadow: 0 0 5px #bf40ff, 0 0 10px #bf40ff; }
-            50% { text-shadow: 0 0 15px #bf40ff, 0 0 25px #bf40ff; }
-        }
-
-        @keyframes glowBorder {
-            0%, 100% { border-color: rgba(191, 64, 255, 0.3); }
-            50% { border-color: #bf40ff; }
-        }
-
-        /* Navbar */
         .navbar {
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(15px);
-            padding: 1rem 2rem;
+            background: rgba(0,0,0,0.8);
+            padding: 15px;
             position: sticky;
             top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid #bf40ff;
-            animation: glowBorder 2s infinite;
-        }
-
-        .nav-content {
-            max-width: 1400px;
-            margin: 0 auto;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
         }
-
         .logo {
-            font-size: 1.8rem;
-            font-weight: bold;
-            background: linear-gradient(45deg, #bf40ff, #ff40bf);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            animation: neonPulse 2s infinite;
+            font-size: 24px;
+            color: #bf40ff;
         }
-
-        .nav-buttons {
-            display: flex;
-            gap: 1rem;
-            flex-wrap: wrap;
-        }
-
         .nav-btn {
-            background: rgba(191, 64, 255, 0.2);
+            background: rgba(191,64,255,0.2);
             border: 1px solid #bf40ff;
             color: #bf40ff;
-            padding: 0.6rem 1.2rem;
-            border-radius: 25px;
+            padding: 8px 15px;
+            margin-left: 10px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            font-weight: bold;
-            backdrop-filter: blur(5px);
+            border-radius: 5px;
         }
-
         .nav-btn:hover {
             background: #bf40ff;
-            color: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(191, 64, 255, 0.5);
+            color: white;
         }
-
-        /* Category Filter */
-        .categories-filter {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-            display: flex;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .cat-btn {
-            background: rgba(191, 64, 255, 0.15);
-            border: 1px solid #bf40ff;
-            color: #bf40ff;
-            padding: 0.5rem 1.2rem;
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-size: 0.9rem;
-        }
-
-        .cat-btn.active, .cat-btn:hover {
-            background: #bf40ff;
-            color: #fff;
-            transform: scale(1.05);
-        }
-
-        /* Products Grid - 3 qator */
         .products-grid {
-            max-width: 1400px;
-            margin: 2rem auto;
-            padding: 0 1rem;
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
-
-        /* Product Card */
         .product-card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
             overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             cursor: pointer;
-            border: 1px solid rgba(191, 64, 255, 0.3);
-            position: relative;
+            transition: 0.3s;
         }
-
         .product-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(191, 64, 255, 0.4);
-            border-color: #bf40ff;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(191,64,255,0.3);
         }
-
         .product-image {
             width: 100%;
-            height: 280px;
+            height: 250px;
             object-fit: cover;
-            transition: transform 0.5s;
         }
-
-        .product-card:hover .product-image {
-            transform: scale(1.05);
-        }
-
         .product-info {
-            padding: 1.2rem;
+            padding: 15px;
         }
-
         .product-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-            color: #fff;
+            font-size: 18px;
+            margin-bottom: 5px;
         }
-
         .product-price {
             color: #bf40ff;
-            font-size: 1.4rem;
+            font-size: 20px;
             font-weight: bold;
         }
-
-        .product-meta {
-            display: flex;
-            gap: 1rem;
-            margin: 0.5rem 0;
-            font-size: 0.85rem;
-            color: rgba(255,255,255,0.7);
-        }
-
         .card-buttons {
             display: flex;
-            gap: 0.8rem;
-            margin-top: 1rem;
+            gap: 10px;
+            margin-top: 10px;
         }
-
         .btn {
             flex: 1;
-            padding: 0.6rem;
+            padding: 8px;
             border: none;
-            border-radius: 10px;
+            border-radius: 5px;
             cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
         }
-
         .btn-wishlist {
-            background: rgba(255, 64, 64, 0.2);
+            background: rgba(255,64,64,0.2);
             color: #ff4040;
             border: 1px solid #ff4040;
         }
-
         .btn-cart {
-            background: rgba(191, 64, 255, 0.2);
+            background: rgba(191,64,255,0.2);
             color: #bf40ff;
             border: 1px solid #bf40ff;
         }
-
-        .btn-wishlist:hover, .btn-cart:hover {
-            transform: scale(1.05);
-        }
-
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -224,217 +103,94 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 2000;
+            background: rgba(0,0,0,0.9);
             justify-content: center;
             align-items: center;
-            backdrop-filter: blur(10px);
         }
-
         .modal-content {
-            background: linear-gradient(135deg, #1a0033 0%, #0a0a2a 100%);
-            border-radius: 25px;
+            background: #1a0033;
+            border-radius: 15px;
             max-width: 500px;
             width: 90%;
-            padding: 2rem;
-            position: relative;
+            padding: 20px;
             border: 2px solid #bf40ff;
-            animation: neonPulse 1s infinite;
         }
-
-        .modal-image {
-            width: 100%;
-            border-radius: 15px;
-            margin-bottom: 1rem;
-        }
-
         .close {
-            position: absolute;
-            top: 1rem;
-            right: 1.5rem;
-            font-size: 2rem;
+            float: right;
+            font-size: 24px;
             cursor: pointer;
             color: #bf40ff;
-            transition: transform 0.3s;
         }
-
-        .close:hover {
-            transform: rotate(90deg);
-        }
-
-        /* Sidebar */
         .sidebar {
             position: fixed;
-            right: -450px;
+            right: -400px;
             top: 0;
-            width: 450px;
+            width: 400px;
             height: 100%;
-            background: rgba(10, 10, 42, 0.98);
-            backdrop-filter: blur(20px);
-            z-index: 1500;
-            transition: right 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-            padding: 2rem;
+            background: rgba(0,0,0,0.95);
+            transition: 0.3s;
+            padding: 20px;
             overflow-y: auto;
-            border-left: 3px solid #bf40ff;
-            box-shadow: -5px 0 30px rgba(191, 64, 255, 0.3);
+            border-left: 2px solid #bf40ff;
         }
-
         .sidebar.active {
             right: 0;
         }
-
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 2rem;
-            padding-bottom: 1rem;
-            border-bottom: 2px solid #bf40ff;
-        }
-
-        .sidebar-header h2 {
-            color: #bf40ff;
-        }
-
-        .sidebar-close {
-            font-size: 2rem;
-            cursor: pointer;
-            color: #bf40ff;
-        }
-
         .cart-item, .wishlist-item {
-            background: rgba(191, 64, 255, 0.1);
-            margin-bottom: 1rem;
-            padding: 1rem;
-            border-radius: 15px;
-            display: flex;
-            gap: 1rem;
-            align-items: center;
-            transition: all 0.3s;
-        }
-
-        .cart-item:hover, .wishlist-item:hover {
-            background: rgba(191, 64, 255, 0.2);
-            transform: translateX(-5px);
-        }
-
-        .item-image {
-            width: 70px;
-            height: 70px;
-            object-fit: cover;
+            background: rgba(191,64,255,0.1);
+            margin-bottom: 10px;
+            padding: 10px;
             border-radius: 10px;
+            display: flex;
+            gap: 10px;
         }
-
-        .item-info {
-            flex: 1;
-        }
-
-        .item-name {
-            font-weight: bold;
-        }
-
-        .item-price {
-            color: #bf40ff;
-        }
-
-        .delete-btn {
-            background: #ff4040;
-            color: white;
-            border: none;
-            padding: 5px 10px;
+        .item-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
             border-radius: 5px;
-            cursor: pointer;
         }
-
         .checkout-btn {
             background: #bf40ff;
             color: white;
             width: 100%;
-            padding: 1rem;
+            padding: 10px;
             border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: bold;
+            border-radius: 5px;
+            margin-top: 10px;
             cursor: pointer;
-            margin-top: 1rem;
-            transition: all 0.3s;
         }
-
-        .checkout-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 5px 20px rgba(191, 64, 255, 0.5);
-        }
-
         .loading {
             text-align: center;
-            padding: 3rem;
+            padding: 50px;
             color: #bf40ff;
-            font-size: 1.2rem;
-        }
-
-        .admin-panel-btn {
-            background: linear-gradient(45deg, #bf40ff, #ff40bf);
-            color: white;
-            width: 100%;
-            padding: 1rem;
-            border: none;
-            border-radius: 10px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 1rem;
-        }
-
-        @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                right: -100%;
-            }
-            .products-grid {
-                grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-                gap: 1rem;
-            }
-            .nav-buttons {
-                justify-content: center;
-            }
         }
     </style>
 </head>
 <body>
 
-<!-- Navbar -->
-<nav class="navbar">
-    <div class="nav-content">
-        <div class="logo">✨ NEON MARKET ✨</div>
-        <div class="nav-buttons">
-            <button class="nav-btn" onclick="openWishlist()">⭐ Istaklar (<span id="wishlistCount">0</span>)</button>
-            <button class="nav-btn" onclick="openCart()">🛒 Savatcha (<span id="cartCount">0</span>)</button>
-            <button class="nav-btn" onclick="openSettings()">⚙️ Sozlamalar</button>
-        </div>
+<div class="navbar">
+    <div class="logo">✨ NEON MARKET ✨</div>
+    <div>
+        <button class="nav-btn" onclick="openWishlist()">⭐ Istaklar (<span id="wishlistCount">0</span>)</button>
+        <button class="nav-btn" onclick="openCart()">🛒 Savatcha (<span id="cartCount">0</span>)</button>
+        <button class="nav-btn" onclick="openSettings()">⚙️ Sozlamalar</button>
     </div>
-</nav>
-
-<!-- Category Filter -->
-<div class="categories-filter" id="categoriesFilter">
-    <button class="cat-btn active" onclick="filterByCategory('all')">🔥 Hamma</button>
 </div>
 
-<!-- Products Grid -->
 <div class="products-grid" id="productsGrid">
     <div class="loading">⏳ Mahsulotlar yuklanmoqda...</div>
 </div>
 
-<!-- Product Modal -->
-<div id="productModal" class="modal">
+<!-- Modal -->
+<div id="modal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
-        <img id="modalImage" class="modal-image">
+        <img id="modalImage" style="width:100%; border-radius:10px;">
         <h2 id="modalName"></h2>
-        <div class="product-price" id="modalPrice"></div>
-        <div class="product-meta">
-            <span>📏 Razmer: <span id="modalSize"></span></span>
-            <span>🎂 Yosh: <span id="modalAge"></span></span>
-        </div>
+        <div id="modalPrice" class="product-price"></div>
+        <p>📏 Razmer: <span id="modalSize"></span></p>
+        <p>🎂 Yosh: <span id="modalAge"></span></p>
         <div class="card-buttons">
             <button class="btn btn-wishlist" onclick="addToWishlistFromModal()">⭐ Istaklarga</button>
             <button class="btn btn-cart" onclick="addToCartFromModal()">🛒 Savatchaga</button>
@@ -442,375 +198,253 @@
     </div>
 </div>
 
-<!-- Wishlist Sidebar -->
+<!-- Wishlist -->
 <div id="wishlistSidebar" class="sidebar">
-    <div class="sidebar-header">
-        <h2>⭐ Istaklar Ro'yxati</h2>
-        <span class="sidebar-close" onclick="closeWishlist()">&times;</span>
+    <div style="display:flex; justify-content:space-between;">
+        <h2>⭐ Istaklar</h2>
+        <span class="close" onclick="closeWishlist()">&times;</span>
     </div>
     <div id="wishlistItems"></div>
 </div>
 
-<!-- Cart Sidebar -->
+<!-- Cart -->
 <div id="cartSidebar" class="sidebar">
-    <div class="sidebar-header">
+    <div style="display:flex; justify-content:space-between;">
         <h2>🛒 Savatcha</h2>
-        <span class="sidebar-close" onclick="closeCart()">&times;</span>
+        <span class="close" onclick="closeCart()">&times;</span>
     </div>
     <div id="cartItems"></div>
     <div id="cartTotal"></div>
     <button class="checkout-btn" onclick="checkout()">✅ Buyurtma berish</button>
 </div>
 
-<!-- Settings Sidebar -->
+<!-- Settings -->
 <div id="settingsSidebar" class="sidebar">
-    <div class="sidebar-header">
+    <div style="display:flex; justify-content:space-between;">
         <h2>⚙️ Sozlamalar</h2>
-        <span class="sidebar-close" onclick="closeSettings()">&times;</span>
+        <span class="close" onclick="closeSettings()">&times;</span>
     </div>
-    <div style="margin-bottom: 2rem;">
-        <h3>📁 Kategoriyalar</h3>
-        <div id="settingsCategories"></div>
-    </div>
-    <button class="admin-panel-btn" onclick="goToAdmin()">👑 Admin Panelga o'tish</button>
+    <button class="checkout-btn" onclick="goToAdmin()">👑 Admin panelga o'tish</button>
 </div>
 
 <script src="config.js"></script>
 <script>
-    // Firebase boshlash
-    firebase.initializeApp(firebaseConfig);
-    const database = firebase.database();
-    
-    // Global variables
-    let allProducts = [];
-    let currentCategory = 'all';
-    let categories = [...DEFAULT_CATEGORIES];
-    let wishlist = JSON.parse(localStorage.getItem('wishlist_market') || '[]');
-    let cart = JSON.parse(localStorage.getItem('cart_market') || '[]');
-    let currentProduct = null;
-    
-    // Update counts
-    function updateCounts() {
-        document.getElementById('wishlistCount').innerText = wishlist.length;
-        document.getElementById('cartCount').innerText = cart.length;
+// FIREBASE
+firebase.initializeApp(firebaseConfig);
+const database = firebase.database();
+
+// GLOBAL
+let allProducts = [];
+let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+let currentProduct = null;
+
+// YUKLASH
+async function loadProducts() {
+    const snapshot = await database.ref('products').once('value');
+    const data = snapshot.val();
+    allProducts = data ? Object.values(data) : [];
+    displayProducts();
+    updateCounts();
+}
+
+function displayProducts() {
+    const grid = document.getElementById('productsGrid');
+    if (allProducts.length === 0) {
+        grid.innerHTML = '<div class="loading">📭 Mahsulot yo\'q</div>';
+        return;
     }
     
-    // Load categories
-    async function loadCategories() {
-        try {
-            const snapshot = await database.ref('categories').once('value');
-            const data = snapshot.val();
-            if (data && Array.isArray(data)) {
-                categories = data;
-            }
-            displayCategories();
-        } catch (error) {
-            console.error('Categories error:', error);
-        }
-    }
+    grid.innerHTML = allProducts.map(p => `
+        <div class="product-card" onclick="openModal('${p.id}')">
+            <img class="product-image" src="${p.image_url}" onerror="this.src='https://placehold.co/300x300/bf40ff/white?text=No+Image'">
+            <div class="product-info">
+                <div class="product-name">${p.name}</div>
+                <div class="product-price">${(p.price || 0).toLocaleString()} so'm</div>
+                <div class="card-buttons">
+                    <button class="btn btn-wishlist" onclick="event.stopPropagation(); addToWishlist('${p.id}')">⭐</button>
+                    <button class="btn btn-cart" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒</button>
+                </div>
+            </div>
+        </div>
+    `).join('');
+}
+
+function updateCounts() {
+    document.getElementById('wishlistCount').innerText = wishlist.length;
+    document.getElementById('cartCount').innerText = cart.length;
+}
+
+// MODAL
+function openModal(id) {
+    currentProduct = allProducts.find(p => p.id === id);
+    if (!currentProduct) return;
     
-    function displayCategories() {
-        const container = document.getElementById('categoriesFilter');
-        const settingsContainer = document.getElementById('settingsCategories');
-        
-        const categoryButtons = `
-            <button class="cat-btn ${currentCategory === 'all' ? 'active' : ''}" onclick="filterByCategory('all')">🔥 Hamma</button>
-            ${categories.map(cat => `
-                <button class="cat-btn ${currentCategory === cat ? 'active' : ''}" onclick="filterByCategory('${cat}')">${cat}</button>
-            `).join('')}
-        `;
-        container.innerHTML = categoryButtons;
-        
-        settingsContainer.innerHTML = categories.map(cat => `
-            <div style="display: flex; justify-content: space-between; padding: 0.5rem; background: rgba(191,64,255,0.1); margin-bottom: 0.5rem; border-radius: 5px;">
-                <span>${cat}</span>
+    document.getElementById('modalImage').src = currentProduct.image_url;
+    document.getElementById('modalName').innerText = currentProduct.name;
+    document.getElementById('modalPrice').innerHTML = `${(currentProduct.price || 0).toLocaleString()} so'm`;
+    document.getElementById('modalSize').innerText = currentProduct.size || 'Yo\'q';
+    document.getElementById('modalAge').innerText = currentProduct.age || 'Yo\'q';
+    
+    document.getElementById('modal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+}
+
+// WISHLIST
+function addToWishlist(id) {
+    const product = allProducts.find(p => p.id === id);
+    if (!wishlist.find(w => w.id === id)) {
+        wishlist.push(product);
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+        updateCounts();
+        alert('⭐ Istaklarga qo\'shildi!');
+    }
+}
+
+function addToWishlistFromModal() {
+    addToWishlist(currentProduct.id);
+}
+
+function openWishlist() {
+    const container = document.getElementById('wishlistItems');
+    if (wishlist.length === 0) {
+        container.innerHTML = '<div class="loading">⭐ Bo\'sh</div>';
+    } else {
+        container.innerHTML = wishlist.map(item => `
+            <div class="cart-item">
+                <img class="item-image" src="${item.image_url}">
+                <div>
+                    <div><b>${item.name}</b></div>
+                    <div>${(item.price || 0).toLocaleString()} so'm</div>
+                </div>
+                <button onclick="removeFromWishlist('${item.id}')" style="background:#ff4040; color:white; border:none; padding:5px;">❌</button>
             </div>
         `).join('');
     }
-    
-    // Load products
-    async function loadProducts() {
-        try {
-            const snapshot = await database.ref('products').once('value');
-            const data = snapshot.val();
-            allProducts = data ? Object.values(data) : [];
-            displayProducts();
-        } catch (error) {
-            console.error('Products error:', error);
-            document.getElementById('productsGrid').innerHTML = '<div class="loading">❌ Yuklashda xatolik</div>';
-        }
-    }
-    
-    function displayProducts() {
-        const grid = document.getElementById('productsGrid');
-        let filtered = currentCategory === 'all' 
-            ? allProducts 
-            : allProducts.filter(p => p.category === currentCategory);
-        
-        if (filtered.length === 0) {
-            grid.innerHTML = '<div class="loading">📭 Bu bo\'limda mahsulot yo\'q</div>';
-            return;
-        }
-        
-        grid.innerHTML = filtered.map(product => `
-            <div class="product-card" onclick="openModal('${product.id}')">
-                <img class="product-image" src="${product.image_url}" onerror="this.src='https://via.placeholder.com/300?text=No+Image'">
-                <div class="product-info">
-                    <div class="product-name">${product.name}</div>
-                    <div class="product-price">${(product.price || 0).toLocaleString()} so'm</div>
-                    <div class="product-meta">
-                        <span>📏 ${product.size || '?'}</span>
-                        <span>🎂 ${product.age || '?'}</span>
-                    </div>
-                    <div class="card-buttons">
-                        <button class="btn btn-wishlist" onclick="event.stopPropagation(); addToWishlist('${product.id}')">⭐</button>
-                        <button class="btn btn-cart" onclick="event.stopPropagation(); addToCart('${product.id}')">🛒</button>
-                    </div>
-                </div>
-            </div>
-        `).join('');
+    document.getElementById('wishlistSidebar').classList.add('active');
+}
+
+function removeFromWishlist(id) {
+    wishlist = wishlist.filter(w => w.id !== id);
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    updateCounts();
+    openWishlist();
+}
+
+function closeWishlist() {
+    document.getElementById('wishlistSidebar').classList.remove('active');
+}
+
+// CART
+function addToCart(id) {
+    const product = allProducts.find(p => p.id === id);
+    if (!cart.find(c => c.id === id)) {
+        cart.push(product);
+        localStorage.setItem('cart', JSON.stringify(cart));
         updateCounts();
+        alert('🛒 Savatchaga qo\'shildi!');
     }
+}
+
+function addToCartFromModal() {
+    addToCart(currentProduct.id);
+}
+
+function openCart() {
+    const container = document.getElementById('cartItems');
+    const totalDiv = document.getElementById('cartTotal');
     
-    function filterByCategory(category) {
-        currentCategory = category;
-        displayProducts();
-        displayCategories();
-    }
-    
-    // Modal functions
-    function openModal(productId) {
-        const product = allProducts.find(p => p.id === productId);
-        if (!product) return;
-        currentProduct = product;
-        
-        document.getElementById('modalImage').src = product.image_url;
-        document.getElementById('modalName').innerText = product.name;
-        document.getElementById('modalPrice').innerHTML = `${(product.price || 0).toLocaleString()} so'm`;
-        document.getElementById('modalSize').innerText = product.size || 'Mavjud emas';
-        document.getElementById('modalAge').innerText = product.age || 'Mavjud emas';
-        
-        document.getElementById('productModal').style.display = 'flex';
-    }
-    
-    function closeModal() {
-        document.getElementById('productModal').style.display = 'none';
-    }
-    
-    // Wishlist functions
-    function addToWishlist(productId) {
-        const product = allProducts.find(p => p.id === productId);
-        if (!wishlist.find(w => w.id === productId)) {
-            wishlist.push(product);
-            localStorage.setItem('wishlist_market', JSON.stringify(wishlist));
-            updateCounts();
-            alert('⭐ Istaklarga qo\'shildi!');
-        } else {
-            alert('⚠️ Bu mahsulot allaqachon istaklarda!');
-        }
-    }
-    
-    function addToWishlistFromModal() {
-        addToWishlist(currentProduct.id);
-    }
-    
-    function openWishlist() {
-        const container = document.getElementById('wishlistItems');
-        if (wishlist.length === 0) {
-            container.innerHTML = '<div class="loading">⭐ Istaklar ro\'yxati bo\'sh</div>';
-        } else {
-            container.innerHTML = wishlist.map(item => `
-                <div class="cart-item">
-                    <img class="item-image" src="${item.image_url}" onerror="this.src='https://via.placeholder.com/70'">
-                    <div class="item-info">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-price">${(item.price || 0).toLocaleString()} so'm</div>
-                        <div>📏 ${item.size || '-'} | 🎂 ${item.age || '-'}</div>
-                    </div>
-                    <button class="delete-btn" onclick="removeFromWishlist('${item.id}')">❌</button>
-                </div>
-            `).join('');
-        }
-        document.getElementById('wishlistSidebar').classList.add('active');
-    }
-    
-    function removeFromWishlist(productId) {
-        wishlist = wishlist.filter(w => w.id !== productId);
-        localStorage.setItem('wishlist_market', JSON.stringify(wishlist));
-        updateCounts();
-        openWishlist();
-    }
-    
-    function closeWishlist() {
-        document.getElementById('wishlistSidebar').classList.remove('active');
-    }
-    
-    // Cart functions
-    function addToCart(productId) {
-        const product = allProducts.find(p => p.id === productId);
-        if (!cart.find(c => c.id === productId)) {
-            cart.push(product);
-            localStorage.setItem('cart_market', JSON.stringify(cart));
-            updateCounts();
-            alert('🛒 Savatchaga qo\'shildi!');
-        } else {
-            alert('⚠️ Bu mahsulot allaqachon savatchada!');
-        }
-    }
-    
-    function addToCartFromModal() {
-        addToCart(currentProduct.id);
-    }
-    
-    function openCart() {
-        const container = document.getElementById('cartItems');
-        const totalDiv = document.getElementById('cartTotal');
-        
-        if (cart.length === 0) {
-            container.innerHTML = '<div class="loading">🛒 Savatcha bo\'sh</div>';
-            totalDiv.innerHTML = '';
-        } else {
-            const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
-            container.innerHTML = cart.map(item => `
-                <div class="cart-item">
-                    <img class="item-image" src="${item.image_url}" onerror="this.src='https://via.placeholder.com/70'">
-                    <div class="item-info">
-                        <div class="item-name">${item.name}</div>
-                        <div class="item-price">${(item.price || 0).toLocaleString()} so'm</div>
-                        <div>📏 ${item.size || '-'} | 🎂 ${item.age || '-'}</div>
-                    </div>
-                    <button class="delete-btn" onclick="removeFromCart('${item.id}')">❌</button>
-                </div>
-            `).join('');
-            totalDiv.innerHTML = `<h3 style="color:#bf40ff; margin-top:1rem;">💰 Jami: ${total.toLocaleString()} so'm</h3>`;
-        }
-        document.getElementById('cartSidebar').classList.add('active');
-    }
-    
-    function removeFromCart(productId) {
-        cart = cart.filter(c => c.id !== productId);
-        localStorage.setItem('cart_market', JSON.stringify(cart));
-        updateCounts();
-        openCart();
-    }
-    
-    function closeCart() {
-        document.getElementById('cartSidebar').classList.remove('active');
-    }
-    
-    // Checkout - Telegramga yuborish
-    async function checkout() {
-        if (cart.length === 0) {
-            alert('❌ Savatcha bo\'sh!');
-            return;
-        }
-        
+    if (cart.length === 0) {
+        container.innerHTML = '<div class="loading">🛒 Bo\'sh</div>';
+        totalDiv.innerHTML = '';
+    } else {
         const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
-        
-        // Buyurtma ma'lumotlarini tayyorlash
-        let orderMessage = `🛍 *YANGI BUYURTMA!*\n\n`;
-        orderMessage += `👤 *Mijoz:* ${navigator.userAgent.split('(')[0]}\n`;
-        orderMessage += `📅 *Sana:* ${new Date().toLocaleString()}\n`;
-        orderMessage += `📦 *Mahsulotlar:*\n`;
-        
-        cart.forEach((item, index) => {
-            orderMessage += `${index+1}. *${item.name}*\n`;
-            orderMessage += `   💰 Narx: ${(item.price || 0).toLocaleString()} so'm\n`;
-            orderMessage += `   📏 Razmer: ${item.size || '-'}\n`;
-            orderMessage += `   🎂 Yosh: ${item.age || '-'}\n`;
-            orderMessage += `   🖼 Rasm: ${item.image_url}\n\n`;
-        });
-        
-        orderMessage += `💰 *JAMI: ${total.toLocaleString()} so'm*\n`;
-        orderMessage += `🔗 *Sayt:* ${window.location.href}`;
-        
-        // Telegram bot orqali yuborish
-        const BOT_TOKEN = "YOUR_BOT_TOKEN_HERE";
-        const CHAT_ID = "Jahongir3616"; // Admin chat ID
-        
-        try {
-            // Telegram API orqali yuborish
-            const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    chat_id: CHAT_ID,
-                    text: orderMessage,
-                    parse_mode: 'Markdown'
-                })
-            });
-            
-            const result = await response.json();
-            if (result.ok) {
-                alert(`✅ Buyurtma qabul qilindi!\n\nJami: ${total.toLocaleString()} so'm\n\nOperator tez orada aloqaga chiqadi.`);
-                cart = [];
-                localStorage.setItem('cart_market', JSON.stringify(cart));
-                updateCounts();
-                closeCart();
-            } else {
-                alert('❌ Xatolik yuz berdi. Iltimos qayta urinib ko\'ring.');
-            }
-        } catch (error) {
-            console.error('Telegram error:', error);
-            alert(`✅ Buyurtma qabul qilindi!\n\nJami: ${total.toLocaleString()} so'm\n\nOperator tez orada aloqaga chiqadi.`);
-            cart = [];
-            localStorage.setItem('cart_market', JSON.stringify(cart));
-            updateCounts();
-            closeCart();
-        }
+        container.innerHTML = cart.map(item => `
+            <div class="cart-item">
+                <img class="item-image" src="${item.image_url}">
+                <div>
+                    <div><b>${item.name}</b></div>
+                    <div>${(item.price || 0).toLocaleString()} so'm</div>
+                    <div>📏 ${item.size || '-'} | 🎂 ${item.age || '-'}</div>
+                </div>
+                <button onclick="removeFromCart('${item.id}')" style="background:#ff4040; color:white; border:none; padding:5px;">❌</button>
+            </div>
+        `).join('');
+        totalDiv.innerHTML = `<h3>💰 Jami: ${total.toLocaleString()} so'm</h3>`;
+    }
+    document.getElementById('cartSidebar').classList.add('active');
+}
+
+function removeFromCart(id) {
+    cart = cart.filter(c => c.id !== id);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCounts();
+    openCart();
+}
+
+function closeCart() {
+    document.getElementById('cartSidebar').classList.remove('active');
+}
+
+// BUYURTMA
+function checkout() {
+    if (cart.length === 0) {
+        alert('Savatcha bo\'sh!');
+        return;
     }
     
-    // Settings functions
-    function openSettings() {
-        document.getElementById('settingsSidebar').classList.add('active');
-    }
+    const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+    let message = `🛍 YANGI BUYURTMA!\n\n`;
+    message += `📦 Mahsulotlar:\n`;
+    cart.forEach((item, i) => {
+        message += `${i+1}. ${item.name} - ${(item.price || 0).toLocaleString()} so'm\n`;
+        message += `   📏 ${item.size || '-'} | 🎂 ${item.age || '-'}\n`;
+        message += `   🖼 ${window.location.origin}${item.image_url}\n\n`;
+    });
+    message += `💰 JAMI: ${total.toLocaleString()} so'm\n`;
+    message += `📅 Sana: ${new Date().toLocaleString()}`;
     
-    function closeSettings() {
-        document.getElementById('settingsSidebar').classList.remove('active');
-    }
+    // Telegram'ga yuborish
+    const BOT_TOKEN = "YOUR_BOT_TOKEN_HERE";
+    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            chat_id: "@Jahongir3616",
+            text: message
+        })
+    });
     
-    function goToAdmin() {
-        const password = prompt('🔐 Admin panelga kirish uchun parolni kiriting:');
-        if (password === ADMIN_PASSWORD) {
-            window.location.href = 'admin.html';
-        } else {
-            alert('❌ Parol xato!');
-        }
+    alert(`✅ Buyurtma qabul qilindi!\nJami: ${total.toLocaleString()} so'm`);
+    cart = [];
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCounts();
+    closeCart();
+}
+
+// SOZLAMALAR
+function openSettings() {
+    document.getElementById('settingsSidebar').classList.add('active');
+}
+
+function closeSettings() {
+    document.getElementById('settingsSidebar').classList.remove('active');
+}
+
+function goToAdmin() {
+    const pass = prompt('Parolni kiriting:');
+    if (pass === '4321') {
+        window.location.href = 'admin.html';
+    } else {
+        alert('Parol xato!');
     }
-    
-    // Real-time listener
-    function listenForChanges() {
-        database.ref('products').on('value', (snapshot) => {
-            const data = snapshot.val();
-            allProducts = data ? Object.values(data) : [];
-            displayProducts();
-        });
-        
-        database.ref('categories').on('value', (snapshot) => {
-            const data = snapshot.val();
-            if (data && Array.isArray(data)) {
-                categories = data;
-                displayCategories();
-            }
-        });
-    }
-    
-    // Initialize
-    async function init() {
-        await loadCategories();
-        await loadProducts();
-        listenForChanges();
-        updateCounts();
-    }
-    
-    init();
-    
-    // Close modal on click outside
-    window.onclick = function(event) {
-        if (event.target === document.getElementById('productModal')) {
-            closeModal();
-        }
-    }
+}
+
+// ISHGA TUSHIRISH
+loadProducts();
 </script>
 </body>
 </html>
