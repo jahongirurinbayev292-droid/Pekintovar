@@ -6,6 +6,7 @@
     <title>PEKIN TOVAR</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -14,121 +15,135 @@
         }
         
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #ff69b4, #ff1493);
-            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #ffb6c1, #ff69b4);
             min-height: 100vh;
+            padding-bottom: 20px;
         }
         
         /* Header */
         .header {
-            background: rgba(0,0,0,0.7);
-            padding: 15px;
+            background: rgba(255,255,255,0.95);
+            padding: 12px 15px;
             position: sticky;
             top: 0;
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
-            backdrop-filter: blur(10px);
+            gap: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 100;
         }
         
         .logo {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: bold;
-            color: #fff;
+            background: linear-gradient(45deg, #ff1493, #ff69b4);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
         }
         
         .nav-btn {
-            background: rgba(255,255,255,0.2);
-            border: 1px solid #fff;
-            color: #fff;
-            padding: 8px 15px;
+            background: #ff69b4;
+            color: white;
+            border: none;
+            padding: 6px 12px;
             border-radius: 20px;
             cursor: pointer;
-            margin-left: 8px;
+            font-size: 12px;
+            font-weight: bold;
         }
         
-        .nav-btn:hover {
-            background: #fff;
-            color: #ff1493;
-        }
-        
-        /* Products Grid */
+        /* Products Grid - 3 qator */
         .products-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
-            padding: 15px;
-            max-width: 1200px;
-            margin: 0 auto;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            padding: 12px;
+            max-width: 100%;
         }
         
+        @media (max-width: 700px) {
+            .products-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+        
+        @media (max-width: 450px) {
+            .products-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Product Card */
         .product-card {
-            background: rgba(255,255,255,0.9);
-            border-radius: 15px;
+            background: white;
+            border-radius: 12px;
             overflow: hidden;
             cursor: pointer;
-            transition: 0.3s;
-            color: #333;
+            transition: 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         
         .product-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
         
         .product-image {
             width: 100%;
-            height: 200px;
+            height: 160px;
             object-fit: cover;
         }
         
         .product-info {
-            padding: 12px;
+            padding: 10px;
         }
         
         .product-name {
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
-            margin-bottom: 5px;
+            color: #333;
+            margin-bottom: 4px;
         }
         
         .product-price {
             color: #ff1493;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: bold;
         }
         
         .product-meta {
-            font-size: 12px;
-            color: #666;
-            margin: 5px 0;
+            font-size: 10px;
+            color: #999;
+            margin: 4px 0;
         }
         
         .card-buttons {
             display: flex;
-            gap: 10px;
-            margin-top: 10px;
+            gap: 8px;
+            margin-top: 8px;
         }
         
         .btn {
             flex: 1;
-            padding: 8px;
+            padding: 6px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
+            font-size: 11px;
             font-weight: bold;
         }
         
         .btn-wishlist {
-            background: #ff69b4;
-            color: white;
+            background: #ffe4ec;
+            color: #ff1493;
         }
         
         .btn-cart {
-            background: #ff1493;
+            background: #ff69b4;
             color: white;
         }
         
@@ -150,9 +165,9 @@
             background: white;
             border-radius: 15px;
             width: 90%;
-            max-width: 400px;
-            padding: 20px;
-            color: #333;
+            max-width: 350px;
+            padding: 15px;
+            position: relative;
         }
         
         .modal-content img {
@@ -161,7 +176,9 @@
         }
         
         .close {
-            float: right;
+            position: absolute;
+            right: 15px;
+            top: 10px;
             font-size: 24px;
             cursor: pointer;
             color: #ff1493;
@@ -173,51 +190,90 @@
             right: -100%;
             top: 0;
             width: 100%;
-            max-width: 350px;
+            max-width: 320px;
             height: 100%;
             background: white;
             z-index: 1001;
             transition: 0.3s;
-            padding: 20px;
+            padding: 15px;
             overflow-y: auto;
-            color: #333;
         }
         
         .sidebar.active {
             right: 0;
         }
         
-        .sidebar h2 {
-            color: #ff1493;
+        .sidebar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             margin-bottom: 15px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid #ff69b4;
+        }
+        
+        .sidebar-header h2 {
+            color: #ff1493;
+            font-size: 18px;
+        }
+        
+        .sidebar-close {
+            font-size: 24px;
+            cursor: pointer;
+            color: #ff1493;
         }
         
         .cart-item, .wishlist-item {
             background: #f9f9f9;
-            margin-bottom: 10px;
-            padding: 10px;
-            border-radius: 10px;
+            margin-bottom: 8px;
+            padding: 8px;
+            border-radius: 8px;
             display: flex;
-            gap: 10px;
+            gap: 8px;
             align-items: center;
-            border: 1px solid #ff69b4;
+            border: 1px solid #ffe4ec;
         }
         
         .item-image {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             object-fit: cover;
-            border-radius: 8px;
+            border-radius: 6px;
+        }
+        
+        .item-info {
+            flex: 1;
+        }
+        
+        .item-name {
+            font-weight: bold;
+            font-size: 13px;
+        }
+        
+        .item-price {
+            color: #ff1493;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .delete-btn {
+            background: #ff4040;
+            color: white;
+            border: none;
+            padding: 4px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 11px;
         }
         
         .checkout-btn {
             background: #ff1493;
             color: white;
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: none;
-            border-radius: 10px;
-            margin-top: 15px;
+            border-radius: 8px;
+            margin-top: 12px;
             cursor: pointer;
             font-weight: bold;
         }
@@ -225,14 +281,15 @@
         .loading {
             text-align: center;
             padding: 40px;
-            color: #fff;
+            color: white;
+            font-size: 14px;
         }
         
-        .close-sidebar {
-            float: right;
-            font-size: 24px;
-            cursor: pointer;
-            color: #ff1493;
+        .empty {
+            text-align: center;
+            padding: 20px;
+            color: #999;
+            font-size: 13px;
         }
     </style>
 </head>
@@ -241,53 +298,58 @@
 <div class="header">
     <div class="logo">🌸 PEKIN TOVAR</div>
     <div>
-        <button class="nav-btn" onclick="openWishlist()">⭐ (<span id="wc">0</span>)</button>
-        <button class="nav-btn" onclick="openCart()">🛒 (<span id="cc">0</span>)</button>
+        <button class="nav-btn" onclick="openWishlist()">⭐ <span id="wishlistCount">0</span></button>
+        <button class="nav-btn" onclick="openCart()">🛒 <span id="cartCount">0</span></button>
         <button class="nav-btn" onclick="openSettings()">⚙️</button>
     </div>
 </div>
 
-<div class="products-grid" id="grid">
-    <div class="loading">⏳ Yuklanmoqda...</div>
+<div class="products-grid" id="productsGrid">
+    <div class="loading">⏳ Mahsulotlar yuklanmoqda...</div>
 </div>
 
 <!-- Modal -->
-<div id="modal" class="modal">
+<div id="productModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
-        <img id="mImg">
-        <h2 id="mName" style="margin-top:10px"></h2>
-        <div id="mPrice" style="font-size:20px; color:#ff1493; font-weight:bold"></div>
-        <p>📏 Razmer: <span id="mSize"></span></p>
-        <p>🎂 Yosh: <span id="mAge"></span></p>
+        <img id="modalImage">
+        <h3 id="modalName" style="margin-top: 8px;"></h3>
+        <div id="modalPrice" style="font-size: 18px; color:#ff1493; font-weight:bold;"></div>
+        <p style="font-size:12px">📏 Razmer: <span id="modalSize"></span> | 🎂 Yosh: <span id="modalAge"></span></p>
         <div class="card-buttons">
-            <button class="btn btn-wishlist" onclick="addWishlistModal()">⭐ Istak</button>
-            <button class="btn btn-cart" onclick="addCartModal()">🛒 Savat</button>
+            <button class="btn btn-wishlist" onclick="addToWishlistFromModal()">⭐ Istak</button>
+            <button class="btn btn-cart" onclick="addToCartFromModal()">🛒 Savat</button>
         </div>
     </div>
 </div>
 
-<!-- Wishlist -->
+<!-- Wishlist Sidebar -->
 <div id="wishlistSidebar" class="sidebar">
-    <span class="close-sidebar" onclick="closeWishlist()">&times;</span>
-    <h2>⭐ Istaklar</h2>
+    <div class="sidebar-header">
+        <h2>⭐ Istaklar</h2>
+        <span class="sidebar-close" onclick="closeWishlist()">&times;</span>
+    </div>
     <div id="wishlistItems"></div>
 </div>
 
-<!-- Cart -->
+<!-- Cart Sidebar -->
 <div id="cartSidebar" class="sidebar">
-    <span class="close-sidebar" onclick="closeCart()">&times;</span>
-    <h2>🛒 Savatcha</h2>
+    <div class="sidebar-header">
+        <h2>🛒 Savatcha</h2>
+        <span class="sidebar-close" onclick="closeCart()">&times;</span>
+    </div>
     <div id="cartItems"></div>
     <div id="cartTotal"></div>
     <button class="checkout-btn" onclick="checkout()">✅ Buyurtma berish</button>
 </div>
 
-<!-- Settings -->
+<!-- Settings Sidebar -->
 <div id="settingsSidebar" class="sidebar">
-    <span class="close-sidebar" onclick="closeSettings()">&times;</span>
-    <h2>⚙️ Sozlamalar</h2>
-    <button class="checkout-btn" onclick="goAdmin()">👑 Admin panelga o'tish</button>
+    <div class="sidebar-header">
+        <h2>⚙️ Sozlamalar</h2>
+        <span class="sidebar-close" onclick="closeSettings()">&times;</span>
+    </div>
+    <button class="checkout-btn" onclick="goToAdmin()">👑 Admin panelga o'tish</button>
 </div>
 
 <script src="config.js"></script>
@@ -312,31 +374,43 @@ function loadProducts() {
 }
 
 function displayProducts() {
-    const grid = document.getElementById('grid');
+    const grid = document.getElementById('productsGrid');
     if (products.length === 0) {
-        grid.innerHTML = '<div class="loading">📭 Mahsulot yo\'q</div>';
+        grid.innerHTML = '<div class="loading">📭 Hozircha mahsulot yo\'q</div>';
         return;
     }
     
-    grid.innerHTML = products.map(p => `
-        <div class="product-card" onclick="openModal('${p.id}')">
-            <img class="product-image" src="${p.image_url}" onerror="this.src='https://placehold.co/400x400/ff69b4/white?text=NO'">
+    grid.innerHTML = products.map(product => `
+        <div class="product-card" onclick="openModal('${product.id}')">
+            <img class="product-image" src="${product.image_url}" onerror="this.src='https://placehold.co/300x300/ff69b4/white?text=NO'">
             <div class="product-info">
-                <div class="product-name">${p.name}</div>
-                <div class="product-price">${(p.price || 0).toLocaleString()} so'm</div>
-                <div class="product-meta">📏 ${p.size || '-'} | 🎂 ${p.age || '-'}</div>
+                <div class="product-name">${escapeHtml(product.name)}</div>
+                <div class="product-price">${(product.price || 0).toLocaleString()} so'm</div>
+                <div class="product-meta">
+                    📏 ${product.size || '-'} | 🎂 ${product.age || '-'}
+                </div>
                 <div class="card-buttons">
-                    <button class="btn btn-wishlist" onclick="event.stopPropagation(); addToWishlist('${p.id}')">⭐</button>
-                    <button class="btn btn-cart" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒</button>
+                    <button class="btn btn-wishlist" onclick="event.stopPropagation(); addToWishlist('${product.id}')">⭐</button>
+                    <button class="btn btn-cart" onclick="event.stopPropagation(); addToCart('${product.id}')">🛒</button>
                 </div>
             </div>
         </div>
     `).join('');
 }
 
+function escapeHtml(text) {
+    if (!text) return '';
+    return text.replace(/[&<>]/g, function(m) {
+        if (m === '&') return '&amp;';
+        if (m === '<') return '&lt;';
+        if (m === '>') return '&gt;';
+        return m;
+    });
+}
+
 function updateCounts() {
-    document.getElementById('wc').innerText = wishlist.length;
-    document.getElementById('cc').innerText = cart.length;
+    document.getElementById('wishlistCount').innerText = wishlist.length;
+    document.getElementById('cartCount').innerText = cart.length;
 }
 
 // Modal
@@ -344,17 +418,17 @@ function openModal(id) {
     currentProduct = products.find(p => p.id === id);
     if (!currentProduct) return;
     
-    document.getElementById('mImg').src = currentProduct.image_url;
-    document.getElementById('mName').innerText = currentProduct.name;
-    document.getElementById('mPrice').innerHTML = `${(currentProduct.price || 0).toLocaleString()} so'm`;
-    document.getElementById('mSize').innerText = currentProduct.size || '-';
-    document.getElementById('mAge').innerText = currentProduct.age || '-';
+    document.getElementById('modalImage').src = currentProduct.image_url;
+    document.getElementById('modalName').innerText = currentProduct.name;
+    document.getElementById('modalPrice').innerHTML = `${(currentProduct.price || 0).toLocaleString()} so'm`;
+    document.getElementById('modalSize').innerText = currentProduct.size || '-';
+    document.getElementById('modalAge').innerText = currentProduct.age || '-';
     
-    document.getElementById('modal').style.display = 'flex';
+    document.getElementById('productModal').style.display = 'flex';
 }
 
 function closeModal() {
-    document.getElementById('modal').style.display = 'none';
+    document.getElementById('productModal').style.display = 'none';
 }
 
 // Wishlist
@@ -368,23 +442,23 @@ function addToWishlist(id) {
     }
 }
 
-function addWishlistModal() {
+function addToWishlistFromModal() {
     addToWishlist(currentProduct.id);
 }
 
 function openWishlist() {
     const container = document.getElementById('wishlistItems');
     if (wishlist.length === 0) {
-        container.innerHTML = '<p style="text-align:center">⭐ Bo\'sh</p>';
+        container.innerHTML = '<div class="empty">⭐ Istaklar bo\'sh</div>';
     } else {
         container.innerHTML = wishlist.map(item => `
             <div class="cart-item">
                 <img class="item-image" src="${item.image_url}">
-                <div style="flex:1">
-                    <b>${item.name}</b><br>
-                    ${(item.price || 0).toLocaleString()} so'm
+                <div class="item-info">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-price">${(item.price || 0).toLocaleString()} so'm</div>
                 </div>
-                <button onclick="removeFromWishlist('${item.id}')" style="background:#ff1493; color:white; border:none; padding:5px 10px; border-radius:5px;">❌</button>
+                <button class="delete-btn" onclick="removeFromWishlist('${item.id}')">❌</button>
             </div>
         `).join('');
     }
@@ -413,7 +487,7 @@ function addToCart(id) {
     }
 }
 
-function addCartModal() {
+function addToCartFromModal() {
     addToCart(currentProduct.id);
 }
 
@@ -422,22 +496,22 @@ function openCart() {
     const totalDiv = document.getElementById('cartTotal');
     
     if (cart.length === 0) {
-        container.innerHTML = '<p style="text-align:center">🛒 Bo\'sh</p>';
+        container.innerHTML = '<div class="empty">🛒 Savatcha bo\'sh</div>';
         totalDiv.innerHTML = '';
     } else {
         const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
         container.innerHTML = cart.map(item => `
             <div class="cart-item">
                 <img class="item-image" src="${item.image_url}">
-                <div style="flex:1">
-                    <b>${item.name}</b><br>
-                    ${(item.price || 0).toLocaleString()} so'm<br>
-                    📏 ${item.size || '-'} | 🎂 ${item.age || '-'}
+                <div class="item-info">
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-price">${(item.price || 0).toLocaleString()} so'm</div>
+                    <div style="font-size:10px">📏 ${item.size || '-'} | 🎂 ${item.age || '-'}</div>
                 </div>
-                <button onclick="removeFromCart('${item.id}')" style="background:#ff1493; color:white; border:none; padding:5px 10px; border-radius:5px;">❌</button>
+                <button class="delete-btn" onclick="removeFromCart('${item.id}')">❌</button>
             </div>
         `).join('');
-        totalDiv.innerHTML = `<h3>💰 Jami: ${total.toLocaleString()} so'm</h3>`;
+        totalDiv.innerHTML = `<div style="margin-top:10px; padding:8px; background:#ffe4ec; border-radius:8px;"><b>💰 Jami: ${total.toLocaleString()} so'm</b></div>`;
     }
     document.getElementById('cartSidebar').classList.add('active');
 }
@@ -478,7 +552,7 @@ function closeSettings() {
     document.getElementById('settingsSidebar').classList.remove('active');
 }
 
-function goAdmin() {
+function goToAdmin() {
     const pass = prompt('🔐 Admin panelga kirish paroli:');
     if (pass === '4321') {
         window.location.href = '/admin.html';
@@ -486,11 +560,6 @@ function goAdmin() {
         alert('❌ Parol xato!');
     }
 }
-
-// Yangilash
-setInterval(() => {
-    updateCounts();
-}, 1000);
 
 // Boshlash
 loadProducts();
