@@ -140,7 +140,6 @@
         <button class="logout-btn" onclick="logout()">🚪 Chiqish</button>
     </div>
     
-    <!-- Mahsulot qo'shish -->
     <div class="section">
         <h2>➕ Mahsulot qo'shish</h2>
         <div class="form-group">
@@ -166,7 +165,6 @@
         <button onclick="addProduct()">✅ Qo'shish</button>
     </div>
     
-    <!-- Mahsulotlar -->
     <div class="section">
         <h2>📦 Mahsulotlar</h2>
         <div id="productsTable">
@@ -181,7 +179,6 @@ firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 const storage = firebase.storage();
 
-// Mahsulotlarni yuklash
 function loadProducts() {
     db.ref('products').on('value', (snap) => {
         const data = snap.val();
@@ -215,7 +212,6 @@ function loadProducts() {
     });
 }
 
-// Mahsulot qo'shish
 function addProduct() {
     const id = `prod_${Date.now()}`;
     const name = document.getElementById('name').value;
@@ -249,7 +245,6 @@ function addProduct() {
     document.getElementById('imgUrl').value = '';
 }
 
-// Mahsulot tahrirlash
 function editProduct(id) {
     db.ref(`products/${id}`).once('value', (snap) => {
         const p = snap.val();
@@ -267,7 +262,6 @@ function editProduct(id) {
     });
 }
 
-// Mahsulot o'chirish
 function deleteProduct(id) {
     if (confirm('O\'chirilsinmi?')) {
         db.ref(`products/${id}`).remove();
