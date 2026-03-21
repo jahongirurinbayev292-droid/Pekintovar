@@ -1,4 +1,3 @@
-// ============ FIREBASE SOZLAMALARI ============
 const firebaseConfig = {
     apiKey: "AIzaSyB7wXxXxXxXxXxXxXxXxXxX",
     authDomain: "pekin-tavor.firebaseapp.com",
