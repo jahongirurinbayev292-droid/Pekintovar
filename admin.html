@@ -1,53 +1,363 @@
 <!DOCTYPE html>
 <html lang="uz">
 <head>
-<meta charset="UTF-8">
-<title>Admin Panel</title>
-<style>
-body { background:#0c0018; color:white; font-family:sans-serif; }
-h1 { text-align:center; color:#b366ff; }
-table { width:90%; margin:auto; border-collapse:collapse; margin-top:30px; }
-td,th { border:1px solid #8000ff; padding:8px; text-align:center; }
-button { background:#8000ff; border:none; color:white; padding:5px 10px; border-radius:5px; cursor:pointer; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel - Neon Market</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a2a 0%, #1a0033 100%);
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        .admin-header {
+            background: rgba(191, 64, 255, 0.2);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+
+        .section {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(191, 64, 255, 0.3);
+        }
+
+        .section-title {
+            color: #bf40ff;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #bf40ff;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.5rem;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #bf40ff;
+            border-radius: 5px;
+            color: #fff;
+        }
+
+        button {
+            background: #bf40ff;
+            color: #fff;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(191, 64, 255, 0.3);
+        }
+
+        .products-table {
+            width: 100%;
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 0.75rem;
+            text-align: left;
+            border-bottom: 1px solid rgba(191, 64, 255, 0.3);
+        }
+
+        th {
+            color: #bf40ff;
+        }
+
+        .category-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .category-item {
+            background: rgba(191, 64, 255, 0.2);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            display: flex;
+            gap: 0.5rem;
+            align-items: center;
+        }
+
+        .delete-cat {
+            cursor: pointer;
+            color: #ff4040;
+        }
+
+        .add-category {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .product-form {
+            background: rgba(0, 0, 0, 0.5);
+            padding: 1rem;
+            border-radius: 10px;
+            margin-bottom: 1rem;
+        }
+    </style>
 </head>
 <body>
+    <div class="container">
+        <div class="admin-header">
+            <h1>Admin Panel</h1>
+            <button onclick="logout()">Chiqish</button>
+        </div>
 
-<h1>⚙️ Admin Panel</h1>
-<table id="tbl"><thead><tr><th>Rasm</th><th>Narx</th><th>Razmer</th><th>Yosh</th><th>Amal</th></tr></thead><tbody></tbody></table>
+        <!-- Kategoriyalar bo'limi -->
+        <div class="section">
+            <h2 class="section-title">📁 Kategoriyalar</h2>
+            <div id="categoriesList" class="category-list"></div>
+            <div class="add-category">
+                <input type="text" id="newCategory" placeholder="Yangi kategoriya nomi">
+                <button onclick="addCategory()">Qo'shish</button>
+            </div>
+        </div>
 
-<script type="module">
-import { initializeApp } from "[gstatic.com](https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js)";
-import { getDatabase, ref, get, remove } from "[gstatic.com](https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js)";
-import { firebaseConfig } from "./config.js";
+        <!-- Mahsulot qo'shish (qo'lda) -->
+        <div class="section">
+            <h2 class="section-title">➕ Mahsulot qo'shish</h2>
+            <div class="product-form">
+                <div class="form-group">
+                    <label>Rasm</label>
+                    <input type="file" id="productImage" accept="image/*">
+                </div>
+                <div class="form-group">
+                    <label>Mahsulot nomi</label>
+                    <input type="text" id="productName">
+                </div>
+                <div class="form-group">
+                    <label>Narx (so'm)</label>
+                    <input type="number" id="productPrice">
+                </div>
+                <div class="form-group">
+                    <label>Razmer</label>
+                    <input type="text" id="productSize">
+                </div>
+                <div class="form-group">
+                    <label>Yosh</label>
+                    <input type="text" id="productAge">
+                </div>
+                <div class="form-group">
+                    <label>Kategoriya</label>
+                    <select id="productCategory"></select>
+                </div>
+                <button onclick="addProduct()">Mahsulot qo'shish</button>
+            </div>
+        </div>
 
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+        <!-- Mahsulotlar ro'yxati -->
+        <div class="section">
+            <h2 class="section-title">📦 Mahsulotlar</h2>
+            <div class="products-table">
+                <table id="productsTable">
+                    <thead>
+                        <tr>
+                            <th>Rasm</th>
+                            <th>Nomi</th>
+                            <th>Narx</th>
+                            <th>Razmer</th>
+                            <th>Yosh</th>
+                            <th>Kategoriya</th>
+                            <th>Amallar</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productsTableBody"></tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 
-async function loadAdmin() {
-  const snap = await get(ref(db, "products"));
-  if (!snap.exists()) return;
-  const data = snap.val();
-  const tbody = document.querySelector("#tbl tbody");
-  for (let key in data) {
-    const p = data[key];
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td><img src="${p.image_url}" width="80"></td>
-      <td>${p.price}</td>
-      <td>${p.size || '-'}</td>
-      <td>${p.age || '-'}</td>
-      <td><button onclick="del('${key}')">O'chirish</button></td>`;
-    tbody.appendChild(tr);
-  }
-}
+    <script src="config.js"></script>
+    <script>
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+        const storage = firebase.storage();
+        
+        let categories = [];
+        let products = [];
 
-window.del = async function(key) {
-  await remove(ref(db, "products/" + key));
-  location.reload();
-};
+        // Kategoriyalarni yuklash
+        async function loadCategories() {
+            const snapshot = await database.ref('categories').once('value');
+            categories = snapshot.val() || ['Kiyim', 'Oyoq kiyim', 'Aksessuarlar'];
+            displayCategories();
+        }
 
-loadAdmin();
-</script>
+        function displayCategories() {
+            const container = document.getElementById('categoriesList');
+            container.innerHTML = categories.map(cat => `
+                <div class="category-item">
+                    ${cat}
+                    <span class="delete-cat" onclick="deleteCategory('${cat}')">❌</span>
+                </div>
+            `).join('');
+            
+            const select = document.getElementById('productCategory');
+            select.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+        }
+
+        async function addCategory() {
+            const newCat = document.getElementById('newCategory').value;
+            if (newCat && !categories.includes(newCat)) {
+                categories.push(newCat);
+                await database.ref('categories').set(categories);
+                displayCategories();
+                document.getElementById('newCategory').value = '';
+            }
+        }
+
+        async function deleteCategory(category) {
+            if (confirm(`${category} kategoriyasini o'chirmoqchimisiz?`)) {
+                categories = categories.filter(c => c !== category);
+                await database.ref('categories').set(categories);
+                displayCategories();
+            }
+        }
+
+        // Mahsulotlarni yuklash
+        async function loadProducts() {
+            const snapshot = await database.ref('products').once('value');
+            const data = snapshot.val();
+            products = data ? Object.values(data) : [];
+            displayProducts();
+        }
+
+        function displayProducts() {
+            const tbody = document.getElementById('productsTableBody');
+            tbody.innerHTML = products.map(product => `
+                <tr>
+                    <td><img src="${product.image_url}" style="width: 50px; height: 50px; object-fit: cover;"></td>
+                    <td>${product.name}</td>
+                    <td>${product.price.toLocaleString()} so'm</td>
+                    <td>${product.size || '-'}</td>
+                    <td>${product.age || '-'}</td>
+                    <td>${product.category || '-'}</td>
+                    <td>
+                        <button onclick="editProduct('${product.id}')">✏️</button>
+                        <button onclick="deleteProduct('${product.id}')">🗑️</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // Mahsulot qo'shish (qo'lda)
+        async function addProduct() {
+            const imageFile = document.getElementById('productImage').files[0];
+            if (!imageFile) {
+                alert('Rasm tanlang!');
+                return;
+            }
+
+            const productId = `product_${Date.now()}`;
+            
+            // Rasmni Storage-ga yuklash
+            const storageRef = storage.ref(`products/${productId}.jpg`);
+            await storageRef.put(imageFile);
+            const imageUrl = await storageRef.getDownloadURL();
+
+            const productData = {
+                id: productId,
+                name: document.getElementById('productName').value,
+                price: parseInt(document.getElementById('productPrice').value),
+                size: document.getElementById('productSize').value,
+                age: document.getElementById('productAge').value,
+                category: document.getElementById('productCategory').value,
+                image_url: imageUrl,
+                created_at: new Date().toISOString()
+            };
+
+            await database.ref(`products/${productId}`).set(productData);
+            alert('Mahsulot qo\'shildi!');
+            loadProducts();
+            
+            // Formani tozalash
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productSize').value = '';
+            document.getElementById('productAge').value = '';
+            document.getElementById('productImage').value = '';
+        }
+
+        // Mahsulotni tahrirlash
+        async function editProduct(productId) {
+            const product = products.find(p => p.id === productId);
+            if (!product) return;
+
+            const newName = prompt('Yangi nom:', product.name);
+            const newPrice = prompt('Yangi narx:', product.price);
+            const newSize = prompt('Yangi razmer:', product.size);
+            const newAge = prompt('Yangi yosh:', product.age);
+            const newCategory = prompt('Yangi kategoriya:', product.category);
+
+            if (newName && newPrice) {
+                await database.ref(`products/${productId}`).update({
+                    name: newName,
+                    price: parseInt(newPrice),
+                    size: newSize,
+                    age: newAge,
+                    category: newCategory
+                });
+                alert('Mahsulot yangilandi!');
+                loadProducts();
+            }
+        }
+
+        // Mahsulotni o'chirish
+        async function deleteProduct(productId) {
+            if (confirm('Mahsulotni o\'chirmoqchimisiz?')) {
+                await database.ref(`products/${productId}`).remove();
+                alert('Mahsulot o\'chirildi!');
+                loadProducts();
+            }
+        }
+
+        function logout() {
+            window.location.href = 'index.html';
+        }
+
+        // Sahifa yuklanganda
+        loadCategories();
+        loadProducts();
+    </script>
 </body>
 </html>
