@@ -7,110 +7,493 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box}
-        body{font-family:Arial;background:linear-gradient(135deg,#0a0a2a,#1a0033);color:#fff;padding-bottom:70px}
-        .header{background:rgba(0,0,0,0.8);padding:12px;position:sticky;top:0;display:flex;justify-content:space-between;border-bottom:1px solid #bf40ff}
-        .logo{color:#bf40ff;font-weight:bold}
-        .nav-btn{background:rgba(191,64,255,0.2);border:1px solid #bf40ff;color:#bf40ff;padding:5px 10px;border-radius:20px;cursor:pointer}
-        .products-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:15px;padding:15px}
-        .product-card{background:rgba(255,255,255,0.08);border-radius:15px;overflow:hidden;cursor:pointer;border:1px solid rgba(191,64,255,0.3)}
-        .product-image{width:100%;height:200px;object-fit:cover}
-        .product-info{padding:12px}
-        .product-name{font-weight:bold}
-        .product-price{color:#bf40ff;font-size:18px;font-weight:bold}
-        .card-buttons{display:flex;gap:10px;margin-top:10px}
-        .btn{flex:1;padding:8px;border:none;border-radius:8px;cursor:pointer}
-        .btn-wishlist{background:rgba(255,64,64,0.2);color:#ff6b6b;border:1px solid #ff6b6b}
-        .btn-cart{background:rgba(191,64,255,0.2);color:#bf40ff;border:1px solid #bf40ff}
-        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.95);justify-content:center;align-items:center}
-        .modal-content{background:#1a0033;border-radius:15px;width:90%;max-width:400px;padding:20px;border:2px solid #bf40ff}
-        .close{float:right;font-size:24px;cursor:pointer;color:#bf40ff}
-        .sidebar{position:fixed;right:-100%;top:0;width:100%;max-width:400px;height:100%;background:rgba(10,10,30,0.98);transition:0.3s;padding:20px;border-left:2px solid #bf40ff}
-        .sidebar.active{right:0}
-        .cart-item{background:rgba(191,64,255,0.1);margin-bottom:10px;padding:10px;border-radius:10px;display:flex;gap:10px}
-        .item-image{width:60px;height:60px;object-fit:cover;border-radius:8px}
-        .checkout-btn{background:#bf40ff;color:white;width:100%;padding:12px;border:none;border-radius:10px;margin-top:15px;cursor:pointer}
-        .loading{text-align:center;padding:40px;color:#bf40ff}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #ff69b4, #ff1493);
+            color: #fff;
+            min-height: 100vh;
+        }
+        
+        /* Header */
+        .header {
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            position: sticky;
+            top: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .logo {
+            font-size: 20px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .nav-btn {
+            background: rgba(255,255,255,0.2);
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 8px 15px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-left: 8px;
+        }
+        
+        .nav-btn:hover {
+            background: #fff;
+            color: #ff1493;
+        }
+        
+        /* Products Grid */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            padding: 15px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .product-card {
+            background: rgba(255,255,255,0.9);
+            border-radius: 15px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: 0.3s;
+            color: #333;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        
+        .product-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+        }
+        
+        .product-info {
+            padding: 12px;
+        }
+        
+        .product-name {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .product-price {
+            color: #ff1493;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .product-meta {
+            font-size: 12px;
+            color: #666;
+            margin: 5px 0;
+        }
+        
+        .card-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn {
+            flex: 1;
+            padding: 8px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .btn-wishlist {
+            background: #ff69b4;
+            color: white;
+        }
+        
+        .btn-cart {
+            background: #ff1493;
+            color: white;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 400px;
+            padding: 20px;
+            color: #333;
+        }
+        
+        .modal-content img {
+            width: 100%;
+            border-radius: 10px;
+        }
+        
+        .close {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: #ff1493;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            position: fixed;
+            right: -100%;
+            top: 0;
+            width: 100%;
+            max-width: 350px;
+            height: 100%;
+            background: white;
+            z-index: 1001;
+            transition: 0.3s;
+            padding: 20px;
+            overflow-y: auto;
+            color: #333;
+        }
+        
+        .sidebar.active {
+            right: 0;
+        }
+        
+        .sidebar h2 {
+            color: #ff1493;
+            margin-bottom: 15px;
+        }
+        
+        .cart-item, .wishlist-item {
+            background: #f9f9f9;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            border: 1px solid #ff69b4;
+        }
+        
+        .item-image {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        .checkout-btn {
+            background: #ff1493;
+            color: white;
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            margin-top: 15px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #fff;
+        }
+        
+        .close-sidebar {
+            float: right;
+            font-size: 24px;
+            cursor: pointer;
+            color: #ff1493;
+        }
     </style>
 </head>
 <body>
+
 <div class="header">
-    <div class="logo">✨ PEKIN TOVAR</div>
+    <div class="logo">🌸 PEKIN TOVAR</div>
     <div>
-        <button class="nav-btn" onclick="openWishlist()">⭐ <span id="wc">0</span></button>
-        <button class="nav-btn" onclick="openCart()">🛒 <span id="cc">0</span></button>
+        <button class="nav-btn" onclick="openWishlist()">⭐ (<span id="wc">0</span>)</button>
+        <button class="nav-btn" onclick="openCart()">🛒 (<span id="cc">0</span>)</button>
         <button class="nav-btn" onclick="openSettings()">⚙️</button>
     </div>
 </div>
-<div class="products-grid" id="grid"><div class="loading">⏳ Yuklanmoqda...</div></div>
 
-<div id="modal" class="modal"><div class="modal-content">
-    <span class="close" onclick="closeModal()">&times;</span>
-    <img id="mImg" style="width:100%"><h2 id="mName"></h2>
-    <div id="mPrice" class="product-price"></div>
-    <p>📏 Razmer: <span id="mSize"></span> | 🎂 Yosh: <span id="mAge"></span></p>
-    <div class="card-buttons">
-        <button class="btn btn-wishlist" onclick="addWishlistModal()">⭐</button>
-        <button class="btn btn-cart" onclick="addCartModal()">🛒</button>
+<div class="products-grid" id="grid">
+    <div class="loading">⏳ Yuklanmoqda...</div>
+</div>
+
+<!-- Modal -->
+<div id="modal" class="modal">
+    <div class="modal-content">
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img id="mImg">
+        <h2 id="mName" style="margin-top:10px"></h2>
+        <div id="mPrice" style="font-size:20px; color:#ff1493; font-weight:bold"></div>
+        <p>📏 Razmer: <span id="mSize"></span></p>
+        <p>🎂 Yosh: <span id="mAge"></span></p>
+        <div class="card-buttons">
+            <button class="btn btn-wishlist" onclick="addWishlistModal()">⭐ Istak</button>
+            <button class="btn btn-cart" onclick="addCartModal()">🛒 Savat</button>
+        </div>
     </div>
-</div></div>
+</div>
 
-<div id="wishlistSidebar" class="sidebar"><div style="display:flex;justify-content:space-between"><h2>⭐ Istaklar</h2><span class="close" onclick="closeWishlist()">&times;</span></div><div id="wishlistItems"></div></div>
-<div id="cartSidebar" class="sidebar"><div style="display:flex;justify-content:space-between"><h2>🛒 Savatcha</h2><span class="close" onclick="closeCart()">&times;</span></div><div id="cartItems"></div><div id="cartTotal"></div><button class="checkout-btn" onclick="checkout()">✅ Buyurtma</button></div>
-<div id="settingsSidebar" class="sidebar"><div style="display:flex;justify-content:space-between"><h2>⚙️ Sozlamalar</h2><span class="close" onclick="closeSettings()">&times;</span></div><button class="checkout-btn" onclick="goAdmin()">👑 Admin panel</button></div>
+<!-- Wishlist -->
+<div id="wishlistSidebar" class="sidebar">
+    <span class="close-sidebar" onclick="closeWishlist()">&times;</span>
+    <h2>⭐ Istaklar</h2>
+    <div id="wishlistItems"></div>
+</div>
+
+<!-- Cart -->
+<div id="cartSidebar" class="sidebar">
+    <span class="close-sidebar" onclick="closeCart()">&times;</span>
+    <h2>🛒 Savatcha</h2>
+    <div id="cartItems"></div>
+    <div id="cartTotal"></div>
+    <button class="checkout-btn" onclick="checkout()">✅ Buyurtma berish</button>
+</div>
+
+<!-- Settings -->
+<div id="settingsSidebar" class="sidebar">
+    <span class="close-sidebar" onclick="closeSettings()">&times;</span>
+    <h2>⚙️ Sozlamalar</h2>
+    <button class="checkout-btn" onclick="goAdmin()">👑 Admin panelga o'tish</button>
+</div>
 
 <script src="config.js"></script>
 <script>
+// Firebase
 firebase.initializeApp(firebaseConfig);
 const db = firebase.database();
 
-let products=[], wishlist=JSON.parse(localStorage.getItem('wishlist')||'[]'), cart=JSON.parse(localStorage.getItem('cart')||'[]'), current=null;
+let products = [];
+let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+let currentProduct = null;
 
-async function load(){
+// Mahsulotlarni yuklash
+function loadProducts() {
     db.ref('products').on('value', (snapshot) => {
         const data = snapshot.val();
         products = data ? Object.values(data) : [];
-        display();
-        update();
+        displayProducts();
+        updateCounts();
     });
 }
 
-function display(){
-    let g=document.getElementById('grid');
-    if(products.length==0){g.innerHTML='<div class="loading">📭 Mahsulot yo\'q</div>';return;}
-    g.innerHTML=products.map(p=>`
+function displayProducts() {
+    const grid = document.getElementById('grid');
+    if (products.length === 0) {
+        grid.innerHTML = '<div class="loading">📭 Mahsulot yo\'q</div>';
+        return;
+    }
+    
+    grid.innerHTML = products.map(p => `
         <div class="product-card" onclick="openModal('${p.id}')">
-            <img class="product-image" src="${p.image_url}" onerror="this.src='https://placehold.co/400x400/bf40ff/white?text=NO'">
+            <img class="product-image" src="${p.image_url}" onerror="this.src='https://placehold.co/400x400/ff69b4/white?text=NO'">
             <div class="product-info">
                 <div class="product-name">${p.name}</div>
-                <div class="product-price">${(p.price||0).toLocaleString()} so'm</div>
+                <div class="product-price">${(p.price || 0).toLocaleString()} so'm</div>
+                <div class="product-meta">📏 ${p.size || '-'} | 🎂 ${p.age || '-'}</div>
                 <div class="card-buttons">
-                    <button class="btn btn-wishlist" onclick="event.stopPropagation();addWishlist('${p.id}')">⭐</button>
-                    <button class="btn btn-cart" onclick="event.stopPropagation();addCart('${p.id}')">🛒</button>
+                    <button class="btn btn-wishlist" onclick="event.stopPropagation(); addToWishlist('${p.id}')">⭐</button>
+                    <button class="btn btn-cart" onclick="event.stopPropagation(); addToCart('${p.id}')">🛒</button>
                 </div>
             </div>
         </div>
     `).join('');
 }
 
-function update(){document.getElementById('wc').innerText=wishlist.length;document.getElementById('cc').innerText=cart.length;}
-function openModal(id){current=products.find(p=>p.id===id);if(!current)return;document.getElementById('mImg').src=current.image_url;document.getElementById('mName').innerText=current.name;document.getElementById('mPrice').innerHTML=`${(current.price||0).toLocaleString()} so'm`;document.getElementById('mSize').innerText=current.size||'-';document.getElementById('mAge').innerText=current.age||'-';document.getElementById('modal').style.display='flex';}
-function closeModal(){document.getElementById('modal').style.display='none';}
-function addWishlist(id){let p=products.find(p=>p.id===id);if(!wishlist.find(w=>w.id===id)){wishlist.push(p);localStorage.setItem('wishlist',JSON.stringify(wishlist));update();alert('⭐ Qo\'shildi');}}
-function addWishlistModal(){addWishlist(current.id);}
-function openWishlist(){let c=document.getElementById('wishlistItems');if(wishlist.length==0)c.innerHTML='<div class="loading">⭐ Bo\'sh</div>';else c.innerHTML=wishlist.map(i=>`<div class="cart-item"><img class="item-image" src="${i.image_url}"><div style="flex:1"><b>${i.name}</b><br>${(i.price||0).toLocaleString()} so'm</div><button onclick="removeWishlist('${i.id}')" style="background:#ff4040;border:none;padding:5px 10px">❌</button></div>`).join('');document.getElementById('wishlistSidebar').classList.add('active');}
-function removeWishlist(id){wishlist=wishlist.filter(w=>w.id!==id);localStorage.setItem('wishlist',JSON.stringify(wishlist));update();openWishlist();}
-function closeWishlist(){document.getElementById('wishlistSidebar').classList.remove('active');}
-function addCart(id){let p=products.find(p=>p.id===id);if(!cart.find(c=>c.id===id)){cart.push(p);localStorage.setItem('cart',JSON.stringify(cart));update();alert('🛒 Qo\'shildi');}}
-function addCartModal(){addCart(current.id);}
-function openCart(){let c=document.getElementById('cartItems');let t=document.getElementById('cartTotal');if(cart.length==0){c.innerHTML='<div class="loading">🛒 Bo\'sh</div>';t.innerHTML='';}else{let total=cart.reduce((s,i)=>s+(i.price||0),0);c.innerHTML=cart.map(i=>`<div class="cart-item"><img class="item-image" src="${i.image_url}"><div style="flex:1"><b>${i.name}</b><br>${(i.price||0).toLocaleString()} so'm<br>📏 ${i.size||'-'} | 🎂 ${i.age||'-'}</div><button onclick="removeCart('${i.id}')" style="background:#ff4040;border:none;padding:5px 10px">❌</button></div>`).join('');t.innerHTML=`<h3>💰 Jami: ${total.toLocaleString()} so'm</h3>`;}document.getElementById('cartSidebar').classList.add('active');}
-function removeCart(id){cart=cart.filter(c=>c.id!==id);localStorage.setItem('cart',JSON.stringify(cart));update();openCart();}
-function closeCart(){document.getElementById('cartSidebar').classList.remove('active');}
-function checkout(){if(cart.length==0){alert('Savatcha bo\'sh');return;}let total=cart.reduce((s,i)=>s+(i.price||0),0);alert(`✅ Buyurtma qabul qilindi!\nJami: ${total.toLocaleString()} so'm`);cart=[];localStorage.setItem('cart',JSON.stringify(cart));update();closeCart();}
-function openSettings(){document.getElementById('settingsSidebar').classList.add('active');}
-function closeSettings(){document.getElementById('settingsSidebar').classList.remove('active');}
-function goAdmin(){let p=prompt('Parol:');if(p==='4321')window.location.href='/admin.html';else alert('Xato');}
-load();
+function updateCounts() {
+    document.getElementById('wc').innerText = wishlist.length;
+    document.getElementById('cc').innerText = cart.length;
+}
+
+// Modal
+function openModal(id) {
+    currentProduct = products.find(p => p.id === id);
+    if (!currentProduct) return;
+    
+    document.getElementById('mImg').src = currentProduct.image_url;
+    document.getElementById('mName').innerText = currentProduct.name;
+    document.getElementById('mPrice').innerHTML = `${(currentProduct.price || 0).toLocaleString()} so'm`;
+    document.getElementById('mSize').innerText = currentProduct.size || '-';
+    document.getElementById('mAge').innerText = currentProduct.age || '-';
+    
+    document.getElementById('modal').style.display = 'flex';
+}
+
+function closeModal() {
+    document.getElementById('modal').style.display = 'none';
+}
+
+// Wishlist
+function addToWishlist(id) {
+    const product = products.find(p => p.id === id);
+    if (!wishlist.find(w => w.id === id)) {
+        wishlist.push(product);
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+        updateCounts();
+        alert('⭐ Istaklarga qo\'shildi!');
+    }
+}
+
+function addWishlistModal() {
+    addToWishlist(currentProduct.id);
+}
+
+function openWishlist() {
+    const container = document.getElementById('wishlistItems');
+    if (wishlist.length === 0) {
+        container.innerHTML = '<p style="text-align:center">⭐ Bo\'sh</p>';
+    } else {
+        container.innerHTML = wishlist.map(item => `
+            <div class="cart-item">
+                <img class="item-image" src="${item.image_url}">
+                <div style="flex:1">
+                    <b>${item.name}</b><br>
+                    ${(item.price || 0).toLocaleString()} so'm
+                </div>
+                <button onclick="removeFromWishlist('${item.id}')" style="background:#ff1493; color:white; border:none; padding:5px 10px; border-radius:5px;">❌</button>
+            </div>
+        `).join('');
+    }
+    document.getElementById('wishlistSidebar').classList.add('active');
+}
+
+function removeFromWishlist(id) {
+    wishlist = wishlist.filter(w => w.id !== id);
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+    updateCounts();
+    openWishlist();
+}
+
+function closeWishlist() {
+    document.getElementById('wishlistSidebar').classList.remove('active');
+}
+
+// Cart
+function addToCart(id) {
+    const product = products.find(p => p.id === id);
+    if (!cart.find(c => c.id === id)) {
+        cart.push(product);
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCounts();
+        alert('🛒 Savatchaga qo\'shildi!');
+    }
+}
+
+function addCartModal() {
+    addToCart(currentProduct.id);
+}
+
+function openCart() {
+    const container = document.getElementById('cartItems');
+    const totalDiv = document.getElementById('cartTotal');
+    
+    if (cart.length === 0) {
+        container.innerHTML = '<p style="text-align:center">🛒 Bo\'sh</p>';
+        totalDiv.innerHTML = '';
+    } else {
+        const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+        container.innerHTML = cart.map(item => `
+            <div class="cart-item">
+                <img class="item-image" src="${item.image_url}">
+                <div style="flex:1">
+                    <b>${item.name}</b><br>
+                    ${(item.price || 0).toLocaleString()} so'm<br>
+                    📏 ${item.size || '-'} | 🎂 ${item.age || '-'}
+                </div>
+                <button onclick="removeFromCart('${item.id}')" style="background:#ff1493; color:white; border:none; padding:5px 10px; border-radius:5px;">❌</button>
+            </div>
+        `).join('');
+        totalDiv.innerHTML = `<h3>💰 Jami: ${total.toLocaleString()} so'm</h3>`;
+    }
+    document.getElementById('cartSidebar').classList.add('active');
+}
+
+function removeFromCart(id) {
+    cart = cart.filter(c => c.id !== id);
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCounts();
+    openCart();
+}
+
+function closeCart() {
+    document.getElementById('cartSidebar').classList.remove('active');
+}
+
+// Buyurtma
+function checkout() {
+    if (cart.length === 0) {
+        alert('❌ Savatcha bo\'sh!');
+        return;
+    }
+    
+    const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
+    alert(`✅ Buyurtma qabul qilindi!\n\nJami: ${total.toLocaleString()} so'm\n\nOperator tez orada aloqaga chiqadi.`);
+    
+    cart = [];
+    localStorage.setItem('cart', JSON.stringify(cart));
+    updateCounts();
+    closeCart();
+}
+
+// Settings
+function openSettings() {
+    document.getElementById('settingsSidebar').classList.add('active');
+}
+
+function closeSettings() {
+    document.getElementById('settingsSidebar').classList.remove('active');
+}
+
+function goAdmin() {
+    const pass = prompt('🔐 Admin panelga kirish paroli:');
+    if (pass === '4321') {
+        window.location.href = '/admin.html';
+    } else {
+        alert('❌ Parol xato!');
+    }
+}
+
+// Yangilash
+setInterval(() => {
+    updateCounts();
+}, 1000);
+
+// Boshlash
+loadProducts();
 </script>
 </body>
 </html>
