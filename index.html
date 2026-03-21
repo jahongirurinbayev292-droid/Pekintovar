@@ -21,7 +21,6 @@
             padding-bottom: 20px;
         }
         
-        /* Header */
         .header {
             background: rgba(255,255,255,0.95);
             padding: 12px 15px;
@@ -56,7 +55,6 @@
             font-weight: bold;
         }
         
-        /* Products Grid - 3 qator */
         .products-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
@@ -66,18 +64,13 @@
         }
         
         @media (max-width: 700px) {
-            .products-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
+            .products-grid { grid-template-columns: repeat(2, 1fr); }
         }
         
         @media (max-width: 450px) {
-            .products-grid {
-                grid-template-columns: 1fr;
-            }
+            .products-grid { grid-template-columns: 1fr; }
         }
         
-        /* Product Card */
         .product-card {
             background: white;
             border-radius: 12px;
@@ -147,7 +140,6 @@
             color: white;
         }
         
-        /* Modal */
         .modal {
             display: none;
             position: fixed;
@@ -184,7 +176,6 @@
             color: #ff1493;
         }
         
-        /* Sidebar */
         .sidebar {
             position: fixed;
             right: -100%;
@@ -308,7 +299,6 @@
     <div class="loading">⏳ Mahsulotlar yuklanmoqda...</div>
 </div>
 
-<!-- Modal -->
 <div id="productModal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
@@ -323,7 +313,6 @@
     </div>
 </div>
 
-<!-- Wishlist Sidebar -->
 <div id="wishlistSidebar" class="sidebar">
     <div class="sidebar-header">
         <h2>⭐ Istaklar</h2>
@@ -332,7 +321,6 @@
     <div id="wishlistItems"></div>
 </div>
 
-<!-- Cart Sidebar -->
 <div id="cartSidebar" class="sidebar">
     <div class="sidebar-header">
         <h2>🛒 Savatcha</h2>
@@ -343,7 +331,6 @@
     <button class="checkout-btn" onclick="checkout()">✅ Buyurtma berish</button>
 </div>
 
-<!-- Settings Sidebar -->
 <div id="settingsSidebar" class="sidebar">
     <div class="sidebar-header">
         <h2>⚙️ Sozlamalar</h2>
@@ -363,7 +350,6 @@ let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 let currentProduct = null;
 
-// Mahsulotlarni yuklash
 function loadProducts() {
     db.ref('products').on('value', (snapshot) => {
         const data = snapshot.val();
@@ -386,9 +372,7 @@ function displayProducts() {
             <div class="product-info">
                 <div class="product-name">${escapeHtml(product.name)}</div>
                 <div class="product-price">${(product.price || 0).toLocaleString()} so'm</div>
-                <div class="product-meta">
-                    📏 ${product.size || '-'} | 🎂 ${product.age || '-'}
-                </div>
+                <div class="product-meta">📏 ${product.size || '-'} | 🎂 ${product.age || '-'}</div>
                 <div class="card-buttons">
                     <button class="btn btn-wishlist" onclick="event.stopPropagation(); addToWishlist('${product.id}')">⭐</button>
                     <button class="btn btn-cart" onclick="event.stopPropagation(); addToCart('${product.id}')">🛒</button>
@@ -413,7 +397,6 @@ function updateCounts() {
     document.getElementById('cartCount').innerText = cart.length;
 }
 
-// Modal
 function openModal(id) {
     currentProduct = products.find(p => p.id === id);
     if (!currentProduct) return;
@@ -431,7 +414,6 @@ function closeModal() {
     document.getElementById('productModal').style.display = 'none';
 }
 
-// Wishlist
 function addToWishlist(id) {
     const product = products.find(p => p.id === id);
     if (!wishlist.find(w => w.id === id)) {
@@ -476,7 +458,6 @@ function closeWishlist() {
     document.getElementById('wishlistSidebar').classList.remove('active');
 }
 
-// Cart
 function addToCart(id) {
     const product = products.find(p => p.id === id);
     if (!cart.find(c => c.id === id)) {
@@ -527,7 +508,6 @@ function closeCart() {
     document.getElementById('cartSidebar').classList.remove('active');
 }
 
-// Buyurtma
 function checkout() {
     if (cart.length === 0) {
         alert('❌ Savatcha bo\'sh!');
@@ -543,7 +523,6 @@ function checkout() {
     closeCart();
 }
 
-// Settings
 function openSettings() {
     document.getElementById('settingsSidebar').classList.add('active');
 }
@@ -561,7 +540,6 @@ function goToAdmin() {
     }
 }
 
-// Boshlash
 loadProducts();
 </script>
 </body>
