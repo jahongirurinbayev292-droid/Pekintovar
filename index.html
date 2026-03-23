@@ -2,704 +2,137 @@
 <html lang="uz">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>NEON MARKET | Pekin Tovar</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NEON MARKET</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', 'Poppins', 'Arial', sans-serif;
-            background: linear-gradient(135deg, #0a0a2a 0%, #1a0033 100%);
-            color: #fff;
-            min-height: 100vh;
-        }
-
-        /* Neon Animatsiya */
-        @keyframes neonPulse {
-            0%, 100% { text-shadow: 0 0 5px #bf40ff, 0 0 10px #bf40ff; }
-            50% { text-shadow: 0 0 15px #bf40ff, 0 0 25px #bf40ff, 0 0 35px #bf40ff; }
-        }
-
-        @keyframes glowBorder {
-            0%, 100% { border-color: rgba(191, 64, 255, 0.3); }
-            50% { border-color: #bf40ff; }
-        }
-
-        /* Navbar */
-        .navbar {
-            background: rgba(0, 0, 0, 0.85);
-            backdrop-filter: blur(15px);
-            padding: 1rem 2rem;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid #bf40ff;
-            animation: glowBorder 2s infinite;
-        }
-
-        .nav-content {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-        }
-
-        .logo {
-            font-size: 1.5rem;
-            font-weight: bold;
-            background: linear-gradient(45deg, #bf40ff, #ff40bf);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            animation: neonPulse 2s infinite;
-        }
-
-        .nav-buttons {
-            display: flex;
-            gap: 1rem;
-        }
-
-        .nav-btn {
-            background: rgba(191, 64, 255, 0.2);
-            border: 1px solid #bf40ff;
-            color: #bf40ff;
-            padding: 0.5rem 1rem;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
-        }
-
-        .nav-btn:hover {
-            background: #bf40ff;
-            color: #fff;
-            transform: translateY(-2px);
-            box-shadow: 0 0 20px #bf40ff;
-        }
-
-        /* Category Filter */
-        .categories-filter {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-            display: flex;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        .cat-btn {
-            background: rgba(191, 64, 255, 0.15);
-            border: 1px solid #bf40ff;
-            color: #bf40ff;
-            padding: 0.5rem 1.2rem;
-            border-radius: 25px;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .cat-btn.active, .cat-btn:hover {
-            background: #bf40ff;
-            color: #fff;
-            transform: scale(1.05);
-        }
-
-        /* Products Grid - 3 QATOR */
-        .products-grid {
-            max-width: 1200px;
-            margin: 2rem auto;
-            padding: 0 1rem;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 2rem;
-        }
-
-        @media (max-width: 900px) {
-            .products-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-
-        @media (max-width: 600px) {
-            .products-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-
-        /* Product Card */
-        .product-card {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            overflow: hidden;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            cursor: pointer;
-            border: 1px solid rgba(191, 64, 255, 0.3);
-        }
-
-        .product-card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 40px rgba(191, 64, 255, 0.4);
-            border-color: #bf40ff;
-        }
-
-        .product-image {
-            width: 100%;
-            height: 220px;
-            object-fit: cover;
-            transition: transform 0.5s;
-        }
-
-        .product-card:hover .product-image {
-            transform: scale(1.05);
-        }
-
-        .product-info {
-            padding: 1rem;
-        }
-
-        .product-name {
-            font-size: 1rem;
-            font-weight: bold;
-            margin-bottom: 0.5rem;
-        }
-
-        .product-price {
-            color: #bf40ff;
-            font-size: 1.2rem;
-            font-weight: bold;
-        }
-
-        .product-meta {
-            display: flex;
-            gap: 1rem;
-            margin: 0.5rem 0;
-            font-size: 0.8rem;
-            color: rgba(255,255,255,0.6);
-        }
-
-        .card-buttons {
-            display: flex;
-            gap: 0.8rem;
-            margin-top: 1rem;
-        }
-
-        .btn {
-            flex: 1;
-            padding: 0.5rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-weight: bold;
-        }
-
-        .btn-wishlist {
-            background: rgba(255, 64, 64, 0.2);
-            color: #ff6b6b;
-            border: 1px solid #ff6b6b;
-        }
-
-        .btn-cart {
-            background: rgba(191, 64, 255, 0.2);
-            color: #bf40ff;
-            border: 1px solid #bf40ff;
-        }
-
-        .btn-wishlist:hover, .btn-cart:hover {
-            transform: scale(1.02);
-        }
-
-        /* Modal */
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 2000;
-            justify-content: center;
-            align-items: center;
-            backdrop-filter: blur(10px);
-        }
-
-        .modal-content {
-            background: linear-gradient(135deg, #1a0033 0%, #0a0a2a 100%);
-            border-radius: 20px;
-            max-width: 400px;
-            width: 90%;
-            padding: 1.5rem;
-            border: 2px solid #bf40ff;
-            animation: neonPulse 1s infinite;
-        }
-
-        .modal-image {
-            width: 100%;
-            border-radius: 10px;
-        }
-
-        .close {
-            float: right;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #bf40ff;
-            transition: transform 0.3s;
-        }
-
-        .close:hover {
-            transform: rotate(90deg);
-        }
-
-        /* Sidebar */
-        .sidebar {
-            position: fixed;
-            right: -400px;
-            top: 0;
-            width: 380px;
-            height: 100%;
-            background: rgba(10, 10, 42, 0.98);
-            backdrop-filter: blur(20px);
-            z-index: 1500;
-            transition: right 0.3s;
-            padding: 1.5rem;
-            overflow-y: auto;
-            border-left: 2px solid #bf40ff;
-        }
-
-        .sidebar.active {
-            right: 0;
-        }
-
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-            border-bottom: 1px solid #bf40ff;
-            padding-bottom: 0.5rem;
-        }
-
-        .sidebar-header h2 {
-            color: #bf40ff;
-        }
-
-        .sidebar-close {
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #bf40ff;
-        }
-
-        .cart-item, .wishlist-item {
-            background: rgba(191, 64, 255, 0.1);
-            margin-bottom: 0.8rem;
-            padding: 0.8rem;
-            border-radius: 10px;
-            display: flex;
-            gap: 0.8rem;
-            align-items: center;
-        }
-
-        .item-image {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-
-        .item-info {
-            flex: 1;
-        }
-
-        .item-name {
-            font-weight: bold;
-        }
-
-        .item-price {
-            color: #bf40ff;
-        }
-
-        .delete-btn {
-            background: #ff4040;
-            color: white;
-            border: none;
-            padding: 0.3rem 0.8rem;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .checkout-btn {
-            background: #bf40ff;
-            color: white;
-            width: 100%;
-            padding: 0.8rem;
-            border: none;
-            border-radius: 10px;
-            margin-top: 1rem;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-
-        .checkout-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 5px 20px rgba(191, 64, 255, 0.5);
-        }
-
-        .loading {
-            text-align: center;
-            padding: 3rem;
-            color: #bf40ff;
-        }
-
-        .empty {
-            text-align: center;
-            padding: 2rem;
-            color: rgba(255,255,255,0.5);
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:Arial;background:linear-gradient(135deg,#0a0a2a,#1a0033);color:#fff}
+        .header{background:rgba(0,0,0,0.85);padding:12px;display:flex;justify-content:space-between;border-bottom:1px solid #bf40ff;position:sticky;top:0}
+        .logo{color:#bf40ff;font-size:20px;font-weight:bold}
+        .nav-btn{background:rgba(191,64,255,0.2);border:1px solid #bf40ff;color:#bf40ff;padding:6px 12px;border-radius:20px;cursor:pointer;margin-left:5px}
+        .products-grid{max-width:1200px;margin:20px auto;padding:0 12px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+        @media(max-width:800px){.products-grid{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:500px){.products-grid{grid-template-columns:1fr}}
+        .product-card{background:rgba(255,255,255,0.08);border-radius:12px;overflow:hidden;cursor:pointer;border:1px solid rgba(191,64,255,0.3);transition:0.2s}
+        .product-card:hover{transform:translateY(-3px);border-color:#bf40ff}
+        .product-image{width:100%;height:180px;object-fit:cover}
+        .product-info{padding:10px}
+        .product-name{font-size:14px;font-weight:bold}
+        .product-price{color:#bf40ff;font-size:16px;font-weight:bold}
+        .product-meta{font-size:11px;color:rgba(255,255,255,0.6);margin:5px 0}
+        .card-buttons{display:flex;gap:8px;margin-top:8px}
+        .btn{flex:1;padding:6px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold}
+        .btn-wishlist{background:rgba(255,64,64,0.2);color:#ff6b6b;border:1px solid #ff6b6b}
+        .btn-cart{background:rgba(191,64,255,0.2);color:#bf40ff;border:1px solid #bf40ff}
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);justify-content:center;align-items:center;z-index:1000}
+        .modal-content{background:#1a0033;border-radius:15px;width:90%;max-width:350px;padding:15px;border:2px solid #bf40ff}
+        .modal-content img{width:100%;border-radius:10px}
+        .close{float:right;font-size:24px;cursor:pointer;color:#bf40ff}
+        .sidebar{position:fixed;right:-100%;top:0;width:100%;max-width:350px;height:100%;background:rgba(10,10,30,0.98);z-index:1001;transition:0.3s;padding:15px;border-left:2px solid #bf40ff}
+        .sidebar.active{right:0}
+        .sidebar-header{display:flex;justify-content:space-between;margin-bottom:15px;border-bottom:1px solid #bf40ff;padding-bottom:8px}
+        .sidebar-header h2{color:#bf40ff;font-size:18px}
+        .sidebar-close{font-size:24px;cursor:pointer;color:#bf40ff}
+        .cart-item,.wishlist-item{background:rgba(191,64,255,0.1);margin-bottom:10px;padding:8px;border-radius:8px;display:flex;gap:8px;align-items:center}
+        .item-image{width:50px;height:50px;object-fit:cover;border-radius:6px}
+        .item-info{flex:1}
+        .item-name{font-weight:bold;font-size:13px}
+        .item-price{color:#bf40ff;font-size:12px}
+        .delete-btn{background:#ff4040;color:white;border:none;padding:4px 10px;border-radius:5px;cursor:pointer}
+        .checkout-btn{background:#bf40ff;color:white;width:100%;padding:10px;border:none;border-radius:8px;margin-top:12px;cursor:pointer}
+        .loading{text-align:center;padding:40px;color:#bf40ff}
+        .empty{text-align:center;padding:20px;color:rgba(255,255,255,0.5)}
     </style>
 </head>
 <body>
 
-<nav class="navbar">
-    <div class="nav-content">
-        <div class="logo">✨ NEON MARKET ✨</div>
-        <div class="nav-buttons">
-            <button class="nav-btn" onclick="openWishlist()">⭐ Istaklar (<span id="wishlistCount">0</span>)</button>
-            <button class="nav-btn" onclick="openCart()">🛒 Savatcha (<span id="cartCount">0</span>)</button>
-            <button class="nav-btn" onclick="openSettings()">⚙️ Sozlamalar</button>
-        </div>
+<div class="header">
+    <div class="logo">✨ NEON MARKET</div>
+    <div>
+        <button class="nav-btn" onclick="openWishlist()">⭐ <span id="wc">0</span></button>
+        <button class="nav-btn" onclick="openCart()">🛒 <span id="cc">0</span></button>
+        <button class="nav-btn" onclick="openSettings()">⚙️</button>
     </div>
-</nav>
-
-<div class="categories-filter" id="categoriesFilter">
-    <button class="cat-btn active" onclick="filterCategory('all')">🔥 Hamma</button>
-    <button class="cat-btn" onclick="filterCategory('Kiyimlar')">👕 Kiyimlar</button>
-    <button class="cat-btn" onclick="filterCategory('Oyoq kiyimlar')">👟 Oyoq kiyimlar</button>
-    <button class="cat-btn" onclick="filterCategory('Aksessuarlar')">🧢 Aksessuarlar</button>
 </div>
 
-<div class="products-grid" id="productsGrid">
-    <div class="loading">⏳ Mahsulotlar yuklanmoqda...</div>
-</div>
+<div class="products-grid" id="grid"><div class="loading">⏳ Yuklanmoqda...</div></div>
 
-<!-- Modal -->
-<div id="productModal" class="modal">
+<div id="modal" class="modal">
     <div class="modal-content">
         <span class="close" onclick="closeModal()">&times;</span>
-        <img id="modalImage" class="modal-image">
-        <h2 id="modalName" style="margin-top: 0.5rem;"></h2>
-        <div id="modalPrice" style="color:#bf40ff; font-size:1.3rem; font-weight:bold;"></div>
-        <div class="product-meta">
-            <span>📏 Razmer: <span id="modalSize"></span></span>
-            <span>🎂 Yosh: <span id="modalAge"></span></span>
-        </div>
+        <img id="mImg"><h3 id="mName" style="margin-top:8px"></h3>
+        <div id="mPrice" style="font-size:18px;color:#bf40ff;font-weight:bold"></div>
+        <p style="font-size:12px">📏 Razmer: <span id="mSize"></span> | 🎂 Yosh: <span id="mAge"></span></p>
         <div class="card-buttons">
-            <button class="btn btn-wishlist" onclick="addToWishlistFromModal()">⭐ Istaklarga</button>
-            <button class="btn btn-cart" onclick="addToCartFromModal()">🛒 Savatchaga</button>
+            <button class="btn btn-wishlist" onclick="addWishlistModal()">⭐ Istak</button>
+            <button class="btn btn-cart" onclick="addCartModal()">🛒 Savat</button>
         </div>
     </div>
 </div>
 
-<!-- Wishlist Sidebar -->
-<div id="wishlistSidebar" class="sidebar">
-    <div class="sidebar-header">
-        <h2>⭐ Istaklar</h2>
-        <span class="sidebar-close" onclick="closeWishlist()">&times;</span>
-    </div>
-    <div id="wishlistItems"></div>
-</div>
+<div id="wishlistSidebar" class="sidebar"><div class="sidebar-header"><h2>⭐ Istaklar</h2><span class="sidebar-close" onclick="closeWishlist()">&times;</span></div><div id="wishlistItems"></div></div>
+<div id="cartSidebar" class="sidebar"><div class="sidebar-header"><h2>🛒 Savatcha</h2><span class="sidebar-close" onclick="closeCart()">&times;</span></div><div id="cartItems"></div><div id="cartTotal"></div><button class="checkout-btn" onclick="checkout()">✅ Buyurtma</button></div>
+<div id="settingsSidebar" class="sidebar"><div class="sidebar-header"><h2>⚙️ Sozlamalar</h2><span class="sidebar-close" onclick="closeSettings()">&times;</span></div><button class="checkout-btn" onclick="goAdmin()">👑 Admin panel</button></div>
 
-<!-- Cart Sidebar -->
-<div id="cartSidebar" class="sidebar">
-    <div class="sidebar-header">
-        <h2>🛒 Savatcha</h2>
-        <span class="sidebar-close" onclick="closeCart()">&times;</span>
-    </div>
-    <div id="cartItems"></div>
-    <div id="cartTotal"></div>
-    <button class="checkout-btn" onclick="checkout()">✅ Buyurtma berish</button>
-</div>
-
-<!-- Settings Sidebar -->
-<div id="settingsSidebar" class="sidebar">
-    <div class="sidebar-header">
-        <h2>⚙️ Sozlamalar</h2>
-        <span class="sidebar-close" onclick="closeSettings()">&times;</span>
-    </div>
-    <button class="checkout-btn" onclick="goToAdmin()">👑 Admin panelga o'tish</button>
-</div>
-
-<script src="config.js"></script>
 <script>
-// ============ FIREBASE ============
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+let products = [];
+let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+let current = null;
 
-// ============ GLOBAL ============
-let allProducts = [];
-let currentCategory = 'all';
-let wishlist = JSON.parse(localStorage.getItem('neon_wishlist') || '[]');
-let cart = JSON.parse(localStorage.getItem('neon_cart') || '[]');
-let currentProduct = null;
-
-// ============ MAHSULOTLARNI YUKLASH ============
-function loadProducts() {
-    database.ref('products').on('value', (snapshot) => {
-        const data = snapshot.val();
-        allProducts = data ? Object.values(data) : [];
-        displayProducts();
-        updateCounts();
-    });
+async function loadProducts() {
+    try {
+        let res = await fetch('/api/products');
+        products = await res.json();
+    } catch(e) {
+        let local = localStorage.getItem('products');
+        products = local ? JSON.parse(local) : [];
+    }
+    displayProducts();
+    updateCounts();
 }
 
 function displayProducts() {
-    const grid = document.getElementById('productsGrid');
-    let filtered = currentCategory === 'all' 
-        ? allProducts 
-        : allProducts.filter(p => p.category === currentCategory);
-    
-    if (filtered.length === 0) {
-        grid.innerHTML = '<div class="loading">📭 Bu bo\'limda mahsulot yo\'q</div>';
-        return;
-    }
-    
-    grid.innerHTML = filtered.map(product => `
-        <div class="product-card" onclick="openModal('${product.id}')">
-            <img class="product-image" src="${product.image_url}" onerror="this.src='https://placehold.co/400x400/bf40ff/white?text=NO'">
+    let grid = document.getElementById('grid');
+    if(products.length===0){grid.innerHTML='<div class="loading">📭 Mahsulot yo\'q</div>';return;}
+    grid.innerHTML = products.map(p=>`
+        <div class="product-card" onclick="openModal('${p.id}')">
+            <img class="product-image" src="${p.image_url}" onerror="this.src='https://placehold.co/300x300/bf40ff/white?text=NO'">
             <div class="product-info">
-                <div class="product-name">${escapeHtml(product.name)}</div>
-                <div class="product-price">${(product.price || 0).toLocaleString()} so'm</div>
-                <div class="product-meta">
-                    <span>📏 ${product.size || '?'}</span>
-                    <span>🎂 ${product.age || '?'}</span>
-                </div>
+                <div class="product-name">${p.name}</div>
+                <div class="product-price">${(p.price||0).toLocaleString()} so'm</div>
+                <div class="product-meta">📏 ${p.size||'-'} | 🎂 ${p.age||'-'}</div>
                 <div class="card-buttons">
-                    <button class="btn btn-wishlist" onclick="event.stopPropagation(); addToWishlist('${product.id}')">⭐</button>
-                    <button class="btn btn-cart" onclick="event.stopPropagation(); addToCart('${product.id}')">🛒</button>
+                    <button class="btn btn-wishlist" onclick="event.stopPropagation(); addWishlist('${p.id}')">⭐</button>
+                    <button class="btn btn-cart" onclick="event.stopPropagation(); addCart('${p.id}')">🛒</button>
                 </div>
             </div>
         </div>
     `).join('');
 }
 
-function escapeHtml(text) {
-    if (!text) return '';
-    return text.replace(/[&<>]/g, function(m) {
-        if (m === '&') return '&amp;';
-        if (m === '<') return '&lt;';
-        if (m === '>') return '&gt;';
-        return m;
-    });
-}
+function updateCounts(){document.getElementById('wc').innerText=wishlist.length;document.getElementById('cc').innerText=cart.length;}
 
-function filterCategory(category) {
-    currentCategory = category;
-    displayProducts();
-    document.querySelectorAll('.cat-btn').forEach(btn => {
-        btn.classList.remove('active');
-        if (btn.innerText.includes(category === 'all' ? 'Hamma' : category)) {
-            btn.classList.add('active');
-        }
-    });
-}
+function openModal(id){current=products.find(p=>p.id===id);if(!current)return;document.getElementById('mImg').src=current.image_url;document.getElementById('mName').innerText=current.name;document.getElementById('mPrice').innerHTML=`${(current.price||0).toLocaleString()} so'm`;document.getElementById('mSize').innerText=current.size||'-';document.getElementById('mAge').innerText=current.age||'-';document.getElementById('modal').style.display='flex';}
+function closeModal(){document.getElementById('modal').style.display='none';}
 
-function updateCounts() {
-    document.getElementById('wishlistCount').innerText = wishlist.length;
-    document.getElementById('cartCount').innerText = cart.length;
-}
+function addWishlist(id){let p=products.find(p=>p.id===id);if(!wishlist.find(w=>w.id===id)){wishlist.push(p);localStorage.setItem('wishlist',JSON.stringify(wishlist));updateCounts();alert('⭐ Qo\'shildi');}}
+function addWishlistModal(){addWishlist(current.id);}
+function openWishlist(){let c=document.getElementById('wishlistItems');if(wishlist.length===0)c.innerHTML='<div class="empty">⭐ Bo\'sh</div>';else c.innerHTML=wishlist.map(i=>`<div class="cart-item"><img class="item-image" src="${i.image_url}"><div class="item-info"><div class="item-name">${i.name}</div><div class="item-price">${(i.price||0).toLocaleString()} so'm</div></div><button class="delete-btn" onclick="removeWishlist('${i.id}')">❌</button></div>`).join('');document.getElementById('wishlistSidebar').classList.add('active');}
+function removeWishlist(id){wishlist=wishlist.filter(w=>w.id!==id);localStorage.setItem('wishlist',JSON.stringify(wishlist));updateCounts();openWishlist();}
+function closeWishlist(){document.getElementById('wishlistSidebar').classList.remove('active');}
 
-// ============ MODAL ============
-function openModal(id) {
-    currentProduct = allProducts.find(p => p.id === id);
-    if (!currentProduct) return;
-    
-    document.getElementById('modalImage').src = currentProduct.image_url;
-    document.getElementById('modalName').innerText = currentProduct.name;
-    document.getElementById('modalPrice').innerHTML = `${(currentProduct.price || 0).toLocaleString()} so'm`;
-    document.getElementById('modalSize').innerText = currentProduct.size || '-';
-    document.getElementById('modalAge').innerText = currentProduct.age || '-';
-    
-    document.getElementById('productModal').style.display = 'flex';
-}
-
-function closeModal() {
-    document.getElementById('productModal').style.display = 'none';
-}
-
-// ============ WISHLIST ============
-function addToWishlist(id) {
-    const product = allProducts.find(p => p.id === id);
-    if (!wishlist.find(w => w.id === id)) {
-        wishlist.push(product);
-        localStorage.setItem('neon_wishlist', JSON.stringify(wishlist));
-        updateCounts();
-        showNotification('⭐ Istaklarga qo\'shildi!', 'success');
-    } else {
-        showNotification('⚠️ Bu mahsulot allaqachon istaklarda!', 'warning');
-    }
-}
-
-function addToWishlistFromModal() {
-    addToWishlist(currentProduct.id);
-}
-
-function openWishlist() {
-    const container = document.getElementById('wishlistItems');
-    if (wishlist.length === 0) {
-        container.innerHTML = '<div class="empty">⭐ Istaklar ro\'yxati bo\'sh</div>';
-    } else {
-        container.innerHTML = wishlist.map(item => `
-            <div class="cart-item">
-                <img class="item-image" src="${item.image_url}">
-                <div class="item-info">
-                    <div class="item-name">${item.name}</div>
-                    <div class="item-price">${(item.price || 0).toLocaleString()} so'm</div>
-                    <div style="font-size:0.7rem;">📏 ${item.size || '-'} | 🎂 ${item.age || '-'}</div>
-                </div>
-                <button class="delete-btn" onclick="removeFromWishlist('${item.id}')">❌</button>
-            </div>
-        `).join('');
-    }
-    document.getElementById('wishlistSidebar').classList.add('active');
-}
-
-function removeFromWishlist(id) {
-    wishlist = wishlist.filter(w => w.id !== id);
-    localStorage.setItem('neon_wishlist', JSON.stringify(wishlist));
-    updateCounts();
-    openWishlist();
-    showNotification('🗑️ Istaklardan o\'chirildi', 'info');
-}
-
-function closeWishlist() {
-    document.getElementById('wishlistSidebar').classList.remove('active');
-}
-
-// ============ CART ============
-function addToCart(id) {
-    const product = allProducts.find(p => p.id === id);
-    if (!cart.find(c => c.id === id)) {
-        cart.push(product);
-        localStorage.setItem('neon_cart', JSON.stringify(cart));
-        updateCounts();
-        showNotification('🛒 Savatchaga qo\'shildi!', 'success');
-    } else {
-        showNotification('⚠️ Bu mahsulot allaqachon savatchada!', 'warning');
-    }
-}
-
-function addToCartFromModal() {
-    addToCart(currentProduct.id);
-}
-
-function openCart() {
-    const container = document.getElementById('cartItems');
-    const totalDiv = document.getElementById('cartTotal');
-    
-    if (cart.length === 0) {
-        container.innerHTML = '<div class="empty">🛒 Savatcha bo\'sh</div>';
-        totalDiv.innerHTML = '';
-    } else {
-        const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
-        container.innerHTML = cart.map(item => `
-            <div class="cart-item">
-                <img class="item-image" src="${item.image_url}">
-                <div class="item-info">
-                    <div class="item-name">${item.name}</div>
-                    <div class="item-price">${(item.price || 0).toLocaleString()} so'm</div>
-                    <div style="font-size:0.7rem;">📏 ${item.size || '-'} | 🎂 ${item.age || '-'}</div>
-                </div>
-                <button class="delete-btn" onclick="removeFromCart('${item.id}')">❌</button>
-            </div>
-        `).join('');
-        totalDiv.innerHTML = `<div style="margin-top:1rem; padding:0.8rem; background:rgba(191,64,255,0.2); border-radius:10px;"><b>💰 Jami: ${total.toLocaleString()} so'm</b></div>`;
-    }
-    document.getElementById('cartSidebar').classList.add('active');
-}
-
-function removeFromCart(id) {
-    cart = cart.filter(c => c.id !== id);
-    localStorage.setItem('neon_cart', JSON.stringify(cart));
-    updateCounts();
-    openCart();
-    showNotification('🗑️ Savatchadan o\'chirildi', 'info');
-}
-
-function closeCart() {
-    document.getElementById('cartSidebar').classList.remove('active');
-}
-
-// ============ BUYURTMA ============
-function checkout() {
-    if (cart.length === 0) {
-        showNotification('❌ Savatcha bo\'sh!', 'error');
-        return;
-    }
-    
-    const total = cart.reduce((sum, item) => sum + (item.price || 0), 0);
-    const orderMessage = `🛍 YANGI BUYURTMA!\n\n📦 Mahsulotlar:\n${cart.map((item, i) => `${i+1}. ${item.name} - ${(item.price || 0).toLocaleString()} so'm\n   📏 ${item.size || '-'} | 🎂 ${item.age || '-'}`).join('\n')}\n\n💰 Jami: ${total.toLocaleString()} so'm\n📅 Sana: ${new Date().toLocaleString()}`;
-    
-    // Admin Telegramga yuborish
-    const BOT_TOKEN = "PEKIN_TOVAR_BOT_TOKENI";
-    fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({
-            chat_id: "@Jahongir3616",
-            text: orderMessage
-        })
-    }).catch(e => console.log('Telegram yuborish xatosi:', e));
-    
-    showNotification(`✅ Buyurtma qabul qilindi!\nJami: ${total.toLocaleString()} so'm\nOperator tez orada aloqaga chiqadi.`, 'success');
-    
-    cart = [];
-    localStorage.setItem('neon_cart', JSON.stringify(cart));
-    updateCounts();
-    closeCart();
-}
-
-// ============ SOZLAMALAR ============
-function openSettings() {
-    document.getElementById('settingsSidebar').classList.add('active');
-}
-
-function closeSettings() {
-    document.getElementById('settingsSidebar').classList.remove('active');
-}
-
-function goToAdmin() {
-    const pass = prompt('🔐 Admin panelga kirish parolini kiriting:');
-    if (pass === ADMIN_PASSWORD) {
-        window.location.href = '/admin.html';
-    } else {
-        showNotification('❌ Parol xato!', 'error');
-    }
-}
-
-// ============ NOTIFICATION ============
-function showNotification(message, type = 'success') {
-    // Simple alert (Telegram Mini App da ishlaydi)
-    alert(message);
-}
-
-// ============ AUTO REFRESH ============
-setInterval(() => {
-    updateCounts();
-}, 1000);
-
-// ============ BOSHLASH ============
+function addCart(id){let p=products.find(p=>p.id===id);if(!cart.find(c=>c.id===id)){cart.push(p);localStorage.setItem('cart',JSON.stringify(cart));updateCounts();alert('🛒 Qo\'shildi');}}
+function addCartModal(){addCart(current.id);}
+function openCart(){let c=document.getElementById('cartItems');let t=document.getElementById('cartTotal');if(cart.length===0){c.innerHTML='<div class="empty">🛒 Bo\'sh</div>';t.innerHTML='';}else{let total=cart.reduce((s,i)=>s+(i.price||0),0);c.innerHTML=cart.map(i=>`<div class="cart-item"><img class="item-image" src="${i.image_url}"><div class="item-info"><div class="item-name">${i.name}</div><div class="item-price">${(i.price||0).toLocaleString()} so'm</div><div style="font-size:10px">📏 ${i.size||'-'} | 🎂 ${i.age||'-'}</div></div><button class="delete-btn" onclick="removeCart('${i.id}')">❌</button></div>`).join('');t.innerHTML=`<div style="margin-top:10px;padding:8px;background:rgba(191,64,255,0.2);border-radius:8px;"><b>💰 Jami: ${total.toLocaleString()} so'm</b></div>`;}document.getElementById('cartSidebar').classList.add('active');}
+function removeCart(id){cart=cart.filter(c=>c.id!==id);localStorage.setItem('cart',JSON.stringify(cart));updateCounts();openCart();}
+function closeCart(){document.getElementById('cartSidebar').classList.remove('active');}
+function checkout(){if(cart.length===0){alert('Savatcha bo\'sh');return;}let total=cart.reduce((s,i)=>s+(i.price||0),0);alert(`✅ Buyurtma qabul qilindi!\nJami: ${total.toLocaleString()} so'm`);cart=[];localStorage.setItem('cart',JSON.stringify(cart));updateCounts();closeCart();}
+function openSettings(){document.getElementById('settingsSidebar').classList.add('active');}
+function closeSettings(){document.getElementById('settingsSidebar').classList.remove('active');}
+function goAdmin(){let p=prompt('🔐 Parol:');if(p==='4321'){window.location.href='/admin.html';}else{alert('❌ Parol xato!');}}
 loadProducts();
+setInterval(loadProducts,10000);
 </script>
 </body>
 </html>
