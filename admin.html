@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin | PEKIN TOVAR</title>
+    <title>Admin Panel | NEON MARKET</title>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
     <style>
         * {
             margin: 0;
@@ -15,265 +14,446 @@
         }
         
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #ffb6c1, #ff69b4);
-            padding: 15px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0a0a2a 0%, #1a0033 100%);
+            color: #fff;
+            padding: 20px;
         }
         
         .container {
-            max-width: 100%;
+            max-width: 1400px;
+            margin: 0 auto;
         }
         
         .header {
-            background: white;
-            padding: 12px;
-            border-radius: 12px;
-            margin-bottom: 15px;
+            background: rgba(191, 64, 255, 0.2);
+            padding: 1rem 1.5rem;
+            border-radius: 15px;
+            margin-bottom: 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            border: 1px solid rgba(191, 64, 255, 0.3);
         }
         
         .header h1 {
-            color: #ff1493;
-            font-size: 18px;
+            color: #bf40ff;
+            text-shadow: 0 0 10px #bf40ff;
         }
         
         .logout-btn {
-            background: #ff1493;
+            background: #ff4040;
             color: white;
             border: none;
-            padding: 6px 15px;
-            border-radius: 20px;
+            padding: 0.5rem 1.2rem;
+            border-radius: 8px;
             cursor: pointer;
         }
         
         .section {
-            background: white;
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 15px;
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            border: 1px solid rgba(191, 64, 255, 0.3);
         }
         
-        .section h2 {
-            color: #ff1493;
-            font-size: 16px;
-            margin-bottom: 10px;
-            border-bottom: 2px solid #ff69b4;
-            padding-bottom: 5px;
+        .section-title {
+            color: #bf40ff;
+            font-size: 1.3rem;
+            margin-bottom: 1rem;
+            border-left: 4px solid #bf40ff;
+            padding-left: 1rem;
         }
         
-        input, button {
-            padding: 8px;
-            margin: 4px;
-            border-radius: 8px;
-            border: 1px solid #ff69b4;
-            width: calc(100% - 8px);
+        /* Categories */
+        .categories-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
         }
         
-        button {
-            background: #ff1493;
+        .category-card {
+            background: rgba(191, 64, 255, 0.2);
+            border: 1px solid #bf40ff;
+            border-radius: 30px;
+            padding: 0.5rem 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .delete-cat {
+            background: #ff4040;
             color: white;
-            cursor: pointer;
             border: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+        
+        .add-category-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+        
+        .add-category-form input {
+            flex: 1;
+            padding: 0.6rem;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #bf40ff;
+            border-radius: 8px;
+            color: white;
+        }
+        
+        /* Product Form */
+        .product-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .form-group label {
+            color: #bf40ff;
+            font-weight: bold;
+        }
+        
+        .form-group input, .form-group select {
+            padding: 0.6rem;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid #bf40ff;
+            border-radius: 8px;
+            color: white;
+        }
+        
+        .submit-btn {
+            background: #bf40ff;
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            width: 100%;
+        }
+        
+        /* Products Table */
+        .products-table {
+            overflow-x: auto;
         }
         
         table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 12px;
         }
         
         th, td {
-            padding: 8px;
+            padding: 0.8rem;
             text-align: left;
-            border-bottom: 1px solid #ffe4ec;
+            border-bottom: 1px solid rgba(191, 64, 255, 0.3);
         }
         
         th {
-            background: #ff69b4;
-            color: white;
+            color: #bf40ff;
         }
         
         .product-img {
-            width: 40px;
-            height: 40px;
+            width: 50px;
+            height: 50px;
             object-fit: cover;
+            border-radius: 8px;
+        }
+        
+        .edit-btn, .delete-btn {
+            padding: 0.3rem 0.8rem;
+            margin: 0 0.2rem;
+            border: none;
             border-radius: 5px;
-        }
-        
-        .form-group {
-            margin-bottom: 8px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 3px;
-            color: #ff1493;
-            font-size: 12px;
-            font-weight: bold;
+            cursor: pointer;
         }
         
         .edit-btn {
             background: #ffa500;
-            padding: 4px 8px;
-            margin: 2px;
+            color: white;
         }
         
         .delete-btn {
             background: #ff4040;
-            padding: 4px 8px;
-            margin: 2px;
+            color: white;
         }
         
         .loading {
             text-align: center;
-            padding: 20px;
-            color: #ff1493;
+            padding: 2rem;
+            color: #bf40ff;
+        }
+        
+        @media (max-width: 768px) {
+            .product-form {
+                grid-template-columns: 1fr;
+            }
+            th, td {
+                padding: 0.5rem;
+                font-size: 0.8rem;
+            }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <div class="header">
-        <h1>🌸 Admin Panel</h1>
-        <button class="logout-btn" onclick="logout()">🚪 Chiqish</button>
+    <div class="container">
+        <div class="header">
+            <h1>👑 NEON MARKET | Admin Panel</h1>
+            <button class="logout-btn" onclick="logout()">🚪 Chiqish</button>
+        </div>
+        
+        <!-- Kategoriyalar Bo'limi -->
+        <div class="section">
+            <h2 class="section-title">📁 Kategoriyalar</h2>
+            <div id="categoriesList" class="categories-grid"></div>
+            <div class="add-category-form">
+                <input type="text" id="newCategoryName" placeholder="Yangi kategoriya nomi...">
+                <button onclick="addCategory()" style="background:#bf40ff; padding:0.6rem 1.2rem; border:none; border-radius:8px; cursor:pointer;">➕ Qo'shish</button>
+            </div>
+        </div>
+        
+        <!-- Mahsulot Qo'shish Bo'limi -->
+        <div class="section">
+            <h2 class="section-title">➕ Mahsulot qo'shish</h2>
+            <div class="product-form">
+                <div class="form-group">
+                    <label>🖼 Rasm URL</label>
+                    <input type="text" id="productImage" placeholder="https://...">
+                </div>
+                <div class="form-group">
+                    <label>📦 Mahsulot nomi</label>
+                    <input type="text" id="productName" placeholder="Masalan: Sport ko'ylak">
+                </div>
+                <div class="form-group">
+                    <label>💰 Narx (so'm)</label>
+                    <input type="number" id="productPrice" placeholder="Masalan: 380000">
+                </div>
+                <div class="form-group">
+                    <label>📏 Razmer</label>
+                    <input type="text" id="productSize" placeholder="Masalan: L, XL, 42">
+                </div>
+                <div class="form-group">
+                    <label>🎂 Yosh</label>
+                    <input type="text" id="productAge" placeholder="Masalan: 7-10 yosh">
+                </div>
+                <div class="form-group">
+                    <label>📁 Kategoriya</label>
+                    <select id="productCategory"></select>
+                </div>
+            </div>
+            <button class="submit-btn" onclick="addProduct()">✅ Mahsulot qo'shish</button>
+        </div>
+        
+        <!-- Mahsulotlar Ro'yxati -->
+        <div class="section">
+            <h2 class="section-title">📦 Barcha mahsulotlar</h2>
+            <div class="products-table" id="productsTable">
+                <div class="loading">⏳ Yuklanmoqda...</div>
+            </div>
+        </div>
     </div>
     
-    <div class="section">
-        <h2>➕ Mahsulot qo'shish</h2>
-        <div class="form-group">
-            <label>Rasm URL</label>
-            <input type="text" id="imgUrl" placeholder="https://...">
-        </div>
-        <div class="form-group">
-            <label>Mahsulot nomi</label>
-            <input type="text" id="name" placeholder="Ko'ylak">
-        </div>
-        <div class="form-group">
-            <label>Narx (so'm)</label>
-            <input type="number" id="price" placeholder="380000">
-        </div>
-        <div class="form-group">
-            <label>Razmer</label>
-            <input type="text" id="size" placeholder="L">
-        </div>
-        <div class="form-group">
-            <label>Yosh</label>
-            <input type="text" id="age" placeholder="7">
-        </div>
-        <button onclick="addProduct()">✅ Qo'shish</button>
-    </div>
-    
-    <div class="section">
-        <h2>📦 Mahsulotlar</h2>
-        <div id="productsTable">
-            <div class="loading">⏳ Yuklanmoqda...</div>
-        </div>
-    </div>
-</div>
-
-<script src="config.js"></script>
-<script>
-firebase.initializeApp(firebaseConfig);
-const db = firebase.database();
-const storage = firebase.storage();
-
-function loadProducts() {
-    db.ref('products').on('value', (snap) => {
-        const data = snap.val();
-        const products = data ? Object.values(data) : [];
+    <script src="config.js"></script>
+    <script>
+        // ============ FIREBASE ============
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
         
-        if (products.length === 0) {
-            document.getElementById('productsTable').innerHTML = '<div class="loading">📭 Mahsulot yo\'q</div>';
-            return;
-        }
+        // ============ GLOBAL ============
+        let categories = ["Kiyimlar", "Oyoq kiyimlar", "Aksessuarlar"];
+        let products = [];
         
-        document.getElementById('productsTable').innerHTML = `
-            <table>
-                <thead><tr><th>Rasm</th><th>Nomi</th><th>Narx</th><th>Razmer</th><th>Yosh</th><th>Amallar</th></tr></thead>
-                <tbody>
-                    ${products.map(p => `
-                        <tr>
-                            <td><img class="product-img" src="${p.image_url}" onerror="this.src='https://placehold.co/40/ff69b4/white?text=?'"></td>
-                            <td><b>${p.name}</b></td>
-                            <td style="color:#ff1493;">${(p.price || 0).toLocaleString()} so'm</td>
-                            <td>${p.size || '-'}</td>
-                            <td>${p.age || '-'}</td>
-                            <td>
-                                <button class="edit-btn" onclick="editProduct('${p.id}')">✏️</button>
-                                <button class="delete-btn" onclick="deleteProduct('${p.id}')">🗑️</button>
-                            </td>
-                        </tr>
-                    `).join('')}
-                </tbody>
-            </table>
-        `;
-    });
-}
-
-function addProduct() {
-    const id = `prod_${Date.now()}`;
-    const name = document.getElementById('name').value;
-    const price = parseInt(document.getElementById('price').value);
-    const size = document.getElementById('size').value;
-    const age = document.getElementById('age').value;
-    const image_url = document.getElementById('imgUrl').value || 'https://placehold.co/400x400/ff69b4/white?text=NO+IMAGE';
-    
-    if (!name || !price) {
-        alert('Nomi va narxni kiriting!');
-        return;
-    }
-    
-    const product = {
-        id: id,
-        name: name,
-        price: price,
-        size: size,
-        age: age,
-        image_url: image_url,
-        created_at: new Date().toISOString()
-    };
-    
-    db.ref(`products/${id}`).set(product);
-    alert('✅ Mahsulot qo\'shildi!');
-    
-    document.getElementById('name').value = '';
-    document.getElementById('price').value = '';
-    document.getElementById('size').value = '';
-    document.getElementById('age').value = '';
-    document.getElementById('imgUrl').value = '';
-}
-
-function editProduct(id) {
-    db.ref(`products/${id}`).once('value', (snap) => {
-        const p = snap.val();
-        if (!p) return;
-        
-        const newName = prompt('Yangi nom:', p.name);
-        const newPrice = prompt('Yangi narx:', p.price);
-        if (newName && newPrice) {
-            db.ref(`products/${id}`).update({
-                name: newName,
-                price: parseInt(newPrice)
+        // ============ KATEGORIYALAR ============
+        function loadCategories() {
+            database.ref('categories').on('value', (snapshot) => {
+                const data = snapshot.val();
+                if (data && Array.isArray(data)) {
+                    categories = data;
+                } else if (data && typeof data === 'object') {
+                    categories = Object.values(data);
+                }
+                displayCategories();
             });
-            alert('✅ Yangilandi!');
         }
-    });
-}
-
-function deleteProduct(id) {
-    if (confirm('O\'chirilsinmi?')) {
-        db.ref(`products/${id}`).remove();
-        alert('✅ O\'chirildi!');
-    }
-}
-
-function logout() {
-    window.location.href = '/';
-}
-
-loadProducts();
-</script>
+        
+        function displayCategories() {
+            const container = document.getElementById('categoriesList');
+            container.innerHTML = categories.map(cat => `
+                <div class="category-card">
+                    ${cat}
+                    <button class="delete-cat" onclick="deleteCategory('${cat}')">✖</button>
+                </div>
+            `).join('');
+            
+            const select = document.getElementById('productCategory');
+            select.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+        }
+        
+        function addCategory() {
+            const newCat = document.getElementById('newCategoryName').value.trim();
+            if (!newCat) {
+                alert('Kategoriya nomini kiriting!');
+                return;
+            }
+            if (categories.includes(newCat)) {
+                alert('Bu kategoriya allaqachon mavjud!');
+                return;
+            }
+            categories.push(newCat);
+            database.ref('categories').set(categories);
+            document.getElementById('newCategoryName').value = '';
+            alert('✅ Kategoriya qo\'shildi!');
+        }
+        
+        function deleteCategory(category) {
+            if (!confirm(`"${category}" kategoriyasini o'chirmoqchimisiz?`)) return;
+            categories = categories.filter(c => c !== category);
+            database.ref('categories').set(categories);
+            alert('✅ Kategoriya o\'chirildi!');
+        }
+        
+        // ============ MAHSULOTLAR ============
+        function loadProducts() {
+            database.ref('products').on('value', (snapshot) => {
+                const data = snapshot.val();
+                products = data ? Object.values(data) : [];
+                displayProducts();
+            });
+        }
+        
+        function displayProducts() {
+            const container = document.getElementById('productsTable');
+            if (products.length === 0) {
+                container.innerHTML = '<div class="loading">📭 Hozircha mahsulot yo\'q</div>';
+                return;
+            }
+            
+            container.innerHTML = `
+                <table>
+                    <thead>
+                        <tr><th>Rasm</th><th>Nomi</th><th>Narx</th><th>Razmer</th><th>Yosh</th><th>Kategoriya</th><th>Amallar</th></tr>
+                    </thead>
+                    <tbody>
+                        ${products.map(product => `
+                            <tr>
+                                <td><img class="product-img" src="${product.image_url}" onerror="this.src='https://placehold.co/50/bf40ff/white?text=?'"></td>
+                                <td><strong>${escapeHtml(product.name)}</strong></td>
+                                <td style="color:#bf40ff;">${(product.price || 0).toLocaleString()} so'm</td>
+                                <td>${product.size || '-'}</td>
+                                <td>${product.age || '-'}</td>
+                                <td>${product.category || '-'}</td>
+                                <td>
+                                    <button class="edit-btn" onclick="editProduct('${product.id}')">✏️</button>
+                                    <button class="delete-btn" onclick="deleteProduct('${product.id}')">🗑️</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        function escapeHtml(text) {
+            if (!text) return '';
+            return text.replace(/[&<>]/g, function(m) {
+                if (m === '&') return '&amp;';
+                if (m === '<') return '&lt;';
+                if (m === '>') return '&gt;';
+                return m;
+            });
+        }
+        
+        function addProduct() {
+            const id = `prod_${Date.now()}`;
+            const name = document.getElementById('productName').value;
+            const price = parseInt(document.getElementById('productPrice').value);
+            const size = document.getElementById('productSize').value;
+            const age = document.getElementById('productAge').value;
+            const category = document.getElementById('productCategory').value;
+            const image_url = document.getElementById('productImage').value || 'https://placehold.co/400x400/bf40ff/white?text=NO+IMAGE';
+            
+            if (!name || !price) {
+                alert('Mahsulot nomi va narxini kiriting!');
+                return;
+            }
+            
+            const product = {
+                id: id,
+                name: name,
+                price: price,
+                size: size,
+                age: age,
+                category: category,
+                image_url: image_url,
+                created_at: new Date().toISOString()
+            };
+            
+            database.ref(`products/${id}`).set(product);
+            alert('✅ Mahsulot qo\'shildi!');
+            
+            // Formani tozalash
+            document.getElementById('productName').value = '';
+            document.getElementById('productPrice').value = '';
+            document.getElementById('productSize').value = '';
+            document.getElementById('productAge').value = '';
+            document.getElementById('productImage').value = '';
+        }
+        
+        function editProduct(id) {
+            database.ref(`products/${id}`).once('value', (snapshot) => {
+                const p = snapshot.val();
+                if (!p) return;
+                
+                const newName = prompt('Yangi nom:', p.name);
+                const newPrice = prompt('Yangi narx:', p.price);
+                const newSize = prompt('Yangi razmer:', p.size || '');
+                const newAge = prompt('Yangi yosh:', p.age || '');
+                const newCategory = prompt('Yangi kategoriya:', p.category || 'Kiyimlar');
+                
+                if (newName && newPrice) {
+                    database.ref(`products/${id}`).update({
+                        name: newName,
+                        price: parseInt(newPrice),
+                        size: newSize,
+                        age: newAge,
+                        category: newCategory
+                    });
+                    alert('✅ Mahsulot yangilandi!');
+                }
+            });
+        }
+        
+        function deleteProduct(id) {
+            if (confirm('Mahsulotni o\'chirmoqchimisiz?')) {
+                database.ref(`products/${id}`).remove();
+                alert('✅ Mahsulot o\'chirildi!');
+            }
+        }
+        
+        function logout() {
+            window.location.href = '/';
+        }
+        
+        // ============ BOSHLASH ============
+        loadCategories();
+        loadProducts();
+    </script>
 </body>
 </html>
