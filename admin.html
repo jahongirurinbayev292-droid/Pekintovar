@@ -3,457 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel | NEON MARKET</title>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    <title>Admin | NEON MARKET</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a0a2a 0%, #1a0033 100%);
-            color: #fff;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
-        .header {
-            background: rgba(191, 64, 255, 0.2);
-            padding: 1rem 1.5rem;
-            border-radius: 15px;
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1rem;
-            border: 1px solid rgba(191, 64, 255, 0.3);
-        }
-        
-        .header h1 {
-            color: #bf40ff;
-            text-shadow: 0 0 10px #bf40ff;
-        }
-        
-        .logout-btn {
-            background: #ff4040;
-            color: white;
-            border: none;
-            padding: 0.5rem 1.2rem;
-            border-radius: 8px;
-            cursor: pointer;
-        }
-        
-        .section {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(10px);
-            border-radius: 15px;
-            padding: 1.5rem;
-            margin-bottom: 2rem;
-            border: 1px solid rgba(191, 64, 255, 0.3);
-        }
-        
-        .section-title {
-            color: #bf40ff;
-            font-size: 1.3rem;
-            margin-bottom: 1rem;
-            border-left: 4px solid #bf40ff;
-            padding-left: 1rem;
-        }
-        
-        /* Categories */
-        .categories-grid {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 0.8rem;
-            margin-bottom: 1.5rem;
-        }
-        
-        .category-card {
-            background: rgba(191, 64, 255, 0.2);
-            border: 1px solid #bf40ff;
-            border-radius: 30px;
-            padding: 0.5rem 1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-        
-        .delete-cat {
-            background: #ff4040;
-            color: white;
-            border: none;
-            width: 22px;
-            height: 22px;
-            border-radius: 50%;
-            cursor: pointer;
-        }
-        
-        .add-category-form {
-            display: flex;
-            gap: 0.5rem;
-            margin-top: 1rem;
-        }
-        
-        .add-category-form input {
-            flex: 1;
-            padding: 0.6rem;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid #bf40ff;
-            border-radius: 8px;
-            color: white;
-        }
-        
-        /* Product Form */
-        .product-form {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1rem;
-        }
-        
-        .form-group {
-            display: flex;
-            flex-direction: column;
-            gap: 0.5rem;
-        }
-        
-        .form-group label {
-            color: #bf40ff;
-            font-weight: bold;
-        }
-        
-        .form-group input, .form-group select {
-            padding: 0.6rem;
-            background: rgba(0,0,0,0.5);
-            border: 1px solid #bf40ff;
-            border-radius: 8px;
-            color: white;
-        }
-        
-        .submit-btn {
-            background: #bf40ff;
-            color: white;
-            border: none;
-            padding: 0.8rem;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            width: 100%;
-        }
-        
-        /* Products Table */
-        .products-table {
-            overflow-x: auto;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        th, td {
-            padding: 0.8rem;
-            text-align: left;
-            border-bottom: 1px solid rgba(191, 64, 255, 0.3);
-        }
-        
-        th {
-            color: #bf40ff;
-        }
-        
-        .product-img {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 8px;
-        }
-        
-        .edit-btn, .delete-btn {
-            padding: 0.3rem 0.8rem;
-            margin: 0 0.2rem;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        
-        .edit-btn {
-            background: #ffa500;
-            color: white;
-        }
-        
-        .delete-btn {
-            background: #ff4040;
-            color: white;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 2rem;
-            color: #bf40ff;
-        }
-        
-        @media (max-width: 768px) {
-            .product-form {
-                grid-template-columns: 1fr;
-            }
-            th, td {
-                padding: 0.5rem;
-                font-size: 0.8rem;
-            }
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:Arial;background:linear-gradient(135deg,#0a0a2a,#1a0033);color:#fff;padding:15px}
+        .container{max-width:1200px;margin:0 auto}
+        .header{background:rgba(191,64,255,0.2);padding:12px;border-radius:10px;margin-bottom:15px;display:flex;justify-content:space-between;align-items:center}
+        .header h1{color:#bf40ff;font-size:18px}
+        .logout-btn{background:#ff4040;color:white;border:none;padding:6px 15px;border-radius:20px;cursor:pointer}
+        .section{background:rgba(255,255,255,0.1);border-radius:10px;padding:15px;margin-bottom:15px}
+        .section h2{color:#bf40ff;font-size:16px;margin-bottom:10px;border-bottom:1px solid #bf40ff;padding-bottom:5px}
+        input,button{padding:8px;margin:4px;border-radius:5px;border:none;width:calc(100% - 8px)}
+        button{background:#bf40ff;color:white;cursor:pointer}
+        table{width:100%;border-collapse:collapse;font-size:12px}
+        th,td{padding:8px;text-align:left;border-bottom:1px solid rgba(191,64,255,0.3)}
+        th{color:#bf40ff}
+        .product-img{width:40px;height:40px;object-fit:cover;border-radius:5px}
+        .form-group{margin-bottom:8px}
+        .form-group label{display:block;margin-bottom:3px;color:#bf40ff;font-size:12px}
+        .edit-btn,.delete-btn{padding:4px 8px;margin:2px;border:none;border-radius:4px;cursor:pointer}
+        .edit-btn{background:#ffa500;color:white}
+        .delete-btn{background:#ff4040;color:white}
+        .loading{text-align:center;padding:20px;color:#bf40ff}
+        .categories-grid{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:10px}
+        .category-card{background:rgba(191,64,255,0.2);padding:4px 12px;border-radius:20px;display:inline-flex;align-items:center;gap:6px}
+        .del-cat{background:#ff4040;color:white;border:none;border-radius:50%;width:18px;height:18px;cursor:pointer;font-size:10px}
+        .add-form{display:flex;gap:8px;margin-top:10px}
+        .add-form input{flex:1;background:rgba(0,0,0,0.5);color:white;border:1px solid #bf40ff}
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>👑 NEON MARKET | Admin Panel</h1>
-            <button class="logout-btn" onclick="logout()">🚪 Chiqish</button>
-        </div>
-        
-        <!-- Kategoriyalar Bo'limi -->
-        <div class="section">
-            <h2 class="section-title">📁 Kategoriyalar</h2>
-            <div id="categoriesList" class="categories-grid"></div>
-            <div class="add-category-form">
-                <input type="text" id="newCategoryName" placeholder="Yangi kategoriya nomi...">
-                <button onclick="addCategory()" style="background:#bf40ff; padding:0.6rem 1.2rem; border:none; border-radius:8px; cursor:pointer;">➕ Qo'shish</button>
-            </div>
-        </div>
-        
-        <!-- Mahsulot Qo'shish Bo'limi -->
-        <div class="section">
-            <h2 class="section-title">➕ Mahsulot qo'shish</h2>
-            <div class="product-form">
-                <div class="form-group">
-                    <label>🖼 Rasm URL</label>
-                    <input type="text" id="productImage" placeholder="https://...">
-                </div>
-                <div class="form-group">
-                    <label>📦 Mahsulot nomi</label>
-                    <input type="text" id="productName" placeholder="Masalan: Sport ko'ylak">
-                </div>
-                <div class="form-group">
-                    <label>💰 Narx (so'm)</label>
-                    <input type="number" id="productPrice" placeholder="Masalan: 380000">
-                </div>
-                <div class="form-group">
-                    <label>📏 Razmer</label>
-                    <input type="text" id="productSize" placeholder="Masalan: L, XL, 42">
-                </div>
-                <div class="form-group">
-                    <label>🎂 Yosh</label>
-                    <input type="text" id="productAge" placeholder="Masalan: 7-10 yosh">
-                </div>
-                <div class="form-group">
-                    <label>📁 Kategoriya</label>
-                    <select id="productCategory"></select>
-                </div>
-            </div>
-            <button class="submit-btn" onclick="addProduct()">✅ Mahsulot qo'shish</button>
-        </div>
-        
-        <!-- Mahsulotlar Ro'yxati -->
-        <div class="section">
-            <h2 class="section-title">📦 Barcha mahsulotlar</h2>
-            <div class="products-table" id="productsTable">
-                <div class="loading">⏳ Yuklanmoqda...</div>
-            </div>
-        </div>
+<div class="container">
+    <div class="header"><h1>👑 Admin Panel</h1><button class="logout-btn" onclick="logout()">Chiqish</button></div>
+    
+    <div class="section"><h2>📁 Kategoriyalar</h2><div id="categoriesList" class="categories-grid"></div><div class="add-form"><input type="text" id="newCat" placeholder="Yangi kategoriya"><button onclick="addCategory()">Qo'shish</button></div></div>
+    
+    <div class="section"><h2>➕ Mahsulot qo'shish</h2>
+        <div class="form-group"><label>Rasm URL</label><input type="text" id="imgUrl" placeholder="https://..."></div>
+        <div class="form-group"><label>Nomi</label><input type="text" id="name" placeholder="Ko'ylak"></div>
+        <div class="form-group"><label>Narx (so'm)</label><input type="number" id="price" placeholder="380000"></div>
+        <div class="form-group"><label>Razmer</label><input type="text" id="size" placeholder="L"></div>
+        <div class="form-group"><label>Yosh</label><input type="text" id="age" placeholder="7"></div>
+        <div class="form-group"><label>Kategoriya</label><select id="category"></select></div>
+        <button onclick="addProduct()">✅ Qo'shish</button>
     </div>
     
-    <script src="config.js"></script>
-    <script>
-        // ============ FIREBASE ============
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
-        
-        // ============ GLOBAL ============
-        let categories = ["Kiyimlar", "Oyoq kiyimlar", "Aksessuarlar"];
-        let products = [];
-        
-        // ============ KATEGORIYALAR ============
-        function loadCategories() {
-            database.ref('categories').on('value', (snapshot) => {
-                const data = snapshot.val();
-                if (data && Array.isArray(data)) {
-                    categories = data;
-                } else if (data && typeof data === 'object') {
-                    categories = Object.values(data);
-                }
-                displayCategories();
-            });
-        }
-        
-        function displayCategories() {
-            const container = document.getElementById('categoriesList');
-            container.innerHTML = categories.map(cat => `
-                <div class="category-card">
-                    ${cat}
-                    <button class="delete-cat" onclick="deleteCategory('${cat}')">✖</button>
-                </div>
-            `).join('');
-            
-            const select = document.getElementById('productCategory');
-            select.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
-        }
-        
-        function addCategory() {
-            const newCat = document.getElementById('newCategoryName').value.trim();
-            if (!newCat) {
-                alert('Kategoriya nomini kiriting!');
-                return;
-            }
-            if (categories.includes(newCat)) {
-                alert('Bu kategoriya allaqachon mavjud!');
-                return;
-            }
-            categories.push(newCat);
-            database.ref('categories').set(categories);
-            document.getElementById('newCategoryName').value = '';
-            alert('✅ Kategoriya qo\'shildi!');
-        }
-        
-        function deleteCategory(category) {
-            if (!confirm(`"${category}" kategoriyasini o'chirmoqchimisiz?`)) return;
-            categories = categories.filter(c => c !== category);
-            database.ref('categories').set(categories);
-            alert('✅ Kategoriya o\'chirildi!');
-        }
-        
-        // ============ MAHSULOTLAR ============
-        function loadProducts() {
-            database.ref('products').on('value', (snapshot) => {
-                const data = snapshot.val();
-                products = data ? Object.values(data) : [];
-                displayProducts();
-            });
-        }
-        
-        function displayProducts() {
-            const container = document.getElementById('productsTable');
-            if (products.length === 0) {
-                container.innerHTML = '<div class="loading">📭 Hozircha mahsulot yo\'q</div>';
-                return;
-            }
-            
-            container.innerHTML = `
-                <table>
-                    <thead>
-                        <tr><th>Rasm</th><th>Nomi</th><th>Narx</th><th>Razmer</th><th>Yosh</th><th>Kategoriya</th><th>Amallar</th></tr>
-                    </thead>
-                    <tbody>
-                        ${products.map(product => `
-                            <tr>
-                                <td><img class="product-img" src="${product.image_url}" onerror="this.src='https://placehold.co/50/bf40ff/white?text=?'"></td>
-                                <td><strong>${escapeHtml(product.name)}</strong></td>
-                                <td style="color:#bf40ff;">${(product.price || 0).toLocaleString()} so'm</td>
-                                <td>${product.size || '-'}</td>
-                                <td>${product.age || '-'}</td>
-                                <td>${product.category || '-'}</td>
-                                <td>
-                                    <button class="edit-btn" onclick="editProduct('${product.id}')">✏️</button>
-                                    <button class="delete-btn" onclick="deleteProduct('${product.id}')">🗑️</button>
-                                </td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            `;
-        }
-        
-        function escapeHtml(text) {
-            if (!text) return '';
-            return text.replace(/[&<>]/g, function(m) {
-                if (m === '&') return '&amp;';
-                if (m === '<') return '&lt;';
-                if (m === '>') return '&gt;';
-                return m;
-            });
-        }
-        
-        function addProduct() {
-            const id = `prod_${Date.now()}`;
-            const name = document.getElementById('productName').value;
-            const price = parseInt(document.getElementById('productPrice').value);
-            const size = document.getElementById('productSize').value;
-            const age = document.getElementById('productAge').value;
-            const category = document.getElementById('productCategory').value;
-            const image_url = document.getElementById('productImage').value || 'https://placehold.co/400x400/bf40ff/white?text=NO+IMAGE';
-            
-            if (!name || !price) {
-                alert('Mahsulot nomi va narxini kiriting!');
-                return;
-            }
-            
-            const product = {
-                id: id,
-                name: name,
-                price: price,
-                size: size,
-                age: age,
-                category: category,
-                image_url: image_url,
-                created_at: new Date().toISOString()
-            };
-            
-            database.ref(`products/${id}`).set(product);
-            alert('✅ Mahsulot qo\'shildi!');
-            
-            // Formani tozalash
-            document.getElementById('productName').value = '';
-            document.getElementById('productPrice').value = '';
-            document.getElementById('productSize').value = '';
-            document.getElementById('productAge').value = '';
-            document.getElementById('productImage').value = '';
-        }
-        
-        function editProduct(id) {
-            database.ref(`products/${id}`).once('value', (snapshot) => {
-                const p = snapshot.val();
-                if (!p) return;
-                
-                const newName = prompt('Yangi nom:', p.name);
-                const newPrice = prompt('Yangi narx:', p.price);
-                const newSize = prompt('Yangi razmer:', p.size || '');
-                const newAge = prompt('Yangi yosh:', p.age || '');
-                const newCategory = prompt('Yangi kategoriya:', p.category || 'Kiyimlar');
-                
-                if (newName && newPrice) {
-                    database.ref(`products/${id}`).update({
-                        name: newName,
-                        price: parseInt(newPrice),
-                        size: newSize,
-                        age: newAge,
-                        category: newCategory
-                    });
-                    alert('✅ Mahsulot yangilandi!');
-                }
-            });
-        }
-        
-        function deleteProduct(id) {
-            if (confirm('Mahsulotni o\'chirmoqchimisiz?')) {
-                database.ref(`products/${id}`).remove();
-                alert('✅ Mahsulot o\'chirildi!');
-            }
-        }
-        
-        function logout() {
-            window.location.href = '/';
-        }
-        
-        // ============ BOSHLASH ============
-        loadCategories();
-        loadProducts();
-    </script>
+    <div class="section"><h2>📦 Mahsulotlar</h2><div id="productsTable"><div class="loading">⏳ Yuklanmoqda...</div></div></div>
+</div>
+
+<script>
+let products = [];
+let categories = ["Kiyimlar","Oyoq kiyimlar","Aksessuarlar"];
+
+async function loadData(){
+    try{
+        let r=await fetch('/api/products');
+        products=await r.json();
+        let c=await fetch('/api/categories');
+        let catData=await c.json();
+        if(catData.length) categories=catData;
+    }catch(e){
+        let localP=localStorage.getItem('products');
+        if(localP) products=JSON.parse(localP);
+        let localC=localStorage.getItem('categories');
+        if(localC) categories=JSON.parse(localC);
+    }
+    displayCategories();
+    displayProducts();
+}
+
+function displayCategories(){
+    let container=document.getElementById('categoriesList');
+    container.innerHTML=categories.map(c=>`<div class="category-card">${c}<button class="del-cat" onclick="deleteCategory('${c}')">✖</button></div>`).join('');
+    let select=document.getElementById('category');
+    select.innerHTML=categories.map(c=>`<option value="${c}">${c}</option>`).join('');
+}
+
+function addCategory(){
+    let newCat=document.getElementById('newCat').value.trim();
+    if(!newCat) return;
+    categories.push(newCat);
+    localStorage.setItem('categories',JSON.stringify(categories));
+    displayCategories();
+    document.getElementById('newCat').value='';
+    try{fetch('/api/categories',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({categories})});}catch(e){}
+}
+
+function deleteCategory(cat){
+    if(!confirm(`"${cat}" o'chirilsinmi?`)) return;
+    categories=categories.filter(c=>c!==cat);
+    localStorage.setItem('categories',JSON.stringify(categories));
+    displayCategories();
+}
+
+function displayProducts(){
+    let container=document.getElementById('productsTable');
+    if(products.length===0){container.innerHTML='<div class="loading">📭 Mahsulot yo\'q</div>';return;}
+    container.innerHTML=`<table><thead><tr><th>Rasm</th><th>Nomi</th><th>Narx</th><th>Razmer</th><th>Yosh</th><th>Kategoriya</th><th>Amallar</th></tr></thead><tbody>${products.map(p=>`<tr><td><img class="product-img" src="${p.image_url}" onerror="this.src='https://placehold.co/40/bf40ff/white?text=?'"></td><td><b>${p.name}</b></td><td style="color:#bf40ff;">${(p.price||0).toLocaleString()} so'm</td><td>${p.size||'-'}</td><td>${p.age||'-'}</td><td>${p.category||'-'}</td><td><button class="edit-btn" onclick="editProduct('${p.id}')">✏️</button><button class="delete-btn" onclick="deleteProduct('${p.id}')">🗑️</button></td></tr>`).join('')}</tbody></table>`;
+}
+
+function addProduct(){
+    let id='prod_'+Date.now();
+    let name=document.getElementById('name').value;
+    let price=parseInt(document.getElementById('price').value);
+    let size=document.getElementById('size').value;
+    let age=document.getElementById('age').value;
+    let category=document.getElementById('category').value;
+    let imgUrl=document.getElementById('imgUrl').value||'https://placehold.co/400x400/bf40ff/white?text=NO';
+    if(!name||!price){alert('Nomi va narxni kiriting!');return;}
+    let newP={id,name,price,size,age,category,image_url:imgUrl,created_at:new Date().toISOString()};
+    products.push(newP);
+    localStorage.setItem('products',JSON.stringify(products));
+    try{fetch('/api/products',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(newP)});}catch(e){}
+    alert('✅ Qo\'shildi!');
+    document.getElementById('name').value='';document.getElementById('price').value='';document.getElementById('size').value='';document.getElementById('age').value='';document.getElementById('imgUrl').value='';
+    displayProducts();
+}
+
+function editProduct(id){
+    let p=products.find(p=>p.id===id);
+    if(!p) return;
+    let newName=prompt('Yangi nom:',p.name);
+    let newPrice=prompt('Yangi narx:',p.price);
+    if(newName&&newPrice){
+        p.name=newName; p.price=parseInt(newPrice);
+        localStorage.setItem('products',JSON.stringify(products));
+        displayProducts();
+        alert('✅ Yangilandi!');
+    }
+}
+
+function deleteProduct(id){
+    if(confirm('O\'chirilsinmi?')){
+        products=products.filter(p=>p.id!==id);
+        localStorage.setItem('products',JSON.stringify(products));
+        displayProducts();
+        alert('✅ O\'chirildi!');
+    }
+}
+
+function logout(){window.location.href='/';}
+loadData();
+</script>
 </body>
 </html>
