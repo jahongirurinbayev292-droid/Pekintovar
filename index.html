@@ -5,235 +5,43 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NEON MARKET</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(135deg, #0a0a2a, #1a0033);
-            color: #fff;
-            min-height: 100vh;
-        }
-        .header {
-            background: rgba(0,0,0,0.85);
-            padding: 12px 16px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #bf40ff;
-            position: sticky;
-            top: 0;
-        }
-        .logo {
-            color: #bf40ff;
-            font-size: 20px;
-            font-weight: bold;
-        }
-        .nav-btn {
-            background: rgba(191,64,255,0.2);
-            border: 1px solid #bf40ff;
-            color: #bf40ff;
-            padding: 6px 12px;
-            border-radius: 20px;
-            cursor: pointer;
-            margin-left: 5px;
-        }
-        .products-grid {
-            max-width: 1200px;
-            margin: 20px auto;
-            padding: 0 12px;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 16px;
-        }
-        @media (max-width: 800px) {
-            .products-grid {
-                grid-template-columns: repeat(2, 1fr);
-            }
-        }
-        @media (max-width: 500px) {
-            .products-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        .product-card {
-            background: rgba(255,255,255,0.08);
-            border-radius: 12px;
-            overflow: hidden;
-            cursor: pointer;
-            border: 1px solid rgba(191,64,255,0.3);
-            transition: 0.2s;
-        }
-        .product-card:hover {
-            transform: translateY(-3px);
-            border-color: #bf40ff;
-        }
-        .product-image {
-            width: 100%;
-            height: 180px;
-            object-fit: cover;
-        }
-        .product-info {
-            padding: 10px;
-        }
-        .product-name {
-            font-size: 14px;
-            font-weight: bold;
-        }
-        .product-price {
-            color: #bf40ff;
-            font-size: 16px;
-            font-weight: bold;
-            margin: 5px 0;
-        }
-        .product-meta {
-            font-size: 11px;
-            color: rgba(255,255,255,0.6);
-        }
-        .card-buttons {
-            display: flex;
-            gap: 8px;
-            margin-top: 8px;
-        }
-        .btn {
-            flex: 1;
-            padding: 6px;
-            border: none;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 11px;
-            font-weight: bold;
-        }
-        .btn-wishlist {
-            background: rgba(255,64,64,0.2);
-            color: #ff6b6b;
-            border: 1px solid #ff6b6b;
-        }
-        .btn-cart {
-            background: rgba(191,64,255,0.2);
-            color: #bf40ff;
-            border: 1px solid #bf40ff;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.9);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-        .modal-content {
-            background: #1a0033;
-            border-radius: 15px;
-            width: 90%;
-            max-width: 350px;
-            padding: 15px;
-            border: 2px solid #bf40ff;
-        }
-        .modal-content img {
-            width: 100%;
-            border-radius: 10px;
-        }
-        .close {
-            float: right;
-            font-size: 24px;
-            cursor: pointer;
-            color: #bf40ff;
-        }
-        .sidebar {
-            position: fixed;
-            right: -100%;
-            top: 0;
-            width: 100%;
-            max-width: 350px;
-            height: 100%;
-            background: rgba(10,10,30,0.98);
-            z-index: 1001;
-            transition: 0.3s;
-            padding: 15px;
-            border-left: 2px solid #bf40ff;
-            overflow-y: auto;
-        }
-        .sidebar.active {
-            right: 0;
-        }
-        .sidebar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #bf40ff;
-            padding-bottom: 8px;
-        }
-        .sidebar-header h2 {
-            color: #bf40ff;
-            font-size: 18px;
-        }
-        .sidebar-close {
-            font-size: 24px;
-            cursor: pointer;
-            color: #bf40ff;
-        }
-        .cart-item, .wishlist-item {
-            background: rgba(191,64,255,0.1);
-            margin-bottom: 10px;
-            padding: 8px;
-            border-radius: 8px;
-            display: flex;
-            gap: 8px;
-            align-items: center;
-        }
-        .item-image {
-            width: 50px;
-            height: 50px;
-            object-fit: cover;
-            border-radius: 6px;
-        }
-        .item-info {
-            flex: 1;
-        }
-        .item-name {
-            font-weight: bold;
-            font-size: 13px;
-        }
-        .item-price {
-            color: #bf40ff;
-            font-size: 12px;
-        }
-        .delete-btn {
-            background: #ff4040;
-            color: white;
-            border: none;
-            padding: 4px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        .checkout-btn {
-            background: #bf40ff;
-            color: white;
-            width: 100%;
-            padding: 10px;
-            border: none;
-            border-radius: 8px;
-            margin-top: 12px;
-            cursor: pointer;
-        }
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #bf40ff;
-        }
-        .empty {
-            text-align: center;
-            padding: 20px;
-            color: rgba(255,255,255,0.5);
-        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        body{font-family:Arial;background:linear-gradient(135deg,#0a0a2a,#1a0033);color:#fff;min-height:100vh}
+        .header{background:rgba(0,0,0,0.85);padding:12px 16px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid #bf40ff;position:sticky;top:0}
+        .logo{color:#bf40ff;font-size:20px;font-weight:bold}
+        .nav-btn{background:rgba(191,64,255,0.2);border:1px solid #bf40ff;color:#bf40ff;padding:6px 12px;border-radius:20px;cursor:pointer;margin-left:5px}
+        .products-grid{max-width:1200px;margin:20px auto;padding:0 12px;display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+        @media(max-width:800px){.products-grid{grid-template-columns:repeat(2,1fr)}}
+        @media(max-width:500px){.products-grid{grid-template-columns:1fr}}
+        .product-card{background:rgba(255,255,255,0.08);border-radius:12px;overflow:hidden;cursor:pointer;border:1px solid rgba(191,64,255,0.3);transition:0.2s}
+        .product-card:hover{transform:translateY(-3px);border-color:#bf40ff}
+        .product-image{width:100%;height:180px;object-fit:cover;background:#2a1a3a}
+        .product-info{padding:10px}
+        .product-name{font-size:14px;font-weight:bold}
+        .product-price{color:#bf40ff;font-size:16px;font-weight:bold;margin:5px 0}
+        .product-meta{font-size:11px;color:rgba(255,255,255,0.6)}
+        .card-buttons{display:flex;gap:8px;margin-top:8px}
+        .btn{flex:1;padding:6px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:bold}
+        .btn-wishlist{background:rgba(255,64,64,0.2);color:#ff6b6b;border:1px solid #ff6b6b}
+        .btn-cart{background:rgba(191,64,255,0.2);color:#bf40ff;border:1px solid #bf40ff}
+        .modal{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);justify-content:center;align-items:center;z-index:1000}
+        .modal-content{background:#1a0033;border-radius:15px;width:90%;max-width:350px;padding:15px;border:2px solid #bf40ff}
+        .modal-content img{width:100%;border-radius:10px}
+        .close{float:right;font-size:24px;cursor:pointer;color:#bf40ff}
+        .sidebar{position:fixed;right:-100%;top:0;width:100%;max-width:350px;height:100%;background:rgba(10,10,30,0.98);z-index:1001;transition:0.3s;padding:15px;border-left:2px solid #bf40ff;overflow-y:auto}
+        .sidebar.active{right:0}
+        .sidebar-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:15px;border-bottom:1px solid #bf40ff;padding-bottom:8px}
+        .sidebar-header h2{color:#bf40ff;font-size:18px}
+        .sidebar-close{font-size:24px;cursor:pointer;color:#bf40ff}
+        .cart-item,.wishlist-item{background:rgba(191,64,255,0.1);margin-bottom:10px;padding:8px;border-radius:8px;display:flex;gap:8px;align-items:center}
+        .item-image{width:50px;height:50px;object-fit:cover;border-radius:6px}
+        .item-info{flex:1}
+        .item-name{font-weight:bold;font-size:13px}
+        .item-price{color:#bf40ff;font-size:12px}
+        .delete-btn{background:#ff4040;color:white;border:none;padding:4px 10px;border-radius:5px;cursor:pointer}
+        .checkout-btn{background:#bf40ff;color:white;width:100%;padding:10px;border:none;border-radius:8px;margin-top:12px;cursor:pointer}
+        .loading{text-align:center;padding:40px;color:#bf40ff}
+        .empty{text-align:center;padding:20px;color:rgba(255,255,255,0.5)}
     </style>
 </head>
 <body>
@@ -266,47 +74,47 @@
 </div>
 
 <div id="wishlistSidebar" class="sidebar">
-    <div class="sidebar-header">
-        <h2>⭐ Istaklar</h2>
-        <span class="sidebar-close" onclick="closeWishlist()">&times;</span>
-    </div>
+    <div class="sidebar-header"><h2>⭐ Istaklar</h2><span class="sidebar-close" onclick="closeWishlist()">&times;</span></div>
     <div id="wishlistItems"></div>
 </div>
 
 <div id="cartSidebar" class="sidebar">
-    <div class="sidebar-header">
-        <h2>🛒 Savatcha</h2>
-        <span class="sidebar-close" onclick="closeCart()">&times;</span>
-    </div>
+    <div class="sidebar-header"><h2>🛒 Savatcha</h2><span class="sidebar-close" onclick="closeCart()">&times;</span></div>
     <div id="cartItems"></div>
     <div id="cartTotal"></div>
     <button class="checkout-btn" onclick="checkout()">✅ Buyurtma</button>
 </div>
 
 <div id="settingsSidebar" class="sidebar">
-    <div class="sidebar-header">
-        <h2>⚙️ Sozlamalar</h2>
-        <span class="sidebar-close" onclick="closeSettings()">&times;</span>
-    </div>
+    <div class="sidebar-header"><h2>⚙️ Sozlamalar</h2><span class="sidebar-close" onclick="closeSettings()">&times;</span></div>
     <button class="checkout-btn" onclick="goAdmin()">👑 Admin panel</button>
+    <button class="checkout-btn" onclick="addTestProduct()" style="margin-top:10px;background:#ff69b4">➕ Test mahsulot</button>
 </div>
 
 <script>
+// ============ MAHSULOTLAR ============
 let products = [];
 let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
 let cart = JSON.parse(localStorage.getItem('cart') || '[]');
 let current = null;
 
+// TEST MAHSULOTLAR (RASMLI)
+const testProducts = [
+    {id:'p1', name:'Sport ko\'ylak', price:380000, size:'L', age:'7-10', image_url:'https://picsum.photos/id/20/300/200'},
+    {id:'p2', name:'Krasovkalar', price:450000, size:'38', age:'10-12', image_url:'https://picsum.photos/id/21/300/200'},
+    {id:'p3', name:'Soat', price:120000, size:'Universal', age:'8+', image_url:'https://picsum.photos/id/22/300/200'},
+    {id:'p4', name:'Shim', price:250000, size:'M', age:'8-10', image_url:'https://picsum.photos/id/23/300/200'},
+    {id:'p5', name:'Futbolka', price:180000, size:'XL', age:'12-14', image_url:'https://picsum.photos/id/24/300/200'},
+    {id:'p6', name:'Sumka', price:320000, size:'One', age:'10+', image_url:'https://picsum.photos/id/25/300/200'}
+];
+
+// YUKLASH
 function loadProducts() {
     let saved = localStorage.getItem('products');
-    if (saved) {
+    if(saved && saved !== '[]') {
         products = JSON.parse(saved);
     } else {
-        products = [
-            {id:'1', name:'Sport ko\'ylak', price:380000, size:'L', age:'7-10', image_url:'https://placehold.co/300x300/bf40ff/white?text=1'},
-            {id:'2', name:'Krasovkalar', price:450000, size:'38', age:'10-12', image_url:'https://placehold.co/300x300/bf40ff/white?text=2'},
-            {id:'3', name:'Soat', price:120000, size:'Universal', age:'8+', image_url:'https://placehold.co/300x300/bf40ff/white?text=3'}
-        ];
+        products = [...testProducts];
         localStorage.setItem('products', JSON.stringify(products));
     }
     displayProducts();
@@ -315,17 +123,17 @@ function loadProducts() {
 
 function displayProducts() {
     let grid = document.getElementById('grid');
-    if (products.length === 0) {
-        grid.innerHTML = '<div class="loading">📭 Mahsulot yo\'q</div>';
+    if(products.length === 0) {
+        grid.innerHTML = '<div class="loading">📭 Mahsulot yo\'q<br><br>"Test mahsulot" tugmasini bosing</div>';
         return;
     }
     grid.innerHTML = products.map(p => `
         <div class="product-card" onclick="openModal('${p.id}')">
-            <img class="product-image" src="${p.image_url}">
+            <img class="product-image" src="${p.image_url}" onerror="this.src='https://picsum.photos/id/1/300/200'">
             <div class="product-info">
                 <div class="product-name">${p.name}</div>
-                <div class="product-price">${p.price.toLocaleString()} so'm</div>
-                <div class="product-meta">📏 ${p.size} | 🎂 ${p.age}</div>
+                <div class="product-price">${(p.price||0).toLocaleString()} so'm</div>
+                <div class="product-meta">📏 ${p.size||'-'} | 🎂 ${p.age||'-'}</div>
                 <div class="card-buttons">
                     <button class="btn btn-wishlist" onclick="event.stopPropagation(); addWishlist('${p.id}')">⭐</button>
                     <button class="btn btn-cart" onclick="event.stopPropagation(); addCart('${p.id}')">🛒</button>
@@ -340,94 +148,78 @@ function updateCounts() {
     document.getElementById('cc').innerText = cart.length;
 }
 
+// MODAL
 function openModal(id) {
     current = products.find(p => p.id === id);
-    if (!current) return;
+    if(!current) return;
     document.getElementById('mImg').src = current.image_url;
     document.getElementById('mName').innerText = current.name;
-    document.getElementById('mPrice').innerHTML = `${current.price.toLocaleString()} so'm`;
-    document.getElementById('mSize').innerText = current.size;
-    document.getElementById('mAge').innerText = current.age;
+    document.getElementById('mPrice').innerHTML = `${(current.price||0).toLocaleString()} so'm`;
+    document.getElementById('mSize').innerText = current.size || '-';
+    document.getElementById('mAge').innerText = current.age || '-';
     document.getElementById('modal').style.display = 'flex';
 }
+function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
-function closeModal() {
-    document.getElementById('modal').style.display = 'none';
-}
-
+// WISHLIST
 function addWishlist(id) {
     let p = products.find(p => p.id === id);
-    if (!wishlist.find(w => w.id === id)) {
+    if(!wishlist.find(w => w.id === id)) {
         wishlist.push(p);
         localStorage.setItem('wishlist', JSON.stringify(wishlist));
         updateCounts();
         alert('⭐ Qo\'shildi');
-    }
+    } else { alert('⚠️ Bor'); }
 }
-
-function addWishlistModal() {
-    addWishlist(current.id);
-}
+function addWishlistModal() { addWishlist(current.id); }
 
 function openWishlist() {
     let c = document.getElementById('wishlistItems');
-    if (wishlist.length === 0) {
-        c.innerHTML = '<div class="empty">⭐ Bo\'sh</div>';
-    } else {
+    if(wishlist.length === 0) { c.innerHTML = '<div class="empty">⭐ Bo\'sh</div>'; }
+    else {
         c.innerHTML = wishlist.map(i => `
             <div class="cart-item">
                 <img class="item-image" src="${i.image_url}">
-                <div class="item-info">
-                    <div class="item-name">${i.name}</div>
-                    <div class="item-price">${i.price.toLocaleString()} so'm</div>
-                </div>
+                <div class="item-info"><div class="item-name">${i.name}</div><div class="item-price">${(i.price||0).toLocaleString()} so'm</div></div>
                 <button class="delete-btn" onclick="removeWishlist('${i.id}')">❌</button>
             </div>
         `).join('');
     }
     document.getElementById('wishlistSidebar').classList.add('active');
 }
-
 function removeWishlist(id) {
     wishlist = wishlist.filter(w => w.id !== id);
     localStorage.setItem('wishlist', JSON.stringify(wishlist));
     updateCounts();
     openWishlist();
 }
+function closeWishlist() { document.getElementById('wishlistSidebar').classList.remove('active'); }
 
-function closeWishlist() {
-    document.getElementById('wishlistSidebar').classList.remove('active');
-}
-
+// CART
 function addCart(id) {
     let p = products.find(p => p.id === id);
-    if (!cart.find(c => c.id === id)) {
+    if(!cart.find(c => c.id === id)) {
         cart.push(p);
         localStorage.setItem('cart', JSON.stringify(cart));
         updateCounts();
         alert('🛒 Qo\'shildi');
-    }
+    } else { alert('⚠️ Bor'); }
 }
-
-function addCartModal() {
-    addCart(current.id);
-}
+function addCartModal() { addCart(current.id); }
 
 function openCart() {
     let c = document.getElementById('cartItems');
     let t = document.getElementById('cartTotal');
-    if (cart.length === 0) {
-        c.innerHTML = '<div class="empty">🛒 Bo\'sh</div>';
-        t.innerHTML = '';
-    } else {
-        let total = cart.reduce((s, i) => s + i.price, 0);
+    if(cart.length === 0) { c.innerHTML = '<div class="empty">🛒 Bo\'sh</div>'; t.innerHTML = ''; }
+    else {
+        let total = cart.reduce((s,i) => s + (i.price||0), 0);
         c.innerHTML = cart.map(i => `
             <div class="cart-item">
                 <img class="item-image" src="${i.image_url}">
                 <div class="item-info">
                     <div class="item-name">${i.name}</div>
-                    <div class="item-price">${i.price.toLocaleString()} so'm</div>
-                    <div style="font-size:10px">📏 ${i.size} | 🎂 ${i.age}</div>
+                    <div class="item-price">${(i.price||0).toLocaleString()} so'm</div>
+                    <div style="font-size:10px">📏 ${i.size||'-'} | 🎂 ${i.age||'-'}</div>
                 </div>
                 <button class="delete-btn" onclick="removeCart('${i.id}')">❌</button>
             </div>
@@ -436,24 +228,17 @@ function openCart() {
     }
     document.getElementById('cartSidebar').classList.add('active');
 }
-
 function removeCart(id) {
     cart = cart.filter(c => c.id !== id);
     localStorage.setItem('cart', JSON.stringify(cart));
     updateCounts();
     openCart();
 }
-
-function closeCart() {
-    document.getElementById('cartSidebar').classList.remove('active');
-}
+function closeCart() { document.getElementById('cartSidebar').classList.remove('active'); }
 
 function checkout() {
-    if (cart.length === 0) {
-        alert('Savatcha bo\'sh');
-        return;
-    }
-    let total = cart.reduce((s, i) => s + i.price, 0);
+    if(cart.length === 0) { alert('Savatcha bo\'sh'); return; }
+    let total = cart.reduce((s,i) => s + (i.price||0), 0);
     alert(`✅ Buyurtma qabul qilindi!\nJami: ${total.toLocaleString()} so'm`);
     cart = [];
     localStorage.setItem('cart', JSON.stringify(cart));
@@ -461,23 +246,36 @@ function checkout() {
     closeCart();
 }
 
-function openSettings() {
-    document.getElementById('settingsSidebar').classList.add('active');
-}
-
-function closeSettings() {
-    document.getElementById('settingsSidebar').classList.remove('active');
-}
+// SOZLAMALAR
+function openSettings() { document.getElementById('settingsSidebar').classList.add('active'); }
+function closeSettings() { document.getElementById('settingsSidebar').classList.remove('active'); }
 
 function goAdmin() {
     let pass = prompt('🔐 Parol:');
-    if (pass === '4321') {
+    if(pass === '4321') {
         window.location.href = '/admin.html';
     } else {
         alert('❌ Parol xato!');
     }
 }
 
+function addTestProduct() {
+    let newId = 'prod_' + Date.now();
+    let newProduct = {
+        id: newId,
+        name: 'Yangi mahsulot',
+        price: 99000,
+        size: 'M',
+        age: '6-8',
+        image_url: 'https://picsum.photos/id/' + (Math.floor(Math.random()*100) + 1) + '/300/200'
+    };
+    products.push(newProduct);
+    localStorage.setItem('products', JSON.stringify(products));
+    displayProducts();
+    alert('✅ Test mahsulot qo\'shildi!');
+}
+
+// BOSHLASH
 loadProducts();
 </script>
 </body>
